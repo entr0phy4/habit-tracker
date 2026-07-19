@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 2
-current_phase_name: Streaks & Statistics
+current_phase: 02
+current_phase_name: streaks-statistics
 status: executing
-stopped_at: Phase 2 context gathered
-last_updated: "2026-07-19T20:07:02.834Z"
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-07-19T20:08:46.732Z"
 last_activity: 2026-07-19
-last_activity_desc: Phase 01 complete, transitioned to Phase 2
+last_activity_desc: Phase 02 execution started
 progress:
   total_phases: 2
   completed_phases: 1
-  total_plans: 5
-  completed_plans: 5
+  total_plans: 9
+  completed_plans: 6
 ---
 
 # Project State
@@ -23,16 +23,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-19)
 
 **Core value:** Make it effortless to log habits daily and impossible to ignore your progress — one tap to check in, one glance to see your streak.
-**Current focus:** Phase 01 — habit-management-daily-logging
+**Current focus:** Phase 02 — streaks-statistics
 
 ## Current Position
 
-Phase: 2 — Streaks & Statistics
-Plan: Not started
+Phase: 02 (streaks-statistics) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-07-19 — Phase 01 complete, transitioned to Phase 2
+Last activity: 2026-07-19 — Phase 02 execution started
 
-Progress: [██████████] 100%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
@@ -63,6 +63,7 @@ Progress: [██████████] 100%
 | Phase 01-habit-management-daily-logging P03 | 8min | 3 tasks | 14 files |
 | Phase 01-habit-management-daily-logging P04 | 3min | 3 tasks | 6 files |
 | Phase 01-habit-management-daily-logging P05 | 3min | 2 tasks | 4 files |
+| Phase 02-streaks-statistics P01 | 5min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,8 @@ Recent decisions affecting current work:
 - [Phase ?]: useCompletions queries Dexie compound key between getLast7Days range
 - [Phase ?]: Error sentinel Symbol in useLiveQuery callback avoids dexie-react-hooks stuck undefined
 - [Phase ?]: Fixed UI-SPEC copy only — no raw Dexie exception text (T-01-11 mitigation)
+- [Phase ?]: D-15: skip today when due but incomplete — start backward walk from yesterday
+- [Phase ?]: getHabitStartDate uses getLocalDateString(new Date(createdAt)) — never UTC slice
 
 ### Pending Todos
 
@@ -105,6 +108,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-19T19:56:57.547Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-streaks-statistics/02-CONTEXT.md
+Last session: 2026-07-19T20:08:46.725Z
+Stopped at: Completed 02-01-PLAN.md
+Resume file: None

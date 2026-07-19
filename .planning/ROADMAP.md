@@ -74,12 +74,12 @@ Plans:
   4. User can see a weekly overview showing which scheduled days were completed or missed per habit
   5. Streak and stats update immediately when the user toggles a completion for today or a past day
 
-**Plans**: 4 plans
+**Plans**: 1/4 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 02-01-PLAN.md — TDD: schedule-aware streak domain (current + longest) with date iteration helpers
+- [x] 02-01-PLAN.md — TDD: schedule-aware streak domain (current + longest) with date iteration helpers
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -135,6 +135,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Habit Management & Daily Logging | 5/5 | Complete    | 2026-07-19 |
-| 2. Streaks & Statistics | 0/4 | Not started | - |
+| 2. Streaks & Statistics | 1/4 | In Progress|  |
 | 3. Dashboard & Progress Visualization | 0/TBD | Not started | - |
 | 4. Data Backup & Restore | 0/TBD | Not started | - |
