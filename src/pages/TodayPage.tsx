@@ -29,7 +29,7 @@ export function TodayPage() {
 
   if (state.status === 'error') {
     return (
-      <AppShell title="Today">
+      <AppShell title="Today" hasTabBar>
         <div className="flex min-h-[50dvh] flex-col items-center justify-center text-center">
           <p className="text-sm text-muted-foreground">
             Couldn't save your data. Try refreshing the page.
@@ -44,6 +44,7 @@ export function TodayPage() {
   return (
     <AppShell
       title="Today"
+      hasTabBar
       headerAction={
         <Link
           to="/habits/manage"
@@ -61,7 +62,7 @@ export function TodayPage() {
           </p>
         </div>
       ) : (
-        <ul className="flex flex-col gap-2 pb-12 md:pb-16">
+        <ul className="flex flex-col gap-2 pb-28">
           {todayHabits.map(({ habit, isCompleted }) => (
             <li key={habit.id}>
               <HabitRow
