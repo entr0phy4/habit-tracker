@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  getCalendarWeekDates,
   getLast7Days,
   getLocalDateString,
   getPreviousDay,
@@ -53,5 +54,15 @@ describe('iterateDaysInRange', () => {
   it('yields inclusive start and end dates', () => {
     const dates = [...iterateDaysInRange('2026-07-13', '2026-07-15')];
     expect(dates).toEqual(['2026-07-13', '2026-07-14', '2026-07-15']);
+  });
+});
+
+describe('getCalendarWeekDates', () => {
+  it('returns Mon–Sun calendar week containing today (D-09)', () => {
+    const fixedToday = new Date(2026, 6, 19);
+    const dates = getCalendarWeekDates(fixedToday);
+    expect(dates).toHaveLength(7);
+    expect(dates[0]).toBe('2026-07-13');
+    expect(dates[6]).toBe('2026-07-19');
   });
 });
