@@ -108,7 +108,7 @@ Plans:
   3. User can tap or click cells on the contribution grid to toggle completion for past dates
   4. Contribution grid and dashboard remain responsive and usable on mobile and desktop screens
 
-**Plans**: 3/4 plans executed
+**Plans**: 4/4 plans executed
 
 Plans:
 **Wave 1**
@@ -125,7 +125,7 @@ Plans:
 
 **Wave 4** *(blocked on Waves 1 + 2 completion)*
 
-- [ ] 03-04-PLAN.md — ContributionHeatmap + HabitHistoryPage; delete HistoryDotGrid (VIZ-01)
+- [x] 03-04-PLAN.md — ContributionHeatmap + HabitHistoryPage; delete HistoryDotGrid (VIZ-01)
 
 **UI hint**: yes
 
@@ -154,5 +154,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Habit Management & Daily Logging | 5/5 | Complete    | 2026-07-19 |
 | 2. Streaks & Statistics | 4/4 | In Progress|  |
-| 3. Dashboard & Progress Visualization | 3/4 | In Progress|  |
+| 3. Dashboard & Progress Visualization | 4/4 | In Progress|  |
 | 4. Data Backup & Restore | 0/TBD | Not started | - |
