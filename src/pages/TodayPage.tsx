@@ -1,19 +1,44 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router';
 import { AppShell } from '@/components/layout/AppShell';
 import { FloatingAddButton } from '@/components/habits/FloatingAddButton';
 import { HabitRow } from '@/components/habits/HabitRow';
+import { getLocalDateString } from '@/domain/dates';
 import { useTodayHabits } from '@/hooks/useTodayHabits';
 import { useToggleCompletion } from '@/hooks/useToggleCompletion';
 
 export function TodayPage() {
-  const todayHabits = useTodayHabits();
+  const [todayKey, setTodayKey] = useState(() => getLocalDateString(new Date()));
+  const todayHabits = useTodayHabits(todayKey);
   const { toggle } = useToggleCompletion();
+
+  useEffect(() => {
+    function handleVisibilityChange() {
+      if (document.visibilityState === 'visible') {
+        setTodayKey(getLocalDateString(new Date()));
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
 
   if (todayHabits === undefined) {
     return null;
   }
 
   return (
-    <AppShell title="Today">
+    <AppShell
+      title="Today"
+      headerAction={
+        <Link
+          to="/habits/manage"
+          className="text-sm text-muted-foreground hover:text-foreground"
+        >
+          Manage habits
+        </Link>
+      }
+    >
       {todayHabits.length === 0 ? (
         <div className="flex min-h-[50dvh] flex-col items-center justify-center text-center">
           <h2 className="text-[28px] font-semibold">No habits due today</h2>
@@ -22,14 +47,14 @@ export function TodayPage() {
           </p>
         </div>
       ) : (
-        <ul className="flex flex-col gap-2 pb-12">
+        <ul className="flex flex-col gap-2 pb-12 md:pb-16">
           {todayHabits.map(({ habit, isCompleted }) => (
             <li key={habit.id}>
               <HabitRow
                 habit={habit}
                 isCompleted={isCompleted}
                 onToggle={() => {
-                  void toggle(habit.id);
+                  void toggle(habit.id, todayKey);
                 }}
               />
             </li>

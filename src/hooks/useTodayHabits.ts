@@ -3,8 +3,8 @@ import { getLocalDateString } from '@/domain/dates';
 import { isDueOnDate } from '@/domain/schedule';
 import { db } from '@/infrastructure/db';
 
-export function useTodayHabits() {
-  const today = getLocalDateString(new Date());
+export function useTodayHabits(todayKey?: string) {
+  const today = todayKey ?? getLocalDateString(new Date());
 
   return useLiveQuery(async () => {
     const habits = await db.habits
