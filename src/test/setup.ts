@@ -5,7 +5,9 @@ import indexedDB from 'fake-indexeddb';
 Dexie.dependencies.indexedDB = indexedDB;
 
 if (typeof globalThis.CSS === 'undefined') {
-  globalThis.CSS = { supports: () => true } as CSS;
+  Object.assign(globalThis, {
+    CSS: { supports: () => true },
+  });
 } else if (!globalThis.CSS.supports) {
   globalThis.CSS.supports = () => true;
 }

@@ -1,9 +1,8 @@
-import { Navigate, useParams } from 'react-router';
+import { Navigate, useNavigate, useParams } from 'react-router';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { ChevronLeft } from 'lucide-react';
-import { Link } from 'react-router';
 import { AppShell } from '@/components/layout/AppShell';
-import { HistoryDotGrid } from '@/components/habits/HistoryDotGrid';
+import { ContributionHeatmap } from '@/components/heatmap/ContributionHeatmap';
 import { StatCards } from '@/components/habits/StatCards';
 import { useHabitStats } from '@/hooks/useHabitStats';
 import type { Habit } from '@/domain/types';
@@ -21,17 +20,31 @@ function HabitHistoryContent({ habit }: { habit: Habit }) {
         rate={rate}
         isLoading={isLoading}
       />
-      <p className="mt-4 text-xs text-muted-foreground">This week</p>
+      <p className="mt-4 text-xs text-muted-foreground">Historial</p>
 
-      <div className="mt-8 flex justify-center">
-        <HistoryDotGrid habitId={habit.id} frequency={habit.frequency} />
+      <div className="mt-8">
+        <ContributionHeatmap habitId={habit.id} frequency={habit.frequency} />
       </div>
     </>
   );
 }
 
+function BackButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="mb-6 inline-flex min-h-11 items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+    >
+      <ChevronLeft className="h-4 w-4" aria-hidden />
+      Back
+    </button>
+  );
+}
+
 export function HabitHistoryPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   const habit = useLiveQuery(() => (id ? db.habits.get(id) : undefined), [id]);
 
@@ -42,13 +55,7 @@ export function HabitHistoryPage() {
   if (habit === undefined) {
     return (
       <AppShell title="History">
-        <Link
-          to="/"
-          className="mb-6 inline-flex min-h-11 items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ChevronLeft className="h-4 w-4" aria-hidden />
-          Back
-        </Link>
+        <BackButton onClick={() => navigate(-1)} />
       </AppShell>
     );
   }
@@ -59,13 +66,7 @@ export function HabitHistoryPage() {
 
   return (
     <AppShell title="History">
-      <Link
-        to="/"
-        className="mb-6 inline-flex min-h-11 items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ChevronLeft className="h-4 w-4" aria-hidden />
-        Back
-      </Link>
+      <BackButton onClick={() => navigate(-1)} />
 
       <HabitHistoryContent habit={habit} />
     </AppShell>
