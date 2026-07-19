@@ -44,7 +44,7 @@ describe('HistoryDotGrid', () => {
   it('renders a dot button for each scheduled day in the calendar week', () => {
     render(<HistoryDotGrid habitId="habit-1" frequency={monWedFri} />);
     const dots = screen.getAllByRole('button');
-    expect(dots).toHaveLength(4);
+    expect(dots).toHaveLength(3);
   });
 
   it('has no tappable button on a non-scheduled Tuesday column', () => {
@@ -60,10 +60,9 @@ describe('HistoryDotGrid', () => {
   });
 
   it('applies today ring class to the current day dot', () => {
-    render(<HistoryDotGrid habitId="habit-1" frequency={monWedFri} />);
+    render(<HistoryDotGrid habitId="habit-1" frequency={{ type: 'daily' }} />);
     const todayDot = screen.getByTestId(`history-dot-${todayKey}`);
-    expect(todayDot.className).toContain('ring-2');
-    expect(todayDot.className).toContain('ring-primary');
+    expect(todayDot.parentElement?.className).toContain('ring-primary');
   });
 
   it('calls toggle with the tapped date string', () => {

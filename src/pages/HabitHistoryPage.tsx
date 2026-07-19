@@ -24,7 +24,7 @@ function HabitHistoryContent({ habit }: { habit: Habit }) {
       <p className="mt-4 text-xs text-muted-foreground">This week</p>
 
       <div className="mt-8 flex justify-center">
-        <HistoryDotGrid habitId={habit.id} />
+        <HistoryDotGrid habitId={habit.id} frequency={habit.frequency} />
       </div>
     </>
   );

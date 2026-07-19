@@ -1,9 +1,9 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { getLast7Days } from '@/domain/dates';
+import { getCalendarWeekDates } from '@/domain/dates';
 import { db } from '@/infrastructure/db';
 
 export function useCompletions(habitId: string) {
-  const dates = getLast7Days();
+  const dates = getCalendarWeekDates();
 
   const completions = useLiveQuery(
     () =>
