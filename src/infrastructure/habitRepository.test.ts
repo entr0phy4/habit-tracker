@@ -20,6 +20,16 @@ describe('habitRepository', () => {
     expect(habit.archived).toBe(false);
   });
 
+  it('persists weekly frequency with selected days', async () => {
+    const habit = await habitRepository.create({
+      name: 'Gym',
+      frequency: { type: 'weekly', days: [1, 3, 5] },
+    });
+
+    const stored = await db.habits.get(habit.id);
+    expect(stored?.frequency).toEqual({ type: 'weekly', days: [1, 3, 5] });
+  });
+
   it('rejects empty habit names', async () => {
     await expect(
       habitRepository.create({ name: '   ', frequency: { type: 'daily' } }),
