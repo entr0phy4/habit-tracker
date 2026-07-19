@@ -29,9 +29,11 @@ export const habitRepository = {
 
   async update(
     id: string,
-    data: Partial<Pick<Habit, 'name' | 'frequency'>>,
+    data: Partial<Pick<Habit, 'name' | 'frequency' | 'archived'>>,
   ): Promise<void> {
-    const updates: Partial<Pick<Habit, 'name' | 'frequency'>> = { ...data };
+    const updates: Partial<Pick<Habit, 'name' | 'frequency' | 'archived'>> = {
+      ...data,
+    };
     if (data.name !== undefined) {
       updates.name = validateName(data.name);
     }

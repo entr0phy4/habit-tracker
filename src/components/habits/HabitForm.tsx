@@ -16,6 +16,7 @@ export interface HabitFormValues {
 
 interface HabitFormProps {
   submitLabel: string;
+  initialValues?: HabitFormValues;
   onSubmit: (values: HabitFormValues) => Promise<void>;
 }
 
@@ -26,9 +27,18 @@ function toFrequency(selectedDays: number[]): Frequency {
   return { type: 'weekly', days: [...selectedDays].sort((a, b) => a - b) };
 }
 
-export function HabitForm({ submitLabel, onSubmit }: HabitFormProps) {
-  const [name, setName] = useState('');
-  const [selectedDays, setSelectedDays] = useState<number[]>(ALL_DAYS);
+function frequencyToDays(frequency: Frequency): number[] {
+  if (frequency.type === 'daily') {
+    return ALL_DAYS;
+  }
+  return frequency.days;
+}
+
+export function HabitForm({ submitLabel, initialValues, onSubmit }: HabitFormProps) {
+  const [name, setName] = useState(initialValues?.name ?? '');
+  const [selectedDays, setSelectedDays] = useState<number[]>(
+    initialValues ? frequencyToDays(initialValues.frequency) : ALL_DAYS,
+  );
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 

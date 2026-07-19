@@ -84,4 +84,46 @@ describe('habitRepository', () => {
     expect(await db.habits.get(habit.id)).toBeUndefined();
     expect(await db.completions.where('habitId').equals(habit.id).count()).toBe(0);
   });
+
+  it('excludes archived habits from active filter', async () => {
+    const active = await habitRepository.create({
+      name: 'Active',
+      frequency: { type: 'daily' },
+    });
+    const archived = await habitRepository.create({
+      name: 'Archived',
+      frequency: { type: 'daily' },
+    });
+
+    await habitRepository.archive(archived.id);
+
+    const activeHabits = await db.habits.filter((habit) => !habit.archived).toArray();
+    expect(activeHabits.map((habit) => habit.id)).toEqual([active.id]);
+  });
+
+  it('keeps archived habits archived when archive is called again', async () => {
+    const habit = await habitRepository.create({
+      name: 'Meditate',
+      frequency: { type: 'daily' },
+    });
+
+    await habitRepository.archive(habit.id);
+    await habitRepository.archive(habit.id);
+
+    const stored = await db.habits.get(habit.id);
+    expect(stored?.archived).toBe(true);
+  });
+
+  it('restores archived habits via update', async () => {
+    const habit = await habitRepository.create({
+      name: 'Stretch',
+      frequency: { type: 'daily' },
+    });
+
+    await habitRepository.archive(habit.id);
+    await habitRepository.update(habit.id, { archived: false });
+
+    const stored = await db.habits.get(habit.id);
+    expect(stored?.archived).toBe(false);
+  });
 });
