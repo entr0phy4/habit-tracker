@@ -61,29 +61,29 @@ describe('calculateCompletionRate', () => {
 });
 
 describe('getWeekDayState', () => {
-  const today = '2026-07-16';
+  const today = '2026-07-23';
 
   it('returns not-scheduled for a non-due day on MWF habit (Tuesday)', () => {
-    expect(getWeekDayState('2026-07-15', monWedFri, completed(), today)).toBe(
+    expect(getWeekDayState('2026-07-21', monWedFri, completed(), today)).toBe(
       'not-scheduled',
     );
   });
 
   it('returns missed for a scheduled past day without completion', () => {
-    expect(getWeekDayState('2026-07-14', monWedFri, completed(), today)).toBe(
+    expect(getWeekDayState('2026-07-20', monWedFri, completed(), today)).toBe(
       'missed',
     );
   });
 
   it('returns future for a scheduled day later in the calendar week', () => {
-    expect(getWeekDayState('2026-07-18', monWedFri, completed(), today)).toBe(
+    expect(getWeekDayState('2026-07-24', monWedFri, completed(), today)).toBe(
       'future',
     );
   });
 
   it('returns completed when the scheduled day is in the completion set', () => {
     expect(
-      getWeekDayState('2026-07-14', monWedFri, completed('2026-07-14'), today),
+      getWeekDayState('2026-07-20', monWedFri, completed('2026-07-20'), today),
     ).toBe('completed');
   });
 });

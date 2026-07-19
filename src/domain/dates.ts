@@ -1,8 +1,13 @@
 import { format } from 'date-fns/format';
 import { addDays } from 'date-fns/addDays';
 import { subDays } from 'date-fns/subDays';
+import { eachDayOfInterval } from 'date-fns/eachDayOfInterval';
+import { endOfWeek } from 'date-fns/endOfWeek';
+import { startOfWeek } from 'date-fns/startOfWeek';
 import { isAfter, startOfDay } from 'date-fns';
 import type { Habit } from './types';
+
+const WEEK_OPTS = { weekStartsOn: 1 as const };
 
 export function getLocalDateString(date: Date = new Date()): string {
   return format(date, 'yyyy-MM-dd');
@@ -12,6 +17,13 @@ export function getLast7Days(today: Date = new Date()): string[] {
   return Array.from({ length: 7 }, (_, index) =>
     getLocalDateString(subDays(today, 6 - index)),
   );
+}
+
+export function getCalendarWeekDates(today: Date = new Date()): string[] {
+  return eachDayOfInterval({
+    start: startOfWeek(today, WEEK_OPTS),
+    end: endOfWeek(today, WEEK_OPTS),
+  }).map(getLocalDateString);
 }
 
 export function isFutureDate(dateStr: string, today: Date = new Date()): boolean {
