@@ -606,22 +606,19 @@ async function handleCreate(data: { name: string; frequency: Frequency }) {
 | A4 | Archive (soft delete) is default; hard delete optional in manage UI | Pitfall 6 | User expectation mismatch if delete is too aggressive |
 | A5 | History route navigates from habit row tap on chevron/link, not row toggle | Architecture | Accidental toggle if entire row navigates |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Habit row navigation to history vs toggle**
+1. **Habit row navigation to history vs toggle** — **RESOLVED**
    - What we know: D-14 requires history screen per habit; D-09/D-10 use full row for toggle
-   - What's unclear: How user reaches history without conflicting with row tap
-   - Recommendation: Row body toggles completion; separate trailing icon/button (e.g., chevron or calendar) navigates to `/habits/:id/history` — planner should specify in UI tasks
+   - Resolution: Row body toggles completion; trailing `CalendarDays` ghost icon button (44×44, `stopPropagation`) navigates to `/habits/:id/history` (Plan 03 wires button; Plan 04 implements route)
 
-2. **Manage/archive screen placement**
+2. **Manage/archive screen placement** — **RESOLVED**
    - What we know: Archived habits hidden from Today; recoverable from manage section (Claude's discretion)
-   - What's unclear: Top-level nav vs settings stub vs overflow menu
-   - Recommendation: Link from Today header ("Manage habits") to `/habits/manage` — minimal nav for Phase 1
+   - Resolution: Today header "Manage habits" link navigates to `/habits/manage` (Plan 03 Task 2)
 
-3. **Hard delete behavior for completions**
+3. **Hard delete behavior for completions** — **RESOLVED**
    - What we know: HABT-03 allows delete; Phase 2 needs completion history
-   - What's unclear: Cascade delete completions on hard delete?
-   - Recommendation: Archive default; hard delete removes habit + its completions with confirm dialog
+   - Resolution: Archive is default; hard delete from manage/edit requires confirm dialog and cascades — `habitRepository.delete` removes habit and all its completions in one transaction (Plan 03 Task 2)
 
 ## Environment Availability
 
