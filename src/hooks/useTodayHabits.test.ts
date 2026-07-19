@@ -16,6 +16,13 @@ describe('useTodayHabits', () => {
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  it('returns loading status while query is pending', () => {
+    const { result } = renderHook(() => useTodayHabits());
+
+    expect(result.current).toEqual({ status: 'loading' });
   });
 
   it('returns an empty list when no habits are due today', async () => {
@@ -27,7 +34,7 @@ describe('useTodayHabits', () => {
     const { result } = renderHook(() => useTodayHabits());
 
     await waitFor(() => {
-      expect(result.current).toEqual([]);
+      expect(result.current).toEqual({ status: 'ready', habits: [] });
     });
   });
 
@@ -40,9 +47,11 @@ describe('useTodayHabits', () => {
     const { result } = renderHook(() => useTodayHabits());
 
     await waitFor(() => {
-      expect(result.current).toHaveLength(1);
-      expect(result.current?.[0]?.habit.id).toBe(habit.id);
-      expect(result.current?.[0]?.isCompleted).toBe(false);
+      expect(result.current.status).toBe('ready');
+      if (result.current.status !== 'ready') return;
+      expect(result.current.habits).toHaveLength(1);
+      expect(result.current.habits[0]?.habit.id).toBe(habit.id);
+      expect(result.current.habits[0]?.isCompleted).toBe(false);
     });
   });
 
@@ -57,7 +66,7 @@ describe('useTodayHabits', () => {
     const { result } = renderHook(() => useTodayHabits());
 
     await waitFor(() => {
-      expect(result.current).toEqual([]);
+      expect(result.current).toEqual({ status: 'ready', habits: [] });
     });
   });
 
@@ -70,8 +79,22 @@ describe('useTodayHabits', () => {
     const { result } = renderHook(() => useTodayHabits());
 
     await waitFor(() => {
-      expect(result.current).toHaveLength(1);
-      expect(result.current?.[0]?.habit.id).toBe(habit.id);
+      expect(result.current.status).toBe('ready');
+      if (result.current.status !== 'ready') return;
+      expect(result.current.habits).toHaveLength(1);
+      expect(result.current.habits[0]?.habit.id).toBe(habit.id);
+    });
+  });
+
+  it('returns error status when IndexedDB query fails', async () => {
+    vi.spyOn(db.habits, 'filter').mockImplementation(() => {
+      throw new DOMException('The operation failed', 'AbortError');
+    });
+
+    const { result } = renderHook(() => useTodayHabits());
+
+    await waitFor(() => {
+      expect(result.current).toEqual({ status: 'error' });
     });
   });
 });
