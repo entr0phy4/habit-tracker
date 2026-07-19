@@ -557,20 +557,13 @@ export function useHeatmapData(habitId: string, frequency: Frequency, todayKey?:
 | A3 | Binary `minLevel=0` `maxLevel=1` sufficient for v1 heatmap | Pattern 3 | Low — matches ENH scope deferral for intensity levels |
 | A4 | `opacity: 0.15` acceptable for non-scheduled dim (D-14) | Pattern 4 | Low — CONTEXT allows hidden OR dim; planner can choose |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Tab bar on history page?**
-   - What we know: D-04 leaves to planner discretion; history is a detail drill-down.
-   - What's unclear: Whether tab bar helps wayfinding or clutters the heatmap.
-   - Recommendation: Hide tab bar on `/habits/:id/history` and form routes; show only on Hoy + Panel (consistent with drill-down pattern).
+1. **Tab bar on history page?** — RESOLVED: Tab bar visible on `/habits/:id/history` (Plan 02, UI-SPEC); hidden on form/manage routes only.
 
-2. **Delete vs keep `HistoryDotGrid`?**
-   - What we know: D-09 replaces it; tests exist in `HistoryDotGrid.test.tsx`.
-   - Recommendation: Delete component; migrate behavioral tests to `ContributionHeatmap.test.tsx` and `domain/heatmap.test.ts`.
+2. **Delete vs keep `HistoryDotGrid`?** — RESOLVED: Delete component and tests after migration (Plan 04 Task 3, D-09).
 
-3. **Dashboard empty state copy (Spanish)?**
-   - What we know: D-08 shows active habits only; discretion on copy.
-   - Recommendation: Mirror Today empty pattern — e.g., "No tienes hábitos activos" + link to manage habits.
+3. **Dashboard empty state copy (Spanish)?** — RESOLVED: "No hay hábitos activos" per UI-SPEC (Plan 03 Task 2).
 
 ## Environment Availability
 
