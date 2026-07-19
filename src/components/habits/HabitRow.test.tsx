@@ -4,6 +4,16 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Habit } from '@/domain/types';
 import { HabitRow } from './HabitRow';
 
+const navigateMock = vi.fn();
+
+vi.mock('react-router', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-router')>();
+  return {
+    ...actual,
+    useNavigate: () => navigateMock,
+  };
+});
+
 const habit: Habit = {
   id: 'habit-1',
   name: 'Morning run',
@@ -24,6 +34,7 @@ function renderRow(onToggle = vi.fn()) {
 describe('HabitRow', () => {
   afterEach(() => {
     cleanup();
+    navigateMock.mockReset();
   });
 
   it('renders with min-h-11 touch target class', () => {
@@ -44,5 +55,13 @@ describe('HabitRow', () => {
       screen.getByRole('button', { name: 'Edit history for Morning run' }),
     );
     expect(onToggle).not.toHaveBeenCalled();
+  });
+
+  it('navigates to habit history when calendar button is clicked', () => {
+    renderRow();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Edit history for Morning run' }),
+    );
+    expect(navigateMock).toHaveBeenCalledWith('/habits/habit-1/history');
   });
 });
