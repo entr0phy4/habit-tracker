@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Habit } from '@/domain/types';
 import { DashboardPage } from './DashboardPage';
 
@@ -29,6 +29,10 @@ function renderPage() {
 }
 
 describe('DashboardPage', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   beforeEach(() => {
     useDashboardHabitsMock.mockReset();
   });
