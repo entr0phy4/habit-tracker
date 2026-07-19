@@ -4,7 +4,31 @@ import { ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router';
 import { AppShell } from '@/components/layout/AppShell';
 import { HistoryDotGrid } from '@/components/habits/HistoryDotGrid';
+import { StatCards } from '@/components/habits/StatCards';
+import { useHabitStats } from '@/hooks/useHabitStats';
+import type { Habit } from '@/domain/types';
 import { db } from '@/infrastructure/db';
+
+function HabitHistoryContent({ habit }: { habit: Habit }) {
+  const { current, longest, rate, isLoading } = useHabitStats(habit);
+
+  return (
+    <>
+      <h2 className="line-clamp-2 break-words text-xl font-semibold">{habit.name}</h2>
+      <StatCards
+        current={current}
+        longest={longest}
+        rate={rate}
+        isLoading={isLoading}
+      />
+      <p className="mt-4 text-xs text-muted-foreground">This week</p>
+
+      <div className="mt-8 flex justify-center">
+        <HistoryDotGrid habitId={habit.id} />
+      </div>
+    </>
+  );
+}
 
 export function HabitHistoryPage() {
   const { id } = useParams<{ id: string }>();
@@ -43,12 +67,7 @@ export function HabitHistoryPage() {
         Back
       </Link>
 
-      <h2 className="line-clamp-2 break-words text-xl font-semibold">{habit.name}</h2>
-      <p className="mt-1 text-xs text-muted-foreground">Last 7 days</p>
-
-      <div className="mt-8 flex justify-center">
-        <HistoryDotGrid habitId={habit.id} />
-      </div>
+      <HabitHistoryContent habit={habit} />
     </AppShell>
   );
 }
