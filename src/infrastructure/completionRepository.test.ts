@@ -1,4 +1,6 @@
+import { subDays } from 'date-fns/subDays';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { getLocalDateString } from '@/domain/dates';
 import { completionRepository } from './completionRepository';
 import { db } from './db';
 import { habitRepository } from './habitRepository';
@@ -9,6 +11,17 @@ describe('completionRepository', () => {
     await db.open();
     await db.habits.clear();
     await db.completions.clear();
+  });
+
+  it('toggles completion on yesterday', async () => {
+    const habit = await habitRepository.create({
+      name: 'Read',
+      frequency: { type: 'daily' },
+    });
+    const yesterday = getLocalDateString(subDays(new Date(), 1));
+
+    await completionRepository.toggle(habit.id, yesterday);
+    expect(await db.completions.get([habit.id, yesterday])).toBeDefined();
   });
 
   it('toggles completion on and off idempotently', async () => {
@@ -22,6 +35,19 @@ describe('completionRepository', () => {
 
     await completionRepository.toggle(habit.id, '2026-07-19');
     expect(await db.completions.get([habit.id, '2026-07-19'])).toBeUndefined();
+  });
+
+  it('returns to original state when toggling a past day twice', async () => {
+    const habit = await habitRepository.create({
+      name: 'Meditate',
+      frequency: { type: 'daily' },
+    });
+    const pastDate = getLocalDateString(subDays(new Date(), 3));
+
+    await completionRepository.toggle(habit.id, pastDate);
+    await completionRepository.toggle(habit.id, pastDate);
+
+    expect(await db.completions.get([habit.id, pastDate])).toBeUndefined();
   });
 
   it('rejects future date toggles', async () => {
