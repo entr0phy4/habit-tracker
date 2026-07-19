@@ -35,12 +35,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. Habit and completion data persist across browser sessions after refresh or reopen
   6. App renders in minimal dark mode and works on mobile and desktop with touch-friendly tap targets
 
-**Plans**: 4 plans
+**Plans**: 1/4 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 01-01-PLAN.md — Walking skeleton: scaffold, Dexie, create habit + today toggle + persistence
+- [x] 01-01-PLAN.md — Walking skeleton: scaffold, Dexie, create habit + today toggle + persistence
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -112,7 +112,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Habit Management & Daily Logging | 0/4 | Not started | - |
+| 1. Habit Management & Daily Logging | 1/4 | In Progress|  |
 | 2. Streaks & Statistics | 0/TBD | Not started | - |
 | 3. Dashboard & Progress Visualization | 0/TBD | Not started | - |
 | 4. Data Backup & Restore | 0/TBD | Not started | - |

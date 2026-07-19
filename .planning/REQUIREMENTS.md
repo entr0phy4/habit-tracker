@@ -7,15 +7,15 @@
 
 ### Habit Management
 
-- [ ] **HABT-01**: User can create a habit with a name and frequency (daily or specific days of the week)
+- [x] **HABT-01**: User can create a habit with a name and frequency (daily or specific days of the week)
 - [ ] **HABT-02**: User can edit a habit's name and frequency
 - [ ] **HABT-03**: User can archive or delete habits
 
 ### Daily Logging
 
-- [ ] **LOG-01**: User can mark a habit complete for today with one tap
+- [x] **LOG-01**: User can mark a habit complete for today with one tap
 - [ ] **LOG-02**: User can toggle a habit's completion status for past days
-- [ ] **LOG-03**: User can see a today view showing which habits are due
+- [x] **LOG-03**: User can see a today view showing which habits are due
 
 ### Streaks & Stats
 
@@ -34,13 +34,13 @@
 
 ### Data & Backup
 
-- [ ] **DATA-01**: User data persists locally across browser sessions
+- [x] **DATA-01**: User data persists locally across browser sessions
 - [ ] **DATA-02**: User can export their data to a JSON file
 - [ ] **DATA-03**: User can import data from a JSON backup file
 
 ### UI/UX
 
-- [ ] **UI-01**: App uses a minimal dark mode aesthetic
+- [x] **UI-01**: App uses a minimal dark mode aesthetic
 - [ ] **UI-02**: App works on both mobile and desktop browsers with touch-friendly targets
 
 ## v2 Requirements
@@ -82,14 +82,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| HABT-01 | Phase 1 | Pending |
+| HABT-01 | Phase 1 | Complete |
 | HABT-02 | Phase 1 | Pending |
 | HABT-03 | Phase 1 | Pending |
-| LOG-01 | Phase 1 | Pending |
+| LOG-01 | Phase 1 | Complete |
 | LOG-02 | Phase 1 | Pending |
-| LOG-03 | Phase 1 | Pending |
-| DATA-01 | Phase 1 | Pending |
-| UI-01 | Phase 1 | Pending |
+| LOG-03 | Phase 1 | Complete |
+| DATA-01 | Phase 1 | Complete |
+| UI-01 | Phase 1 | Complete |
 | UI-02 | Phase 1 | Pending |
 | STRK-01 | Phase 2 | Pending |
 | STRK-02 | Phase 2 | Pending |
@@ -101,6 +101,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DATA-03 | Phase 4 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 17 total
 - Mapped to phases: 17
 - Unmapped: 0 ✓
