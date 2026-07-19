@@ -34,8 +34,8 @@ describe('TodayPage', () => {
 
     expect(
       screen.getByText("Couldn't save your data. Try refreshing the page."),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Today' })).toBeInTheDocument();
+    ).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Today' })).toBeTruthy();
   });
 
   it('does not render Add habit FAB in error state', () => {
@@ -43,7 +43,7 @@ describe('TodayPage', () => {
 
     renderPage();
 
-    expect(screen.queryByRole('button', { name: 'Add habit' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Add habit' })).toBeNull();
   });
 
   it('renders empty state when ready with no habits', () => {
@@ -51,7 +51,7 @@ describe('TodayPage', () => {
 
     renderPage();
 
-    expect(screen.getByRole('heading', { name: 'No habits due today' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Add habit' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'No habits due today' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Add habit' })).toBeTruthy();
   });
 });

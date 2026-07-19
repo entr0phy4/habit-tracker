@@ -9,7 +9,7 @@ import { useToggleCompletion } from '@/hooks/useToggleCompletion';
 
 export function TodayPage() {
   const [todayKey, setTodayKey] = useState(() => getLocalDateString(new Date()));
-  const todayHabits = useTodayHabits(todayKey);
+  const state = useTodayHabits(todayKey);
   const { toggle } = useToggleCompletion();
 
   useEffect(() => {
@@ -23,9 +23,23 @@ export function TodayPage() {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
-  if (todayHabits === undefined) {
+  if (state.status === 'loading') {
     return null;
   }
+
+  if (state.status === 'error') {
+    return (
+      <AppShell title="Today">
+        <div className="flex min-h-[50dvh] flex-col items-center justify-center text-center">
+          <p className="text-sm text-muted-foreground">
+            Couldn't save your data. Try refreshing the page.
+          </p>
+        </div>
+      </AppShell>
+    );
+  }
+
+  const todayHabits = state.habits;
 
   return (
     <AppShell
