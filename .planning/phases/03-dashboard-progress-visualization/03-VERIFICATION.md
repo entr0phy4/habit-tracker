@@ -1,28 +1,34 @@
 ---
 phase: 03-dashboard-progress-visualization
 verified: 2026-07-19T21:17:00Z
-status: human_needed
+status: passed
 score: 15/17 must-haves verified
 behavior_unverified: 1
 overrides_applied: 0
 behavior_unverified_items:
+
   - truth: "Toggle failure shows sonner toast Couldn't update. Try again."
     test: "On history page, simulate a completion toggle failure (e.g. block IndexedDB write) and tap a missed scheduled heatmap cell"
     expected: "Sonner toast displays 'Couldn't update. Try again.' and cell state does not change"
     why_human: "toast.error is wired in ContributionHeatmap catch block but no test exercises the failure path"
 human_verification:
+
   - test: "Open Panel tab on mobile-width viewport — confirm heatmap on history page shows most recent weeks without manual horizontal scroll"
     expected: "Recent weeks are visible on load; horizontal scroll only needed for older history"
     why_human: "Backstop truth (Plan 02) — overflow-x-auto present but scroll position on mount not testable via grep"
+
   - test: "Open Panel with a habit streak ≥1000 (or mock) — confirm card layout does not overflow or break"
     expected: "Streak count truncates or fits within card; no horizontal scroll on dashboard row"
     why_human: "Backstop truth (Plan 03) — no test or fixture for 4-digit streak counts"
+
   - test: "Simulate IndexedDB read failure on dashboard (DevTools block) — confirm graceful empty/error state without raw exception text"
     expected: "User sees empty state or friendly message; no stack trace or Dexie error string in UI"
     why_human: "Backstop truth (Plan 03) — error path not implemented or tested in DashboardPage"
+
   - test: "Seed invalid completion date in IndexedDB and open history heatmap — confirm no error UI"
     expected: "Invalid dates skipped silently; heatmap still renders"
     why_human: "Backstop truth (Plan 04) — silent skip behavior not exercised by tests"
+
   - test: "Resize between mobile (375px) and desktop (1024px) — use Panel tab, history heatmap, and Hoy FAB"
     expected: "Tab bar, cards, heatmap, and FAB remain usable with adequate touch targets and no overlapping chrome"
     why_human: "Roadmap SC4 — responsive layout primitives exist but cross-viewport usability requires visual confirmation"

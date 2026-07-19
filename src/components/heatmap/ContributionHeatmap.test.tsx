@@ -95,17 +95,25 @@ describe('ContributionHeatmap', () => {
   });
 
   it('calls toggle when a missed scheduled date cell is clicked', () => {
-    render(<ContributionHeatmap habitId="habit-1" frequency={monWedFri} />);
+    const { container } = render(
+      <ContributionHeatmap habitId="habit-1" frequency={monWedFri} />,
+    );
 
-    fireEvent.click(screen.getByTestId('heatmap-cell-2026-07-13'));
+    const cell = container.querySelector('[data-date="2026-07-13"]');
+    expect(cell).toBeTruthy();
+    fireEvent.click(cell!);
 
     expect(mockToggle).toHaveBeenCalledWith('2026-07-13');
   });
 
   it('does not call toggle when a future scheduled date cell is clicked', () => {
-    render(<ContributionHeatmap habitId="habit-1" frequency={monWedFri} />);
+    const { container } = render(
+      <ContributionHeatmap habitId="habit-1" frequency={monWedFri} />,
+    );
 
-    fireEvent.click(screen.getByTestId('heatmap-cell-2026-07-21'));
+    const cell = container.querySelector('[data-date="2026-07-21"]');
+    expect(cell).toBeTruthy();
+    fireEvent.click(cell!);
 
     expect(mockToggle).not.toHaveBeenCalled();
   });

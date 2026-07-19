@@ -54,7 +54,7 @@ export function HabitHistoryPage() {
 
   if (habit === undefined) {
     return (
-      <AppShell title="History">
+      <AppShell title="History" hasTabBar>
         <BackButton onClick={() => navigate(-1)} />
       </AppShell>
     );
@@ -65,7 +65,7 @@ export function HabitHistoryPage() {
   }
 
   return (
-    <AppShell title="History">
+    <AppShell title="History" hasTabBar>
       <BackButton onClick={() => navigate(-1)} />
 
       <HabitHistoryContent habit={habit} />

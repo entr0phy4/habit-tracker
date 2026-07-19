@@ -1,8 +1,7 @@
-import { cloneElement, useCallback } from 'react';
+import { cloneElement, useCallback, useEffect, useRef, type KeyboardEvent } from 'react';
 import { ActivityCalendar, type Activity, type BlockElement } from 'react-activity-calendar';
 import 'react-activity-calendar/tooltips.css';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
 import { getLocalDateString } from '@/domain/dates';
 import { formatHeatmapTooltip } from '@/domain/heatmap';
 import type { Frequency } from '@/domain/types';
@@ -18,11 +17,25 @@ interface ContributionHeatmapProps {
 }
 
 export function ContributionHeatmap({ habitId, frequency }: ContributionHeatmapProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const today = getLocalDateString(new Date());
   const { activities, cellStates, isLoading, toggle } = useHeatmapData(
     habitId,
     frequency,
   );
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    requestAnimationFrame(() => {
+      const scrollEl = containerRef.current?.querySelector(
+        '.react-activity-calendar__scroll-container',
+      ) as HTMLElement | null;
+      if (scrollEl) {
+        scrollEl.scrollLeft = scrollEl.scrollWidth;
+      }
+    });
+  }, [isLoading, activities.length]);
 
   const handleCellClick = useCallback(
     async (date: string) => {
@@ -38,55 +51,38 @@ export function ContributionHeatmap({ habitId, frequency }: ContributionHeatmapP
   const renderBlock = useCallback(
     (block: BlockElement, activity: Activity) => {
       const state = cellStates.get(activity.date);
-      const isToday = activity.date === today;
       const isInteractive = state === 'completed' || state === 'missed';
       const isNotScheduled = state === 'not-scheduled';
       const isMissed = state === 'missed';
+      const isToday = activity.date === today;
       const isFuture = state === 'future';
 
-      const styledBlock = cloneElement(block, {
+      return cloneElement(block, {
         style: {
           ...block.props.style,
-          opacity: isNotScheduled ? 0.15 : isFuture ? 0.4 : 1,
+          opacity: isNotScheduled ? 0.2 : isFuture ? 0.4 : 1,
           cursor: isInteractive ? 'pointer' : 'default',
+          stroke: isMissed
+            ? 'var(--destructive)'
+            : isToday
+              ? 'var(--primary)'
+              : block.props.style?.stroke,
+          strokeWidth: isMissed || isToday ? 2 : block.props.style?.strokeWidth,
         },
+        onClick: isInteractive
+          ? () => void handleCellClick(activity.date)
+          : undefined,
+        onKeyDown: isInteractive
+          ? (event: KeyboardEvent<SVGRectElement>) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                void handleCellClick(activity.date);
+              }
+            }
+          : undefined,
+        role: isInteractive ? 'button' : undefined,
+        tabIndex: isInteractive ? 0 : undefined,
       });
-
-      if (isNotScheduled) {
-        return (
-          <div data-testid={`heatmap-cell-${activity.date}`}>{styledBlock}</div>
-        );
-      }
-
-      return (
-        <div
-          data-testid={`heatmap-cell-${activity.date}`}
-          className={cn(
-            'flex min-h-11 min-w-11 items-center justify-center',
-            isMissed && 'rounded-sm ring-2 ring-destructive',
-            isToday && 'rounded-sm ring-2 ring-primary',
-          )}
-          onClick={
-            isInteractive
-              ? () => void handleCellClick(activity.date)
-              : undefined
-          }
-          role={isInteractive ? 'button' : undefined}
-          tabIndex={isInteractive ? 0 : undefined}
-          onKeyDown={
-            isInteractive
-              ? (event) => {
-                  if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault();
-                    void handleCellClick(activity.date);
-                  }
-                }
-              : undefined
-          }
-        >
-          {styledBlock}
-        </div>
-      );
     },
     [cellStates, today, handleCellClick],
   );
@@ -95,8 +91,13 @@ export function ContributionHeatmap({ habitId, frequency }: ContributionHeatmapP
     return null;
   }
 
+  if (activities.length === 0) {
+    return null;
+  }
+
   return (
     <div
+      ref={containerRef}
       className="overflow-x-auto -mx-4 px-4"
       data-testid="contribution-heatmap"
     >
