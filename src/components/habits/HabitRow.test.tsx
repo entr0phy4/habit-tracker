@@ -71,8 +71,8 @@ describe('HabitRow', () => {
 
   it('shows streak count from useStreak', () => {
     renderRow();
-    expect(screen.getByLabelText('5 day streak')).toBeInTheDocument();
-    expect(screen.getByText('5')).toBeInTheDocument();
+    expect(screen.getByLabelText('5 day streak')).toBeTruthy();
+    expect(screen.getByText('5')).toBeTruthy();
   });
 
   it('shows streak badge when row is completed', () => {
@@ -81,7 +81,7 @@ describe('HabitRow', () => {
         <HabitRow habit={habit} isCompleted onToggle={vi.fn()} />
       </MemoryRouter>,
     );
-    expect(screen.getByLabelText('5 day streak')).toBeInTheDocument();
-    expect(screen.getByText('5')).toBeInTheDocument();
+    expect(screen.getByLabelText('5 day streak')).toBeTruthy();
+    expect(screen.getByText('5')).toBeTruthy();
   });
 });

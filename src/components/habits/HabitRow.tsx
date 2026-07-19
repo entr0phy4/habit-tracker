@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react';
-import { CalendarDays } from 'lucide-react';
+import { CalendarDays, Flame } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import type { Habit } from '@/domain/types';
+import { useStreak } from '@/hooks/useStreak';
 import { WeekDayDots } from './WeekDayDots';
 
 const SWIPE_THRESHOLD = 50;
@@ -11,11 +12,13 @@ const SWIPE_THRESHOLD = 50;
 interface HabitRowProps {
   habit: Habit;
   isCompleted: boolean;
+  todayKey?: string;
   onToggle: () => void;
 }
 
-export function HabitRow({ habit, isCompleted, onToggle }: HabitRowProps) {
+export function HabitRow({ habit, isCompleted, todayKey, onToggle }: HabitRowProps) {
   const navigate = useNavigate();
+  const { currentStreak, isLoading } = useStreak(habit, todayKey);
   const startX = useRef(0);
   const startY = useRef(0);
   const isTouch = useRef(false);
@@ -101,6 +104,17 @@ export function HabitRow({ habit, isCompleted, onToggle }: HabitRowProps) {
         >
           {habit.name}
         </span>
+        {!isLoading && (
+          <span
+            className="flex shrink-0 items-center gap-1"
+            aria-label={`${currentStreak} day streak`}
+          >
+            <Flame className="h-4 w-4 text-primary" aria-hidden />
+            <span className="text-xs font-semibold text-foreground">
+              {currentStreak}
+            </span>
+          </span>
+        )}
         <WeekDayDots frequency={habit.frequency} className="shrink-0" />
         <Button
           type="button"

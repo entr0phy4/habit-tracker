@@ -67,6 +67,7 @@ export function TodayPage() {
               <HabitRow
                 habit={habit}
                 isCompleted={isCompleted}
+                todayKey={todayKey}
                 onToggle={() => {
                   void toggle(habit.id, todayKey);
                 }}
