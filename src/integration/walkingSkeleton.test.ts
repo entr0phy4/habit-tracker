@@ -1,9 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { getLocalDateString } from '@/domain/dates';
 import { isDueOnDate } from '@/domain/schedule';
 import { HabitTrackerDB } from '@/infrastructure/db';
 import { habitRepository } from '@/infrastructure/habitRepository';
 import { completionRepository } from '@/infrastructure/completionRepository';
+import { db } from '@/infrastructure/db';
 
 async function getTodayHabits(db: HabitTrackerDB) {
   const today = getLocalDateString(new Date());
@@ -21,6 +22,13 @@ async function getTodayHabits(db: HabitTrackerDB) {
 }
 
 describe('walking skeleton', () => {
+  beforeEach(async () => {
+    await db.delete();
+    await db.open();
+    await db.habits.clear();
+    await db.completions.clear();
+  });
+
   it('creates a daily habit, shows it on today, toggles completion, and persists across db reopen', async () => {
     const habit = await habitRepository.create({
       name: 'Morning run',
