@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 02
 current_phase_name: streaks-statistics
 status: executing
-stopped_at: Completed 02-01-PLAN.md
-last_updated: "2026-07-19T20:08:46.732Z"
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-07-19T20:10:12.701Z"
 last_activity: 2026-07-19
 last_activity_desc: Phase 02 execution started
 progress:
   total_phases: 2
   completed_phases: 1
   total_plans: 9
-  completed_plans: 6
+  completed_plans: 8
 ---
 
 # Project State
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-07-19)
 ## Current Position
 
 Phase: 02 (streaks-statistics) — EXECUTING
-Plan: 2 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-07-19 — Phase 02 execution started
 
-Progress: [███████░░░] 67%
+Progress: [█████████░] 89%
 
 ## Performance Metrics
 
@@ -64,6 +64,8 @@ Progress: [███████░░░] 67%
 | Phase 01-habit-management-daily-logging P04 | 3min | 3 tasks | 6 files |
 | Phase 01-habit-management-daily-logging P05 | 3min | 2 tasks | 4 files |
 | Phase 02-streaks-statistics P01 | 5min | 2 tasks | 4 files |
+| Phase 02-streaks-statistics P03 | 5min | 2 tasks | 4 files |
+| Phase 02-streaks-statistics P02 | 4min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -88,6 +90,10 @@ Recent decisions affecting current work:
 - [Phase ?]: Fixed UI-SPEC copy only — no raw Dexie exception text (T-01-11 mitigation)
 - [Phase ?]: D-15: skip today when due but incomplete — start backward walk from yesterday
 - [Phase ?]: getHabitStartDate uses getLocalDateString(new Date(createdAt)) — never UTC slice
+- [Phase ?]: Badge hidden while useStreak isLoading per UI-SPEC loading state
+- [Phase ?]: Streak count uses text-foreground and Flame text-primary — not muted when row completed (D-04)
+- [Phase ?]: getWeekDayState uses today string param converted to noon-local Date for isFutureDate
+- [Phase ?]: Future scheduled days excluded from completion rate denominator via isFutureDate
 
 ### Pending Todos
 
@@ -108,6 +114,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-19T20:08:46.725Z
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-07-19T20:10:12.693Z
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None

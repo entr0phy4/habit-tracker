@@ -21,8 +21,8 @@
 
 - [x] **STRK-01**: User can see the current streak for each habit
 - [x] **STRK-02**: User can see the longest streak for each habit
-- [ ] **STRK-03**: User can see completion rate percentage per habit
-- [ ] **STRK-04**: User can see a weekly overview of habit completions
+- [x] **STRK-03**: User can see completion rate percentage per habit
+- [x] **STRK-04**: User can see a weekly overview of habit completions
 
 ### Visualization
 
@@ -93,8 +93,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UI-02 | Phase 1 | Complete |
 | STRK-01 | Phase 2 | Complete |
 | STRK-02 | Phase 2 | Complete |
-| STRK-03 | Phase 2 | Pending |
-| STRK-04 | Phase 2 | Pending |
+| STRK-03 | Phase 2 | Complete |
+| STRK-04 | Phase 2 | Complete |
 | DASH-01 | Phase 3 | Pending |
 | VIZ-01 | Phase 3 | Pending |
 | DATA-02 | Phase 4 | Pending |
