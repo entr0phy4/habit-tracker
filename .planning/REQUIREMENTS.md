@@ -30,7 +30,7 @@
 
 ### Dashboard
 
-- [ ] **DASH-01**: User can see a dashboard displaying all current streaks at a glance
+- [x] **DASH-01**: User can see a dashboard displaying all current streaks at a glance
 
 ### Data & Backup
 
@@ -95,7 +95,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STRK-02 | Phase 2 | Complete |
 | STRK-03 | Phase 2 | Complete |
 | STRK-04 | Phase 2 | Complete |
-| DASH-01 | Phase 3 | Pending |
+| DASH-01 | Phase 3 | Complete |
 | VIZ-01 | Phase 3 | Pending |
 | DATA-02 | Phase 4 | Pending |
 | DATA-03 | Phase 4 | Pending |
