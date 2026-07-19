@@ -108,7 +108,25 @@ Plans:
   3. User can tap or click cells on the contribution grid to toggle completion for past dates
   4. Contribution grid and dashboard remain responsive and usable on mobile and desktop screens
 
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 03-01-PLAN.md — TDD: react-activity-calendar install + domain/heatmap.ts 52-week builder
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 03-02-PLAN.md — useDashboardHabits hook + bottom tab bar (Hoy/Panel) + MainLayout routing
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 03-03-PLAN.md — DashboardPage + DashboardCard streak leaderboard (DASH-01 UI slice)
+
+**Wave 4** *(blocked on Waves 1 + 2 completion)*
+
+- [ ] 03-04-PLAN.md — ContributionHeatmap + HabitHistoryPage; delete HistoryDotGrid (VIZ-01)
+
 **UI hint**: yes
 
 ### Phase 4: Data Backup & Restore
@@ -136,5 +154,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Habit Management & Daily Logging | 5/5 | Complete    | 2026-07-19 |
 | 2. Streaks & Statistics | 4/4 | In Progress|  |
-| 3. Dashboard & Progress Visualization | 0/TBD | Not started | - |
+| 3. Dashboard & Progress Visualization | 0/4 | Not started | - |
 | 4. Data Backup & Restore | 0/TBD | Not started | - |
