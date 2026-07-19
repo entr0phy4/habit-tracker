@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { getLast7Days, getLocalDateString, isFutureDate } from './dates';
+import {
+  getLast7Days,
+  getLocalDateString,
+  getPreviousDay,
+  isFutureDate,
+  iterateDaysInRange,
+} from './dates';
 
 describe('getLocalDateString', () => {
   it('formats dates as yyyy-MM-dd in local time', () => {
@@ -34,5 +40,18 @@ describe('isFutureDate', () => {
     const today = new Date(2026, 6, 19);
     expect(isFutureDate('2026-07-19', today)).toBe(false);
     expect(isFutureDate('2026-07-18', today)).toBe(false);
+  });
+});
+
+describe('getPreviousDay', () => {
+  it('returns the prior calendar day across a month boundary', () => {
+    expect(getPreviousDay('2026-07-01')).toBe('2026-06-30');
+  });
+});
+
+describe('iterateDaysInRange', () => {
+  it('yields inclusive start and end dates', () => {
+    const dates = [...iterateDaysInRange('2026-07-13', '2026-07-15')];
+    expect(dates).toEqual(['2026-07-13', '2026-07-14', '2026-07-15']);
   });
 });
