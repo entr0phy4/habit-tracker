@@ -35,7 +35,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. Habit and completion data persist across browser sessions after refresh or reopen
   6. App renders in minimal dark mode and works on mobile and desktop with touch-friendly tap targets
 
-**Plans**: 4/4 plans executed
+**Plans**: 4/5 plans executed (1 gap-closure plan pending)
 
 Plans:
 **Wave 1**
@@ -53,6 +53,10 @@ Plans:
 **Wave 4** *(blocked on Wave 3 completion)*
 
 - [x] 01-04-PLAN.md — 7-day history grid and past-day completion toggling
+
+**Wave 5** *(gap closure — blocked on Wave 4 completion)*
+
+- [ ] 01-05-PLAN.md — IndexedDB failure detection and Today view error copy
 
 **UI hint**: yes
 
