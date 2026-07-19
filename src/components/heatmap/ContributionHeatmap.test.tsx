@@ -1,5 +1,7 @@
+import type { ReactElement } from 'react';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Activity } from 'react-activity-calendar';
 import { ContributionHeatmap } from './ContributionHeatmap';
 
 const mockToggle = vi.fn();
@@ -20,6 +22,30 @@ const useHeatmapDataMock = vi.fn();
 
 vi.mock('@/hooks/useHeatmapData', () => ({
   useHeatmapData: (...args: unknown[]) => useHeatmapDataMock(...args),
+}));
+
+vi.mock('react-activity-calendar', () => ({
+  ActivityCalendar: ({
+    data,
+    renderBlock,
+  }: {
+    data: Activity[];
+    renderBlock?: (
+      block: ReactElement,
+      activity: Activity,
+    ) => ReactElement;
+  }) => (
+    <div data-testid="activity-calendar-mock">
+      {data.map((activity) => {
+        const block = <rect data-date={activity.date} />;
+        return renderBlock ? (
+          <div key={activity.date}>{renderBlock(block, activity)}</div>
+        ) : (
+          <div key={activity.date}>{block}</div>
+        );
+      })}
+    </div>
+  ),
 }));
 
 vi.mock('@/domain/dates', async (importOriginal) => {
