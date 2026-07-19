@@ -17,6 +17,23 @@ describe('isDueOnDate', () => {
     expect(isDueOnDate(monWedFri, '2026-07-25')).toBe(false);
     expect(isDueOnDate(monWedFri, '2026-07-26')).toBe(false);
   });
+
+  it('evaluates each weekday boundary for Mon/Wed/Fri schedule', () => {
+    const monWedFri = { type: 'weekly' as const, days: [1, 3, 5] };
+    const week = [
+      { date: '2026-07-19', day: 'Sunday', due: false },
+      { date: '2026-07-20', day: 'Monday', due: true },
+      { date: '2026-07-21', day: 'Tuesday', due: false },
+      { date: '2026-07-22', day: 'Wednesday', due: true },
+      { date: '2026-07-23', day: 'Thursday', due: false },
+      { date: '2026-07-24', day: 'Friday', due: true },
+      { date: '2026-07-25', day: 'Saturday', due: false },
+    ];
+
+    for (const { date, due } of week) {
+      expect(isDueOnDate(monWedFri, date)).toBe(due);
+    }
+  });
 });
 
 describe('isDaily', () => {
