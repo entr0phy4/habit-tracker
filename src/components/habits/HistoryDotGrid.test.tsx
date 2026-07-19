@@ -1,16 +1,17 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getLast7Days } from '@/domain/dates';
+import { getCalendarWeekDates } from '@/domain/dates';
 import { HistoryDotGrid } from './HistoryDotGrid';
 
 const mockToggle = vi.fn();
 const fixedToday = new Date(2026, 6, 19);
 const todayKey = '2026-07-19';
-const last7Days = getLast7Days(fixedToday);
+const calendarWeek = getCalendarWeekDates(fixedToday);
+const monWedFri = { type: 'weekly' as const, days: [1, 3, 5] };
 
 vi.mock('@/hooks/useCompletions', () => ({
   useCompletions: () => ({
-    dates: last7Days,
+    dates: calendarWeek,
     completedDates: new Set<string>(),
     isLoading: false,
   }),
@@ -40,23 +41,34 @@ describe('HistoryDotGrid', () => {
     cleanup();
   });
 
-  it('renders exactly 7 dot buttons', () => {
-    render(<HistoryDotGrid habitId="habit-1" />);
+  it('renders a dot button for each scheduled day in the calendar week', () => {
+    render(<HistoryDotGrid habitId="habit-1" frequency={monWedFri} />);
     const dots = screen.getAllByRole('button');
-    expect(dots).toHaveLength(7);
+    expect(dots).toHaveLength(4);
+  });
+
+  it('has no tappable button on a non-scheduled Tuesday column', () => {
+    render(<HistoryDotGrid habitId="habit-1" frequency={monWedFri} />);
+    expect(screen.queryByTestId('history-dot-2026-07-14')).toBeNull();
+  });
+
+  it('applies ring-destructive on a missed scheduled past day', () => {
+    render(<HistoryDotGrid habitId="habit-1" frequency={monWedFri} />);
+    const missedDot = screen.getByTestId('history-dot-2026-07-13');
+    expect(missedDot.className).toContain('ring-destructive');
+    expect(missedDot.getAttribute('aria-pressed')).toBe('false');
   });
 
   it('applies today ring class to the current day dot', () => {
-    render(<HistoryDotGrid habitId="habit-1" />);
+    render(<HistoryDotGrid habitId="habit-1" frequency={monWedFri} />);
     const todayDot = screen.getByTestId(`history-dot-${todayKey}`);
     expect(todayDot.className).toContain('ring-2');
     expect(todayDot.className).toContain('ring-primary');
   });
 
   it('calls toggle with the tapped date string', () => {
-    render(<HistoryDotGrid habitId="habit-1" />);
-    const targetDate = last7Days[0];
-    fireEvent.click(screen.getByTestId(`history-dot-${targetDate}`));
-    expect(mockToggle).toHaveBeenCalledWith('habit-1', targetDate);
+    render(<HistoryDotGrid habitId="habit-1" frequency={monWedFri} />);
+    fireEvent.click(screen.getByTestId('history-dot-2026-07-13'));
+    expect(mockToggle).toHaveBeenCalledWith('habit-1', '2026-07-13');
   });
 });
