@@ -74,7 +74,7 @@ Plans:
   4. User can see a weekly overview showing which scheduled days were completed or missed per habit
   5. Streak and stats update immediately when the user toggles a completion for today or a past day
 
-**Plans**: 3/4 plans executed
+**Plans**: 4/4 plans executed
 
 Plans:
 **Wave 1**
@@ -91,7 +91,7 @@ Plans:
 
 **Wave 4** *(blocked on Waves 2 + 3 completion)*
 
-- [ ] 02-04-PLAN.md — History stat cards + calendar-week dot grid (STRK-02–04 UI slice)
+- [x] 02-04-PLAN.md — History stat cards + calendar-week dot grid (STRK-02–04 UI slice)
 
 **UI hint**: yes
 
@@ -135,6 +135,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Habit Management & Daily Logging | 5/5 | Complete    | 2026-07-19 |
-| 2. Streaks & Statistics | 3/4 | In Progress|  |
+| 2. Streaks & Statistics | 4/4 | In Progress|  |
 | 3. Dashboard & Progress Visualization | 0/TBD | Not started | - |
 | 4. Data Backup & Restore | 0/TBD | Not started | - |
