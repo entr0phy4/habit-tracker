@@ -31,7 +31,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. User can toggle completion status for past days from the habit list or detail view
   5. Habit and completion data persist across browser sessions after refresh or reopen
   6. App renders in minimal dark mode and works on mobile and desktop with touch-friendly tap targets
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Walking skeleton: scaffold, Dexie, create habit + today toggle + persistence
+- [ ] 01-02-PLAN.md — HabitForm day toggles, WeekDayDots, weekly due-today filtering
+- [ ] 01-03-PLAN.md — Swipe/tap check-in, edit/archive/manage, Today polish
+- [ ] 01-04-PLAN.md — 7-day history grid and past-day completion toggling
 **UI hint**: yes
 
 ### Phase 2: Streaks & Statistics
@@ -81,7 +87,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Habit Management & Daily Logging | 0/TBD | Not started | - |
+| 1. Habit Management & Daily Logging | 0/4 | Not started | - |
 | 2. Streaks & Statistics | 0/TBD | Not started | - |
 | 3. Dashboard & Progress Visualization | 0/TBD | Not started | - |
 | 4. Data Backup & Restore | 0/TBD | Not started | - |
