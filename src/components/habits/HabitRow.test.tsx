@@ -14,6 +14,10 @@ vi.mock('react-router', async (importOriginal) => {
   };
 });
 
+vi.mock('@/hooks/useStreak', () => ({
+  useStreak: () => ({ currentStreak: 5, isLoading: false }),
+}));
+
 const habit: Habit = {
   id: 'habit-1',
   name: 'Morning run',
@@ -63,5 +67,21 @@ describe('HabitRow', () => {
       screen.getByRole('button', { name: 'Edit history for Morning run' }),
     );
     expect(navigateMock).toHaveBeenCalledWith('/habits/habit-1/history');
+  });
+
+  it('shows streak count from useStreak', () => {
+    renderRow();
+    expect(screen.getByLabelText('5 day streak')).toBeInTheDocument();
+    expect(screen.getByText('5')).toBeInTheDocument();
+  });
+
+  it('shows streak badge when row is completed', () => {
+    render(
+      <MemoryRouter>
+        <HabitRow habit={habit} isCompleted onToggle={vi.fn()} />
+      </MemoryRouter>,
+    );
+    expect(screen.getByLabelText('5 day streak')).toBeInTheDocument();
+    expect(screen.getByText('5')).toBeInTheDocument();
   });
 });
