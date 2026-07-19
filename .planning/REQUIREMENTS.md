@@ -14,7 +14,7 @@
 ### Daily Logging
 
 - [x] **LOG-01**: User can mark a habit complete for today with one tap
-- [ ] **LOG-02**: User can toggle a habit's completion status for past days
+- [x] **LOG-02**: User can toggle a habit's completion status for past days
 - [x] **LOG-03**: User can see a today view showing which habits are due
 
 ### Streaks & Stats
@@ -86,7 +86,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | HABT-02 | Phase 1 | Complete |
 | HABT-03 | Phase 1 | Complete |
 | LOG-01 | Phase 1 | Complete |
-| LOG-02 | Phase 1 | Pending |
+| LOG-02 | Phase 1 | Complete |
 | LOG-03 | Phase 1 | Complete |
 | DATA-01 | Phase 1 | Complete |
 | UI-01 | Phase 1 | Complete |

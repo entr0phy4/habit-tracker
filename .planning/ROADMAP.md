@@ -35,7 +35,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. Habit and completion data persist across browser sessions after refresh or reopen
   6. App renders in minimal dark mode and works on mobile and desktop with touch-friendly tap targets
 
-**Plans**: 3/4 plans executed
+**Plans**: 4/4 plans executed
 
 Plans:
 **Wave 1**
@@ -52,7 +52,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 01-04-PLAN.md — 7-day history grid and past-day completion toggling
+- [x] 01-04-PLAN.md — 7-day history grid and past-day completion toggling
 
 **UI hint**: yes
 
@@ -112,7 +112,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Habit Management & Daily Logging | 3/4 | In Progress|  |
+| 1. Habit Management & Daily Logging | 4/4 | In Progress|  |
 | 2. Streaks & Statistics | 0/TBD | Not started | - |
 | 3. Dashboard & Progress Visualization | 0/TBD | Not started | - |
 | 4. Data Backup & Restore | 0/TBD | Not started | - |
