@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Habit Management & Daily Logging** - Create habits, see what's due today, and check in with one tap (completed 2026-07-19)
 - [ ] **Phase 2: Streaks & Statistics** - See current and longest streaks, completion rate, and weekly overview per habit
-- [ ] **Phase 3: Dashboard & Progress Visualization** - Glance at all streaks and explore GitHub-style history per habit
+- [x] **Phase 3: Dashboard & Progress Visualization** - Glance at all streaks and explore GitHub-style history per habit (completed 2026-07-19)
 - [ ] **Phase 4: Data Backup & Restore** - Export and import JSON backups to protect local data
 
 ## Phase Details
@@ -154,5 +154,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Habit Management & Daily Logging | 5/5 | Complete    | 2026-07-19 |
 | 2. Streaks & Statistics | 4/4 | In Progress|  |
-| 3. Dashboard & Progress Visualization | 4/4 | In Progress|  |
+| 3. Dashboard & Progress Visualization | 4/4 | Complete    | 2026-07-19 |
 | 4. Data Backup & Restore | 0/TBD | Not started | - |
