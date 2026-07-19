@@ -82,7 +82,7 @@ describe('buildHeatmapActivities', () => {
   });
 
   it('marks Tuesday as not-scheduled for an MWF habit', () => {
-    const tuesday = '2026-07-15';
+    const tuesday = '2026-07-14';
     const { cellStates } = buildHeatmapActivities(
       monWedFri,
       completed(),
