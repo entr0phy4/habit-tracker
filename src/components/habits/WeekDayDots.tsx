@@ -1,6 +1,5 @@
 import { cn } from '@/lib/utils';
 import type { Frequency } from '@/domain/types';
-import { isDaily } from '@/domain/schedule';
 
 const DAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'] as const;
 
@@ -10,10 +9,10 @@ interface WeekDayDotsProps {
 }
 
 function getScheduledDays(frequency: Frequency): Set<number> {
-  if (isDaily(frequency)) {
-    return new Set([0, 1, 2, 3, 4, 5, 6]);
+  if (frequency.type === 'weekly') {
+    return new Set(frequency.days);
   }
-  return new Set(frequency.days);
+  return new Set([0, 1, 2, 3, 4, 5, 6]);
 }
 
 export function WeekDayDots({ frequency, className }: WeekDayDotsProps) {
