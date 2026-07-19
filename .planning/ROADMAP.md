@@ -13,7 +13,7 @@ Deliver a local-first habit tracker in four vertical MVP slices: first the compl
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Habit Management & Daily Logging** - Create habits, see what's due today, and check in with one tap
+- [x] **Phase 1: Habit Management & Daily Logging** - Create habits, see what's due today, and check in with one tap (completed 2026-07-19)
 - [ ] **Phase 2: Streaks & Statistics** - See current and longest streaks, completion rate, and weekly overview per habit
 - [ ] **Phase 3: Dashboard & Progress Visualization** - Glance at all streaks and explore GitHub-style history per habit
 - [ ] **Phase 4: Data Backup & Restore** - Export and import JSON backups to protect local data
@@ -74,7 +74,25 @@ Plans:
   4. User can see a weekly overview showing which scheduled days were completed or missed per habit
   5. Streak and stats update immediately when the user toggles a completion for today or a past day
 
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 02-01-PLAN.md — TDD: schedule-aware streak domain (current + longest) with date iteration helpers
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 02-02-PLAN.md — TDD: completion rate + calendar-week state domain
+
+**Wave 3** *(blocked on Wave 1 completion)*
+
+- [ ] 02-03-PLAN.md — Today inline Flame streak badge via useStreak (STRK-01 UI slice)
+
+**Wave 4** *(blocked on Waves 2 + 3 completion)*
+
+- [ ] 02-04-PLAN.md — History stat cards + calendar-week dot grid (STRK-02–04 UI slice)
+
 **UI hint**: yes
 
 ### Phase 3: Dashboard & Progress Visualization
@@ -116,7 +134,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Habit Management & Daily Logging | 5/5 | In Progress|  |
-| 2. Streaks & Statistics | 0/TBD | Not started | - |
+| 1. Habit Management & Daily Logging | 5/5 | Complete    | 2026-07-19 |
+| 2. Streaks & Statistics | 0/4 | Not started | - |
 | 3. Dashboard & Progress Visualization | 0/TBD | Not started | - |
 | 4. Data Backup & Restore | 0/TBD | Not started | - |
