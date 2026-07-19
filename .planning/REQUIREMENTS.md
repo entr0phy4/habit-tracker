@@ -26,7 +26,7 @@
 
 ### Visualization
 
-- [ ] **VIZ-01**: User can view a GitHub-style contribution grid showing history for each habit
+- [x] **VIZ-01**: User can view a GitHub-style contribution grid showing history for each habit
 
 ### Dashboard
 
@@ -96,7 +96,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STRK-03 | Phase 2 | Complete |
 | STRK-04 | Phase 2 | Complete |
 | DASH-01 | Phase 3 | Complete |
-| VIZ-01 | Phase 3 | Pending |
+| VIZ-01 | Phase 3 | Complete |
 | DATA-02 | Phase 4 | Pending |
 | DATA-03 | Phase 4 | Pending |
 
