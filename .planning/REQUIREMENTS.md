@@ -8,8 +8,8 @@
 ### Habit Management
 
 - [x] **HABT-01**: User can create a habit with a name and frequency (daily or specific days of the week)
-- [ ] **HABT-02**: User can edit a habit's name and frequency
-- [ ] **HABT-03**: User can archive or delete habits
+- [x] **HABT-02**: User can edit a habit's name and frequency
+- [x] **HABT-03**: User can archive or delete habits
 
 ### Daily Logging
 
@@ -41,7 +41,7 @@
 ### UI/UX
 
 - [x] **UI-01**: App uses a minimal dark mode aesthetic
-- [ ] **UI-02**: App works on both mobile and desktop browsers with touch-friendly targets
+- [x] **UI-02**: App works on both mobile and desktop browsers with touch-friendly targets
 
 ## v2 Requirements
 
@@ -83,14 +83,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | HABT-01 | Phase 1 | Complete |
-| HABT-02 | Phase 1 | Pending |
-| HABT-03 | Phase 1 | Pending |
+| HABT-02 | Phase 1 | Complete |
+| HABT-03 | Phase 1 | Complete |
 | LOG-01 | Phase 1 | Complete |
 | LOG-02 | Phase 1 | Pending |
 | LOG-03 | Phase 1 | Complete |
 | DATA-01 | Phase 1 | Complete |
 | UI-01 | Phase 1 | Complete |
-| UI-02 | Phase 1 | Pending |
+| UI-02 | Phase 1 | Complete |
 | STRK-01 | Phase 2 | Pending |
 | STRK-02 | Phase 2 | Pending |
 | STRK-03 | Phase 2 | Pending |
