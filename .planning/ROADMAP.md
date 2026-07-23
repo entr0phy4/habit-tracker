@@ -53,7 +53,20 @@ After shipping the local-first core loop, deepen motivation without expanding in
   3. Flame/streak badges and History stat cards update immediately after toggle without reload
   4. When IndexedDB reads fail, streak/stats UI shows zero/hidden safe states with no raw exception text
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 06-01-PLAN.md — TDD: countScheduledCompletions + calculateOverallCompletionRate (pooled)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 06-02-PLAN.md — QUERY_ERROR in useStreak/useHabitStats/useDashboardHabits + overallRate + reactivity
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 06-03-PLAN.md — Panel "Tasa general" UI + StatCards integers + 02-UAT closeout
 
 **UI hint**: yes
 
@@ -99,7 +112,7 @@ Phases execute in numeric order: 5 → 6 → 7 → 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 5. Visual Identity & Check-in Delight | 0/? | Not started | — |
-| 6. Dashboard Aggregate & UAT Residual | 0/? | Not started | — |
+| 6. Dashboard Aggregate & UAT Residual | 0/3 | Planned | — |
 | 7. Flexible Weekly Frequency | 0/? | Not started | — |
 | 8. Streak Freeze | 0/? | Not started | — |
 
