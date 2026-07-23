@@ -3,22 +3,22 @@ status: testing
 phase: 04-data-backup-restore
 source: [04-VERIFICATION.md]
 started: 2026-07-23T00:45:00Z
-updated: 2026-07-23T00:45:00Z
+updated: 2026-07-23T10:45:00Z
 ---
 
 ## Current Test
 
-number: 1
-name: Real browser export download
+number: 2
+name: Post-import UI consistency (Roadmap SC4)
 expected: |
-  Filename habit-tracker-backup-YYYY-MM-DD.json (local date); JSON version 1 with archived habits and all completions; toast "Backup exportado".
+  Import a known backup via Reemplazar; Hoy, Panel, and Historial heatmap show restored habits/streaks/completions without hard refresh.
 awaiting: user response
 
 ## Tests
 
 ### 1. Real browser export download
 expected: Seed habits (including archived) + completions; click Exportar datos; open downloaded file. Filename uses local date; payload complete; toast Backup exportado.
-result: [pending]
+result: pass
 
 ### 2. Post-import UI consistency (Roadmap SC4)
 expected: Import a known backup via Reemplazar; Hoy, Panel, and Historial heatmap show restored habits/streaks/completions without hard refresh.
@@ -35,9 +35,9 @@ result: [pending]
 ## Summary
 
 total: 4
-passed: 0
+passed: 1
 issues: 0
-pending: 4
+pending: 3
 skipped: 0
 blocked: 0
 
