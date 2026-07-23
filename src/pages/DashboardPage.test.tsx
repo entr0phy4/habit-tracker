@@ -15,6 +15,7 @@ function makeHabit(id: string, name: string): Habit {
     id,
     name,
     frequency: { type: 'daily' },
+    color: '#3fb950',
     archived: false,
     createdAt: '2026-07-19T12:00:00.000Z',
   };
