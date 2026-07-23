@@ -85,4 +85,11 @@ describe('HabitRow', () => {
     expect(screen.getByLabelText('5 day streak')).toBeTruthy();
     expect(screen.getByText('5')).toBeTruthy();
   });
+
+  it('exposes habit color accent on the row', () => {
+    renderRow();
+    expect(screen.getByTestId('habit-row-toggle').getAttribute('data-habit-color')).toBe(
+      '#3fb950',
+    );
+  });
 });

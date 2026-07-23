@@ -3,6 +3,7 @@ import { CalendarDays, Flame } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { normalizeHabitColor } from '@/domain/colors';
 import type { Habit } from '@/domain/types';
 import { useStreak } from '@/hooks/useStreak';
 import { WeekDayDots } from './WeekDayDots';
@@ -19,6 +20,7 @@ interface HabitRowProps {
 export function HabitRow({ habit, isCompleted, todayKey, onToggle }: HabitRowProps) {
   const navigate = useNavigate();
   const { currentStreak, isLoading } = useStreak(habit, todayKey);
+  const accent = normalizeHabitColor(habit.color);
   const startX = useRef(0);
   const startY = useRef(0);
   const isTouch = useRef(false);
@@ -70,11 +72,13 @@ export function HabitRow({ habit, isCompleted, todayKey, onToggle }: HabitRowPro
   return (
     <div className="relative overflow-hidden rounded-lg border border-border">
       <div
-        className="absolute inset-y-0 left-0 w-12 bg-primary/20"
+        className="absolute inset-y-0 left-0 w-12"
+        style={{ backgroundColor: `${accent}33` }}
         aria-hidden
       />
       <div
         data-testid="habit-row-toggle"
+        data-habit-color={accent}
         role="button"
         tabIndex={0}
         className={cn(
@@ -83,6 +87,7 @@ export function HabitRow({ habit, isCompleted, todayKey, onToggle }: HabitRowPro
         )}
         style={{
           transform: translateX > 0 ? `translateX(${translateX}px)` : undefined,
+          borderLeft: `4px solid ${accent}`,
         }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -109,13 +114,17 @@ export function HabitRow({ habit, isCompleted, todayKey, onToggle }: HabitRowPro
             className="flex shrink-0 items-center gap-1"
             aria-label={`${currentStreak} day streak`}
           >
-            <Flame className="h-4 w-4 text-primary" aria-hidden />
+            <Flame className="h-4 w-4" style={{ color: accent }} aria-hidden />
             <span className="text-xs font-semibold text-foreground">
               {currentStreak}
             </span>
           </span>
         )}
-        <WeekDayDots frequency={habit.frequency} className="shrink-0" />
+        <WeekDayDots
+          frequency={habit.frequency}
+          accentColor={accent}
+          className="shrink-0"
+        />
         <Button
           type="button"
           variant="ghost"

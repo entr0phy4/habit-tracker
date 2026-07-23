@@ -71,4 +71,11 @@ describe('DashboardCard', () => {
     expect(screen.getByLabelText('0 day streak')).toBeTruthy();
     expect(screen.getByText('0')).toBeTruthy();
   });
+
+  it('exposes habit color accent on the card', () => {
+    renderCard();
+    expect(screen.getByRole('button').getAttribute('data-habit-color')).toBe(
+      '#3fb950',
+    );
+  });
 });
