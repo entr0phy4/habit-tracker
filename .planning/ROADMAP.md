@@ -36,7 +36,12 @@ After shipping the local-first core loop, deepen motivation without expanding in
   3. Completing a habit today triggers a visible color-fill and/or micro-animation reward (in addition to the existing flame badge)
   4. Colors remain readable on the dark UI (sufficient contrast on surfaces and heatmap cells)
 
-**Plans**: TBD
+**Plans**: 3/3 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Color domain, Habit.color, repo + backup (wave 1)
+- [ ] 05-02-PLAN.md — Color picker + Today/Panel/heatmap accents (wave 2)
+- [ ] 05-03-PLAN.md — Check-in color-fill micro-animation (wave 3)
 
 **UI hint**: yes
 
@@ -98,7 +103,7 @@ Phases execute in numeric order: 5 → 6 → 7 → 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 5. Visual Identity & Check-in Delight | 0/? | Not started | — |
+| 5. Visual Identity & Check-in Delight | 0/3 | Planned | — |
 | 6. Dashboard Aggregate & UAT Residual | 0/? | Not started | — |
 | 7. Flexible Weekly Frequency | 0/? | Not started | — |
 | 8. Streak Freeze | 0/? | Not started | — |
