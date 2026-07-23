@@ -8,13 +8,15 @@ A web application that helps people build and maintain daily, weekly, or custom 
 
 **Core Value:** Make it effortless to log habits daily and impossible to ignore your progress — one tap to check in, one glance to see your streak.
 
+**Current milestone:** v1.1 Motivation Polish & Flexibility (colors, check-in rewards, overall rate, X/week frequency, streak freeze). v1.0 shipped.
+
 ### Constraints
 
-- **Platform**: Responsive web app (desktop + mobile browser) — no native apps in v1
-- **Data**: Local-first storage with export/import backup — no backend or auth in v1
-- **Scope**: Intentionally simple — resist feature creep; ship the core loop first
+- **Platform**: Responsive web app (desktop + mobile browser) — no native apps
+- **Data**: Local-first storage with export/import backup — no backend or auth
+- **Scope**: v1.1 = motivation polish & schedule flexibility; resist reminders/sync creep
 - **Design**: Minimal dark mode aesthetic — visual clarity over decoration
-- **Reminders**: Deferred to v2 — v1 is logging and visualization only
+- **Reminders**: Deferred to v2.0 — out of v1.1
 
 <!-- gsd-project-end -->
 
