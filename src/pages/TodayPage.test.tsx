@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { TodayHabitsState } from '@/hooks/useTodayHabits';
 import { TodayPage } from './TodayPage';
 
@@ -25,6 +25,10 @@ function renderPage() {
 describe('TodayPage', () => {
   beforeEach(() => {
     useTodayHabitsMock.mockReset();
+  });
+
+  afterEach(() => {
+    cleanup();
   });
 
   it('shows centered error copy when storage is unavailable', () => {
@@ -53,5 +57,17 @@ describe('TodayPage', () => {
 
     expect(screen.getByRole('heading', { name: 'No habits due today' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Add habit' })).toBeTruthy();
+  });
+
+  it('keeps Manage habits link and adds Settings gear to header', () => {
+    useTodayHabitsMock.mockReturnValue({ status: 'ready', habits: [] });
+
+    renderPage();
+
+    const manage = screen.getByRole('link', { name: 'Manage habits' });
+    expect(manage.getAttribute('href')).toBe('/habits/manage');
+
+    const settings = screen.getByRole('link', { name: 'Ajustes' });
+    expect(settings.getAttribute('href')).toBe('/settings');
   });
 });

@@ -4,16 +4,16 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 4
 current_phase_name: Data Backup & Restore
-status: planned
-stopped_at: Phase 4 plans ready for execution
-last_updated: "2026-07-22T11:55:00.000Z"
-last_activity: 2026-07-22
-last_activity_desc: Phase 4 planned — 3 plans (schema/service, settings shell, import/export UX)
+status: executed
+stopped_at: Phase 4 execution complete — ready for verify/UAT
+last_updated: "2026-07-23T00:41:00.000Z"
+last_activity: 2026-07-23
+last_activity_desc: Phase 4 plans 01–03 executed — export/import Settings flow shipped
 progress:
   total_phases: 4
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 16
-  completed_plans: 13
+  completed_plans: 16
 ---
 
 # Project State
@@ -23,22 +23,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-19)
 
 **Core value:** Make it effortless to log habits daily and impossible to ignore your progress — one tap to check in, one glance to see your streak.
-**Current focus:** Phase 04 — data-backup-restore
+**Current focus:** Phase 04 — data-backup-restore (executed; pending verify/UAT)
 
 ## Current Position
 
 Phase: 4 — Data Backup & Restore
-Plan: 01 of 03 (next to execute)
-Status: Ready to execute
-Last activity: 2026-07-22 — Phase 4 planned (RESEARCH, PATTERNS, UI-SPEC, VALIDATION, 04-01..03 PLAN)
+Plan: 3/3 complete
+Status: Executed — ready for `/gsd-verify-work`
+Last activity: 2026-07-23 — Implemented zod schema, backupService, Settings page, Today gear
 
-Progress: [████████░░] 81% (13/16 plans)
+Progress: [██████████] 100% (16/16 plans)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 13
+- Total plans completed: 16
 - Average duration: —
 - Total execution time: 0 hours
 
@@ -49,14 +49,8 @@ Progress: [████████░░] 81% (13/16 plans)
 | 01 | 5 | - | - |
 | 02 | 4 | - | - |
 | 03 | 4 | - | - |
-| 04 | 0/3 | - | - |
+| 04 | 3 | - | - |
 
-**Recent Trend:**
-
-- Last 5 plans: —
-- Trend: —
-
-*Updated after each plan completion*
 **Per-Plan Metrics:**
 
 | Plan | Duration | Tasks | Files |
@@ -74,20 +68,18 @@ Progress: [████████░░] 81% (13/16 plans)
 | Phase 03-dashboard-progress-visualization P01 | 6min | 3 tasks | 4 files |
 | Phase 03-dashboard-progress-visualization P03 | 2min | 2 tasks | 4 files |
 | Phase 03-dashboard-progress-visualization P04 | 12min | 3 tasks | 9 files |
+| Phase 04-data-backup-restore P01 | 8min | 3 tasks | 7 files |
+| Phase 04-data-backup-restore P02 | 5min | 2 tasks | 5 files |
+| Phase 04-data-backup-restore P03 | 6min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
-
-- Roadmap: 4 vertical MVP phases — core loop first, then streaks, visualization, backup
-- Stack (from research): Vite + React 19 + Dexie 4, compute-on-read streaks, YYYY-MM-DD local dates
-- Phase 4: zod@4.4.3 + domain backupSchema + infrastructure backupService (no services/ folder)
-- Phase 4: Settings at `/settings` outside MainLayout; Today gear + keep Manage habits link
-- Phase 4: Full replace import after ConfirmDialog; Spanish toasts; version must be 1
-- Phase 4: Download via createObjectURL; gear on Today only (not Dashboard)
+- Phase 4: zod@4.4.3 + domain backupSchema + infrastructure backupService
+- Phase 4: Settings at `/settings` outside MainLayout; Today gear + Manage habits retained
+- Phase 4: FileReader fallback for jsdom File.text gap in tests
+- Phase 4: Full replace import after ConfirmDialog; Spanish toasts only
 
 ### Pending Todos
 
@@ -95,19 +87,12 @@ None yet.
 
 ### Blockers/Concerns
 
-- Phase 2 human UAT still pending (4 tests in 02-UAT.md) — does not block Phase 4 execution
-
-## Deferred Items
-
-Items acknowledged and carried forward from previous milestone close:
-
-| Category | Item | Status | Deferred At |
-|----------|------|--------|-------------|
-| *(none)* | | | |
+- Phase 2 human UAT still pending (4 tests in 02-UAT.md)
+- Phase 4 needs `/gsd-verify-work` + human UAT
 
 ## Session Continuity
 
-Last session: 2026-07-22T11:55:00.000Z
-Stopped at: Phase 4 plans ready for execution
-Resume file: .planning/phases/04-data-backup-restore/04-01-PLAN.md
-Next command: `/gsd-execute-phase 4`
+Last session: 2026-07-23T00:41:00.000Z
+Stopped at: Phase 4 execution complete — ready for verify/UAT
+Resume file: none — run `/gsd-verify-work` for Phase 4
+Next command: `/gsd-verify-work`

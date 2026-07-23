@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Settings } from 'lucide-react';
 import { Link } from 'react-router';
 import { AppShell } from '@/components/layout/AppShell';
 import { FloatingAddButton } from '@/components/habits/FloatingAddButton';
@@ -46,12 +47,21 @@ export function TodayPage() {
       title="Today"
       hasTabBar
       headerAction={
-        <Link
-          to="/habits/manage"
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          Manage habits
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/habits/manage"
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
+            Manage habits
+          </Link>
+          <Link
+            to="/settings"
+            aria-label="Ajustes"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center text-muted-foreground hover:text-foreground"
+          >
+            <Settings className="h-5 w-5" aria-hidden />
+          </Link>
+        </div>
       }
     >
       {todayHabits.length === 0 ? (

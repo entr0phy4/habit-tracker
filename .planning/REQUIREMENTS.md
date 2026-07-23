@@ -35,8 +35,8 @@
 ### Data & Backup
 
 - [x] **DATA-01**: User data persists locally across browser sessions
-- [ ] **DATA-02**: User can export their data to a JSON file
-- [ ] **DATA-03**: User can import data from a JSON backup file
+- [x] **DATA-02**: User can export their data to a JSON file
+- [x] **DATA-03**: User can import data from a JSON backup file
 
 ### UI/UX
 
@@ -97,8 +97,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STRK-04 | Phase 2 | Complete |
 | DASH-01 | Phase 3 | Complete |
 | VIZ-01 | Phase 3 | Complete |
-| DATA-02 | Phase 4 | Pending |
-| DATA-03 | Phase 4 | Pending |
+| DATA-02 | Phase 4 | Complete |
+| DATA-03 | Phase 4 | Complete |
 
 **Coverage:**
 
