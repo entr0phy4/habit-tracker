@@ -3,15 +3,15 @@ status: testing
 phase: 04-data-backup-restore
 source: [04-VERIFICATION.md]
 started: 2026-07-23T00:45:00Z
-updated: 2026-07-23T10:47:00Z
+updated: 2026-07-23T11:59:00Z
 ---
 
 ## Current Test
 
-number: 3
-name: Settings has no tab bar
+number: 4
+name: Real file-picker rejection paths
 expected: |
-  Open /settings on ~375px viewport — no Hoy/Panel bottom tab bar; Volver returns to Today.
+  Import corrupt JSON → Archivo no válido; import version 2 → Versión de backup no compatible; ConfirmDialog never opens; prior data intact.
 awaiting: user response
 
 ## Tests
@@ -26,7 +26,7 @@ result: pass
 
 ### 3. Settings has no tab bar
 expected: Open /settings on ~375px viewport — no Hoy/Panel bottom tab bar; Volver returns to Today.
-result: [pending]
+result: pass
 
 ### 4. Real file-picker rejection paths
 expected: Import corrupt JSON → Archivo no válido; import version 2 → Versión de backup no compatible; ConfirmDialog never opens; prior data intact.
@@ -35,9 +35,9 @@ result: [pending]
 ## Summary
 
 total: 4
-passed: 2
+passed: 3
 issues: 0
-pending: 2
+pending: 1
 skipped: 0
 blocked: 0
 
