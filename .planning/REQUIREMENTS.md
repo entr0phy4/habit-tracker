@@ -1,9 +1,12 @@
 # Requirements: Habit Tracker
 
-**Defined:** 2026-07-19
+**Defined:** 2026-07-19  
+**Milestone v1.1 started:** 2026-07-23  
 **Core Value:** Make it effortless to log habits daily and impossible to ignore your progress — one tap to check in, one glance to see your streak.
 
-## v1 Requirements
+## v1.0 Requirements (Shipped)
+
+Shipped in milestone v1.0 (tag `v1.0.0`). Retained for traceability.
 
 ### Habit Management
 
@@ -43,22 +46,44 @@
 - [x] **UI-01**: App uses a minimal dark mode aesthetic
 - [x] **UI-02**: App works on both mobile and desktop browsers with touch-friendly targets
 
-## v2 Requirements
+## v1.1 Requirements
 
-Deferred to future release. Tracked but not in current roadmap.
+Active milestone scope. Polish and flexibility after v1.0 validation.
+
+### Visual Personalization & Delight
+
+- [ ] **ENH-01**: User can assign a custom color to each habit
+- [ ] **ENH-02**: User gets streak visual rewards (color fill, micro-animation) on check-in beyond the existing flame badge
+
+### Dashboard Aggregation
+
+- [ ] **ENH-03**: User can see overall completion rate across all habits on the dashboard
+
+### Schedule Flexibility
+
+- [ ] **ENH-04**: User can set "X times per week" frequency for habits
+- [ ] **ENH-05**: User can skip a day without breaking a streak (streak freeze)
+
+### Quality Residual
+
+- [ ] **QA-01**: Phase 2 human UAT residual closed — reactive stats on toggle and Dexie failure fallbacks show safe empty/zero UI with no raw exceptions
+
+## Future Requirements (v2.0+)
+
+Deferred past v1.1. Tracked but not in current roadmap.
 
 ### Notifications
 
 - **REM-01**: User can set optional reminders for habits
 - **REM-02**: User receives browser push notifications for due habits
 
-### Enhancements
+### Later candidates
 
-- **ENH-01**: User can assign a custom color to each habit
-- **ENH-02**: User gets streak visual rewards (flame icon, color fill, micro-animation) on check-in
-- **ENH-03**: User can see overall completion rate across all habits on the dashboard
-- **ENH-04**: User can set "X times per week" frequency for habits
-- **ENH-05**: User can skip a day without breaking a streak (streak freeze)
+- PWA / offline / installable app
+- `navigator.storage.persist()` for stronger IndexedDB durability
+- CSV export
+- Habit reordering
+- Light mode theme
 
 ## Out of Scope
 
@@ -68,45 +93,33 @@ Explicitly excluded. Documented to prevent scope creep.
 |---------|--------|
 | Social features (sharing, friends, leaderboards) | Intentional simplicity; distracts from private streak loop |
 | Full gamification (RPG, badges, points, levels) | Scope explosion; conflicts with minimal aesthetic |
-| Complex analytics (trends, correlations, ML insights) | v1 focuses on streaks and completion rate, not deep analysis |
-| Cloud sync + user accounts | Local-first v1; export/import is the backup strategy |
+| Complex analytics (trends, correlations, ML insights) | Focus remains streaks and completion rate, not deep analysis |
+| Cloud sync + user accounts | Local-first; export/import is the backup strategy |
 | Native mobile apps | Responsive web covers mobile browsers without app store overhead |
-| PWA / offline / installable app | Deferred per PROJECT.md; responsive web sufficient for v1 |
-| Routine builders / habit stacking | Different product philosophy; flat habit list for v1 |
-| Numeric/quantitative tracking | Binary done/undone keeps UI simple for v1 |
+| Reminders / push (this milestone) | High permission + scheduling cost; reserved for v2.0 |
+| Numeric/quantitative tracking | Binary done/undone (+ explicit skip) keeps UI simple |
 | Health app integrations | Pure behavior tracking, not biometrics |
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
+Which phases cover which v1.1 requirements. Filled by roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| HABT-01 | Phase 1 | Complete |
-| HABT-02 | Phase 1 | Complete |
-| HABT-03 | Phase 1 | Complete |
-| LOG-01 | Phase 1 | Complete |
-| LOG-02 | Phase 1 | Complete |
-| LOG-03 | Phase 1 | Complete |
-| DATA-01 | Phase 1 | Complete |
-| UI-01 | Phase 1 | Complete |
-| UI-02 | Phase 1 | Complete |
-| STRK-01 | Phase 2 | Complete |
-| STRK-02 | Phase 2 | Complete |
-| STRK-03 | Phase 2 | Complete |
-| STRK-04 | Phase 2 | Complete |
-| DASH-01 | Phase 3 | Complete |
-| VIZ-01 | Phase 3 | Complete |
-| DATA-02 | Phase 4 | Complete |
-| DATA-03 | Phase 4 | Complete |
+| ENH-01 | Phase 5 | Pending |
+| ENH-02 | Phase 5 | Pending |
+| ENH-03 | Phase 6 | Pending |
+| QA-01 | Phase 6 | Pending |
+| ENH-04 | Phase 7 | Pending |
+| ENH-05 | Phase 8 | Pending |
 
 **Coverage:**
 
-- v1 requirements: 17 total
-- Mapped to phases: 17
+- v1.1 requirements: 6 total
+- Mapped to phases: 6
 - Unmapped: 0 ✓
-- **Milestone v1.0:** all 17 shipped (2026-07-23)
 
 ---
-*Requirements defined: 2026-07-19*
-*Last updated: 2026-07-23 after v1.0 milestone close*
+*Requirements defined: 2026-07-19*  
+*v1.0 closed: 2026-07-23*  
+*v1.1 scoped: 2026-07-23 via `/gsd-new-milestone`*

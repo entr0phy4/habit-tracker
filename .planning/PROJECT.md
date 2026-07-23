@@ -10,6 +10,18 @@ A web application that helps people build and maintain daily, weekly, or custom 
 
 Make it effortless to log habits daily and impossible to ignore your progress — one tap to check in, one glance to see your streak.
 
+## Current Milestone: v1.1 Motivation Polish & Flexibility
+
+**Goal:** Deepen the streak motivation loop with visual personalization, check-in delight, flexible weekly schedules, and streak-freeze resilience — without reminders, accounts, or sync.
+
+**Target features:**
+- Custom habit colors for scanability on dense lists and heatmaps
+- Check-in streak rewards (color fill + micro-animation beyond the existing flame badge)
+- Overall completion rate across all habits on the dashboard
+- "X times per week" frequency (in addition to daily / specific weekdays)
+- Skip / streak freeze so a planned rest day does not break the chain
+- Close Phase 2 human UAT residual (reactive stats + Dexie failure backstops)
+
 ## Requirements
 
 ### Validated
@@ -24,42 +36,50 @@ Make it effortless to log habits daily and impossible to ignore your progress �
 
 ### Active
 
-*(none — v1.0 complete; see REQUIREMENTS.md v2 for next milestone candidates)*
+- [ ] User can assign a custom color to each habit (ENH-01)
+- [ ] User gets streak visual rewards (color fill, micro-animation) on check-in (ENH-02)
+- [ ] User can see overall completion rate across all habits on the dashboard (ENH-03)
+- [ ] User can set "X times per week" frequency for habits (ENH-04)
+- [ ] User can skip a day without breaking a streak (streak freeze) (ENH-05)
+- [ ] Phase 2 UAT residual closed: reactive stats on toggle + Dexie failure fallbacks (QA-01)
 
 ### Out of Scope
 
 - Social features (sharing, friends, leaderboards) — intentional simplicity; not core to the streak motivation loop
-- Complex analytics (trends, correlations, reports) — v1 focuses on streaks and completion rate, not deep insights
-- Gamification beyond streaks (points, badges, levels) — streak psychology is sufficient for v1
-- Push notifications and reminders — deferred to v2; reduces v1 complexity and permission friction
-- User accounts and cloud sync — local-first with export/import is the v1 data model
+- Complex analytics (trends, correlations, reports) — focus remains streaks and completion rate, not deep insights
+- Gamification beyond streaks (points, badges, levels) — streak psychology is sufficient
+- Push notifications and reminders — deferred to v2.0; reduces permission friction and scheduling complexity
+- User accounts and cloud sync — local-first with export/import remains the data model
 - Native mobile apps — responsive web covers mobile browsers without app store overhead
+- PWA / offline / installable app — still deferred; revisit after v1.1 polish
 
 ## Context
 
-v1.0 is live as a local-first habit tracker: create habits, check in on Hoy, glance at Panel streaks, explore Historial heatmaps, and protect data via Ajustes export/import. The product still targets people who lose motivation without visible chains — the GitHub contribution pattern and flame badge remain the primary nudges.
+v1.0 is live as a local-first habit tracker: create habits, check in on Hoy, glance at Panel streaks, explore Historial heatmaps, and protect data via Ajustes export/import. Milestone v1.1 builds on that loop with personalization and schedule flexibility that research marked as post-validation (v1.x), while keeping reminders/PWA for a later v2.0.
 
-Known residual: Phase 2 human UAT (4 backstop/reactivity checks) was left open at milestone close; behavior is implemented and unit-tested. v2 candidates (reminders, colors, streak freeze, overall dashboard rate) stay deferred.
+Known residual from v1.0 close: Phase 2 human UAT (4 backstop/reactivity checks) is in scope for v1.1 QA. Reminders (REM-01/02) stay explicitly out of this milestone.
 
 ## Constraints
 
-- **Platform**: Responsive web app (desktop + mobile browser) — no native apps in v1
-- **Data**: Local-first storage with export/import backup — no backend or auth in v1
-- **Scope**: Intentionally simple — resist feature creep; ship the core loop first
-- **Design**: Minimal dark mode aesthetic — visual clarity over decoration
-- **Reminders**: Deferred to v2 — v1 is logging and visualization only
+- **Platform**: Responsive web app (desktop + mobile browser) — no native apps
+- **Data**: Local-first storage with export/import backup — no backend or auth
+- **Scope**: Ship motivation polish and schedule flexibility; resist reminders/sync creep
+- **Design**: Minimal dark mode aesthetic — visual clarity over decoration; colors must remain accessible on dark surfaces
+- **Reminders**: Deferred to v2.0 — v1.1 is polish and flexibility only
+- **Streak integrity**: Freeze/skip must be explicit and countable so motivation is not silently diluted
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Local-first with export/import | No backend complexity; user owns their data; backup via export | ✓ Shipped Phase 4 — Zod-validated JSON + transactional replace |
-| Defer reminders to v2 | Avoids push permission UX and scheduling complexity in v1 | ✓ Held — REM-* still v2 |
-| Responsive web (not PWA) | Covers mobile browsers without offline/install scope creep | ✓ Held — no service worker in v1 |
+| Defer reminders to v2 | Avoids push permission UX and scheduling complexity in v1 | ✓ Held through v1.0; remains out of v1.1 |
+| Responsive web (not PWA) | Covers mobile browsers without offline/install scope creep | ✓ Held — no service worker in v1.0 |
 | Minimal dark mode aesthetic | Matches GitHub streak visual language; clean daily-use experience | ✓ Shipped Phase 1 UI-SPEC tokens |
-| No social or gamification beyond streaks | Keeps v1 focused on the core motivation loop | ✓ Held — flame + heatmap only |
+| No social or gamification beyond streaks | Keeps focus on the core motivation loop | ✓ Held — flame + heatmap only in v1.0 |
 | Dexie + compute-on-read streaks | IndexedDB capacity; no denormalized streak columns | ✓ Shipped Phases 1–3 |
 | react-activity-calendar for heatmap | Dark theme + renderBlock toggles without custom SVG grid | ✓ Shipped Phase 3 |
+| v1.1 = ENH polish, not REM | Research places colors / X-week / freeze in v1.x; reminders in v2+ | Active — this milestone |
 
 ## Evolution
 
@@ -79,4 +99,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-23 after v1.0 milestone close*
+*Last updated: 2026-07-23 after `/gsd-new-milestone` → v1.1*

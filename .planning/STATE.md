@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: Habit Tracker MVP
-status: milestone_complete
-stopped_at: Milestone v1.0 closed
-last_updated: "2026-07-23T12:52:00.000Z"
+milestone: v1.1
+milestone_name: Motivation Polish & Flexibility
+status: planning
+stopped_at: Milestone v1.1 initialized — roadmap ready
+last_updated: "2026-07-23T13:50:00.000Z"
 last_activity: 2026-07-23
-last_activity_desc: Milestone v1.0 complete — tag v1.0.0
+last_activity_desc: Milestone v1.1 started via /gsd-new-milestone
 progress:
   total_phases: 4
-  completed_phases: 4
-  total_plans: 16
-  completed_plans: 16
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State
@@ -20,18 +20,19 @@ progress:
 
 See: .planning/PROJECT.md (updated 2026-07-23)
 See: .planning/milestones/v1.0-MILESTONE.md
+See: .planning/MILESTONES.md
 
 **Core value:** Make it effortless to log habits daily and impossible to ignore your progress — one tap to check in, one glance to see your streak.
-**Current focus:** Milestone v1.0 complete
+**Current focus:** Milestone v1.1 — Motivation Polish & Flexibility
 
 ## Current Position
 
-Milestone: **v1.0 — complete**
-Phases: 4/4 · Plans: 16/16
-Tag: `v1.0.0`
-Last activity: 2026-07-23 — `/gsd-complete-milestone`
+Phase: Not started (roadmap defined — ready to plan)
+Plan: —
+Status: Ready to plan Phase 5
+Last activity: 2026-07-23 — Milestone v1.1 started (`/gsd-new-milestone`)
 
-Progress: [██████████] 100%
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -39,40 +40,37 @@ Progress: [██████████] 100%
 
 | Phase | Plans | Status |
 |-------|-------|--------|
-| 01 Habit Management & Daily Logging | 5/5 | Complete |
-| 02 Streaks & Statistics | 4/4 | Complete* |
-| 03 Dashboard & Progress Visualization | 4/4 | Complete |
-| 04 Data Backup & Restore | 3/3 | Complete |
-
-\* Phase 2 human UAT (4 items) carried forward as residual — see Deferred Items.
+| 05 Visual Identity & Check-in Delight | 0/? | Not started |
+| 06 Dashboard Aggregate & UAT Residual | 0/? | Not started |
+| 07 Flexible Weekly Frequency | 0/? | Not started |
+| 08 Streak Freeze | 0/? | Not started |
 
 ## Accumulated Context
 
 ### Decisions
 
-See PROJECT.md Key Decisions (all v1 outcomes recorded at milestone close).
+- v1.1 scopes ENH-01..05 + QA-01 (Phase 2 UAT residual); REM-01/02 deferred to v2.0
+- Phase numbering continues from v1.0 (last phase 4 → start at 5)
+- Existing v1 research in `.planning/research/` reused; no new parallel research for this polish milestone
 
 ### Pending Todos
 
-None for v1.0.
+None.
 
 ### Blockers/Concerns
 
-None blocking. Phase 2 UAT residual noted below.
+None blocking. Streak freeze and X/week both touch schedule-aware streak math — sequence Phase 7 before Phase 8 so freeze builds on the expanded frequency model.
 
 ## Deferred Items
 
-Items acknowledged and carried forward from milestone close:
-
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
-| UAT residual | Phase 2 human UAT (4 tests in 02-UAT.md) | Carried to polish / v1.1 | 2026-07-23 |
-| v2 | REM-01, REM-02 reminders/push | Planned for v2 | 2026-07-19 |
-| v2 | ENH-01..05 colors, rewards, overall rate, X/week, streak freeze | Planned for v2 | 2026-07-19 |
+| v2.0 | REM-01, REM-02 reminders/push | Planned for v2.0 | 2026-07-23 |
+| Future | PWA / `navigator.storage.persist()` | Optional later | 2026-07-23 |
 
 ## Session Continuity
 
-Last session: 2026-07-23T12:52:00.000Z
-Stopped at: Milestone v1.0 closed
-Resume file: .planning/milestones/v1.0-MILESTONE.md
-Next command: Start next milestone planning (`/gsd-new-milestone`) when ready
+Last session: 2026-07-23T13:50:00.000Z
+Stopped at: Milestone v1.1 initialized — roadmap ready
+Resume file: .planning/ROADMAP.md
+Next command: `/gsd-discuss-phase 5` or `/gsd-plan-phase 5`
