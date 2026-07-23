@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Motivation Polish & Flexibility
 status: planning
-stopped_at: Phase 5 context gathered
-last_updated: "2026-07-23T14:50:00.000Z"
+stopped_at: Phase 5 UI-SPEC approved
+last_updated: "2026-07-23T15:05:00.000Z"
 last_activity: 2026-07-23
-last_activity_desc: Phase 5 discuss-phase — CONTEXT.md ready
+last_activity_desc: Phase 5 ui-phase — UI-SPEC.md approved
 progress:
   total_phases: 4
   completed_phases: 0
@@ -29,8 +29,8 @@ See: .planning/MILESTONES.md
 
 Phase: 5 — Visual Identity & Check-in Delight
 Plan: —
-Status: Context gathered — ready to plan
-Last activity: 2026-07-23 — `/gsd-discuss-phase 5`
+Status: UI-SPEC approved — ready to plan
+Last activity: 2026-07-23 — `/gsd-ui-phase 5`
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -40,7 +40,7 @@ Progress: [░░░░░░░░░░] 0%
 
 | Phase | Plans | Status |
 |-------|-------|--------|
-| 05 Visual Identity & Check-in Delight | 0/? | Context ready |
+| 05 Visual Identity & Check-in Delight | 0/? | UI-SPEC ready |
 | 06 Dashboard Aggregate & UAT Residual | 0/? | Not started |
 | 07 Flexible Weekly Frequency | 0/? | Not started |
 | 08 Streak Freeze | 0/? | Not started |
@@ -51,6 +51,7 @@ Progress: [░░░░░░░░░░] 0%
 
 - v1.1 scopes ENH-01..05 + QA-01; REM-01/02 deferred to v2.0
 - Phase 5: preset swatches, accent-not-flood color, every-complete micro-delight, backup v2 with v1 import compatibility (see `05-CONTEXT.md`)
+- Phase 5 UI: 8-hex palette, 3px rail, 280ms CSS delight, habit-tinted heatmap theme (see `05-UI-SPEC.md`)
 
 ### Pending Todos
 
@@ -70,7 +71,7 @@ None blocking. Streak freeze and X/week both touch schedule-aware streak math �
 
 ## Session Continuity
 
-Last session: 2026-07-23T14:50:00.000Z
-Stopped at: Phase 5 context gathered
-Resume file: .planning/phases/05-visual-identity-check-in-delight/05-CONTEXT.md
-Next command: `/gsd-plan-phase 5` (or `/gsd-ui-phase 5` for UI contract first)
+Last session: 2026-07-23T15:05:00.000Z
+Stopped at: Phase 5 UI-SPEC approved
+Resume file: .planning/phases/05-visual-identity-check-in-delight/05-UI-SPEC.md
+Next command: `/gsd-plan-phase 5`
