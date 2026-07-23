@@ -4,11 +4,11 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 4
 current_phase_name: Data Backup & Restore
-status: verifying
-stopped_at: Phase 4 verification complete — awaiting human UAT
-last_updated: "2026-07-23T00:45:00.000Z"
+status: complete
+stopped_at: Phase 4 complete — milestone v1.0 ready to close
+last_updated: "2026-07-23T12:01:00.000Z"
 last_activity: 2026-07-23
-last_activity_desc: Phase 4 verified 18/19 must-haves; UAT pending (4 tests)
+last_activity_desc: Phase 4 UAT 4/4 passed — DATA-02/DATA-03 complete
 progress:
   total_phases: 4
   completed_phases: 4
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-19)
 
 **Core value:** Make it effortless to log habits daily and impossible to ignore your progress — one tap to check in, one glance to see your streak.
-**Current focus:** Phase 04 — data-backup-restore (verified; human UAT pending)
+**Current focus:** Milestone v1.0 — all 4 phases complete
 
 ## Current Position
 
 Phase: 4 — Data Backup & Restore
 Plan: 3/3 complete
-Status: Verified — human UAT pending (4 tests in 04-UAT.md)
-Last activity: 2026-07-23 — Verification 18/19 must-haves; SC4 post-import UI needs human check
+Status: Complete (verified + UAT passed)
+Last activity: 2026-07-23 — UAT 4/4 passed; phase signed off
 
 Progress: [██████████] 100% (16/16 plans)
 
@@ -78,8 +78,8 @@ Progress: [██████████] 100% (16/16 plans)
 
 - Phase 4: zod@4.4.3 + domain backupSchema + infrastructure backupService
 - Phase 4: Settings at `/settings` outside MainLayout; Today gear + Manage habits retained
-- Phase 4: FileReader fallback for jsdom File.text gap in tests
-- Phase 4: Full replace import after ConfirmDialog; Spanish toasts only
+- Phase 4: Full replace import after ConfirmDialog; Spanish toasts; version must be 1
+- Phase 4 UAT: all 4 human checks passed (export, post-import UI, no tab bar, rejection paths)
 
 ### Pending Todos
 
@@ -87,12 +87,17 @@ None yet.
 
 ### Blockers/Concerns
 
-- Phase 2 human UAT still pending (4 tests in 02-UAT.md)
-- Phase 4 human UAT pending (4 tests in 04-UAT.md)
+- Phase 2 human UAT still pending (4 tests in 02-UAT.md) — does not block milestone close if deferred
+
+## Deferred Items
+
+| Category | Item | Status | Deferred At |
+|----------|------|--------|-------------|
+| *(none)* | | | |
 
 ## Session Continuity
 
-Last session: 2026-07-23T00:45:00.000Z
-Stopped at: Phase 4 verification complete — awaiting human UAT
-Resume file: .planning/phases/04-data-backup-restore/04-UAT.md
-Next command: Complete human UAT items in 04-UAT.md (reply pass/fail per test)
+Last session: 2026-07-23T12:01:00.000Z
+Stopped at: Phase 4 complete — milestone v1.0 ready to close
+Resume file: none
+Next command: `/gsd-complete-milestone` (or address Phase 2 pending UAT if desired)

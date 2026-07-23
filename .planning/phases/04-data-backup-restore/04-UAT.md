@@ -1,18 +1,14 @@
 ---
-status: testing
+status: complete
 phase: 04-data-backup-restore
 source: [04-VERIFICATION.md]
 started: 2026-07-23T00:45:00Z
-updated: 2026-07-23T11:59:00Z
+updated: 2026-07-23T12:01:00Z
 ---
 
 ## Current Test
 
-number: 4
-name: Real file-picker rejection paths
-expected: |
-  Import corrupt JSON → Archivo no válido; import version 2 → Versión de backup no compatible; ConfirmDialog never opens; prior data intact.
-awaiting: user response
+[testing complete]
 
 ## Tests
 
@@ -30,17 +26,17 @@ result: pass
 
 ### 4. Real file-picker rejection paths
 expected: Import corrupt JSON → Archivo no válido; import version 2 → Versión de backup no compatible; ConfirmDialog never opens; prior data intact.
-result: [pending]
+result: pass
 
 ## Summary
 
 total: 4
-passed: 3
+passed: 4
 issues: 0
-pending: 1
+pending: 0
 skipped: 0
 blocked: 0
 
 ## Gaps
 
-*(none yet — fill during UAT)*
+*(none)*

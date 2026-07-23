@@ -1,36 +1,21 @@
 ---
 phase: 04-data-backup-restore
 verified: 2026-07-23T00:45:00Z
-status: human_needed
-score: 18/19 must-haves verified
-behavior_unverified: 1
+status: passed
+score: 19/19 must-haves verified
+behavior_unverified: 0
 overrides_applied: 0
-behavior_unverified_items:
-  - truth: "After a successful import, streaks, stats, dashboard, and contribution grids reflect the restored data"
-    test: "Export a backup with habits+completions, change or clear local data, import the file, confirm on Today/Panel/History that restored habits, streaks, and heatmap match the backup without a hard refresh"
-    expected: "Today lists restored due habits; Panel shows restored streaks; History heatmap cells match imported completions"
-    why_human: "importBackup + navigate('/') is wired and useLiveQuery powers those views, but no E2E test asserts post-import UI across Today/Dashboard/Heatmap"
-human_verification:
-  - test: "Click Exportar datos in a real browser with seeded habits (incl. archived); open the downloaded habit-tracker-backup-YYYY-MM-DD.json"
-    expected: "File downloads with local date in name; JSON has version 1, exportedAt, all habits including archived, and all completions"
-    why_human: "Unit tests mock URL.createObjectURL/download; real browser download UX is unproven"
-  - test: "Import a valid backup after confirming Reemplazar; check Hoy, Panel, and a habit Historial heatmap"
-    expected: "Restored habits and completions appear; streaks and heatmap cells match backup without hard refresh"
-    why_human: "Roadmap SC4 — reactive refresh after replace is architectural but not integration-tested across views"
-  - test: "Open /settings on mobile width and confirm bottom tab bar (Hoy/Panel) is absent"
-    expected: "Ajustes page shows no BottomTabBar; Volver returns to Today"
-    why_human: "Route is outside MainLayout in App.tsx; visual absence of tab chrome is a human UX check"
-  - test: "Attempt import of a truncated/corrupt .json and a file with version: 2"
-    expected: "Spanish toasts Archivo no válido / Versión de backup no compatible; ConfirmDialog never opens; existing data unchanged"
-    why_human: "Covered by unit/component tests with mocks; worth confirming with real file picker"
+behavior_unverified_items: []
+human_verification: []
 ---
 
 # Phase 4: Data Backup & Restore Verification Report
 
 **Phase Goal:** Users can export their data for safekeeping and restore from a backup without losing trust in the app  
 **Verified:** 2026-07-23T00:45:00Z  
-**Status:** human_needed  
-**Re-verification:** No — initial verification
+**UAT completed:** 2026-07-23T12:01:00Z  
+**Status:** passed  
+**Re-verification:** No — initial verification + human UAT
 
 ## User Flow Coverage
 
@@ -47,7 +32,7 @@ User story: *As a habit tracker user, I want to export and restore my habits as 
 | Confirm replace | importBackup → toast Backup restaurado → `/` | SettingsPage handleConfirmImport + test | ✓ |
 | Cancel replace | No write; dialog closes | Cancel test | ✓ |
 | Outcome: trust + recoverability | Validate-before-write + transactional replace | Domain + service + UI tests | ✓ |
-| Post-import views update | Today/Panel/History reflect restored data | useLiveQuery architecture; no cross-view E2E | ⚠️ present, behavior unverified |
+| Post-import views update | Today/Panel/History reflect restored data | useLiveQuery + human UAT #2 | ✓ |
 
 ## Goal Achievement
 
@@ -58,7 +43,7 @@ User story: *As a habit tracker user, I want to export and restore my habits as 
 | 1 | User can export all habits and completions to a downloadable JSON file (DATA-02, SC1) | ✓ VERIFIED | `exportBackup` + `downloadBackupJson`; Settings export test; empty + archived export service tests |
 | 2 | User can import a previously exported JSON backup and see data restored (DATA-03, SC2) | ✓ VERIFIED | `importBackup` replace test; Settings confirm → `importBackup` + navigate `/` |
 | 3 | Import validates before write and warns before replacing (SC3) | ✓ VERIFIED | `parseBackupJson` before dialog; ConfirmDialog destructive with counts; import only on confirm |
-| 4 | After successful import, streaks/stats/dashboard/heatmaps reflect restored data (SC4) | ⚠️ PRESENT_BEHAVIOR_UNVERIFIED | Dexie replace + live queries + redirect; no E2E across views |
+| 4 | After successful import, streaks/stats/dashboard/heatmaps reflect restored data (SC4) | ✓ VERIFIED | Human UAT #2 passed 2026-07-23 — Hoy/Panel/Historial match restored backup |
 | 5 | Dedicated `/settings` outside MainLayout — no tab bar (D-01, D-03) | ✓ VERIFIED | `App.tsx` sibling route; `SettingsPage` AppShell without `hasTabBar` |
 | 6 | Gear on Today navigates to Settings; Manage habits retained (D-02) | ✓ VERIFIED | `TodayPage` flex headerAction; test asserts both links |
 | 7 | Spanish Settings labels and toasts (D-04, D-08, D-14, D-15) | ✓ VERIFIED | UI-SPEC copy in SettingsPage; tests assert toast strings |
@@ -75,7 +60,7 @@ User story: *As a habit tracker user, I want to export and restore my habits as 
 | 18 | Domain parse has no Dexie/React imports | ✓ VERIFIED | `backupSchema.ts` imports only `zod` + types |
 | 19 | Filename must not use UTC slice | ✓ VERIFIED | `getLocalDateString`; no `toISOString().slice` in src |
 
-**Score:** 18/19 must-haves verified (1 present, behavior-unverified for SC4)
+**Score:** 19/19 must-haves verified (human UAT confirmed SC4 + browser paths)
 
 ### Required Artifacts
 
@@ -113,7 +98,7 @@ User story: *As a habit tracker user, I want to export and restore my habits as 
 | `parseBackupJson` | BackupPayload | Zod safeParse | Yes — fixture JSON tests | ✓ FLOWING |
 | `importBackup` | tables | validated payload | Yes — replace + rollback tests | ✓ FLOWING |
 | SettingsPage | pendingPayload | file → parse | Yes — component tests with File + mocks | ✓ FLOWING |
-| Post-import UI | live queries | Dexie after replace | Architectural only — not E2E tested | ⚠️ UNVERIFIED |
+| Post-import UI | live queries | Dexie after replace | Yes — human UAT #2 confirmed Hoy/Panel/Historial | ✓ FLOWING |
 
 ### Behavioral Spot-Checks
 
@@ -159,35 +144,14 @@ No orphaned requirement IDs — DATA-02 and DATA-03 mapped and checked in REQUIR
 
 ### Human Verification Required
 
-### 1. Real browser export download
-
-**Test:** Seed habits (including one archived) + completions; click Exportar datos; open the downloaded file.  
-**Expected:** Filename `habit-tracker-backup-YYYY-MM-DD.json` (local date); payload includes archived habit and all completions; toast "Backup exportado".  
-**Why human:** Download path mocked in unit tests.
-
-### 2. Post-import UI consistency (Roadmap SC4)
-
-**Test:** Import a known backup via ConfirmDialog; inspect Hoy, Panel, and Historial heatmap.  
-**Expected:** Restored habits/streaks/heatmap match backup without hard refresh.  
-**Why human:** Cross-view reactivity after replace not covered by E2E tests.
-
-### 3. Settings has no tab bar
-
-**Test:** Open `/settings` on ~375px viewport.  
-**Expected:** No Hoy/Panel bottom tab bar; Volver returns home.  
-**Why human:** Visual chrome check.
-
-### 4. Real file-picker rejection paths
-
-**Test:** Import corrupt JSON and a `version: 2` file via the OS file picker.  
-**Expected:** Matching Spanish error toasts; dialog never opens; prior data intact.  
-**Why human:** Complements mocked component tests with real picker UX.
+None remaining — all 4 UAT tests passed (2026-07-23).
 
 ### Gaps Summary
 
-No implementation gaps found for DATA-02/DATA-03. All planned artifacts exist, are wired, and pass **121** automated tests. Phase status is `human_needed` because Roadmap SC4 (post-import views) and real-browser download/file-picker checks require human UAT before full sign-off.
+No gaps. DATA-02/DATA-03 complete. Automated **121** tests green; human UAT **4/4** passed. Phase status: `passed`.
 
 ---
 
 _Verified: 2026-07-23T00:45:00Z_  
+_UAT completed: 2026-07-23T12:01:00Z_  
 _Verifier: Claude (gsd-verifier)_
