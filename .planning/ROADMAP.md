@@ -1,5 +1,9 @@
 # Roadmap: Habit Tracker
 
+## Milestone
+
+**v1.0 — Complete** (2026-07-23) · Tag `v1.0.0` · See `.planning/milestones/v1.0-MILESTONE.md`
+
 ## Overview
 
 Deliver a local-first habit tracker in four vertical MVP slices: first the complete habit-and-logging loop with persistence, then streak motivation, then the dashboard and contribution-grid visualization that make progress impossible to ignore, and finally export/import so users own and protect their data. Each phase ships an end-to-end user capability before the next layer of value is added.

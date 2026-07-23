@@ -105,7 +105,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 - v1 requirements: 17 total
 - Mapped to phases: 17
 - Unmapped: 0 ✓
+- **Milestone v1.0:** all 17 shipped (2026-07-23)
 
 ---
 *Requirements defined: 2026-07-19*
-*Last updated: 2026-07-19 after roadmap creation*
+*Last updated: 2026-07-23 after v1.0 milestone close*
