@@ -4,11 +4,11 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 4
 current_phase_name: Data Backup & Restore
-status: executed
-stopped_at: Phase 4 execution complete — ready for verify/UAT
-last_updated: "2026-07-23T00:41:00.000Z"
+status: verifying
+stopped_at: Phase 4 verification complete — awaiting human UAT
+last_updated: "2026-07-23T00:45:00.000Z"
 last_activity: 2026-07-23
-last_activity_desc: Phase 4 plans 01–03 executed — export/import Settings flow shipped
+last_activity_desc: Phase 4 verified 18/19 must-haves; UAT pending (4 tests)
 progress:
   total_phases: 4
   completed_phases: 4
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-19)
 
 **Core value:** Make it effortless to log habits daily and impossible to ignore your progress — one tap to check in, one glance to see your streak.
-**Current focus:** Phase 04 — data-backup-restore (executed; pending verify/UAT)
+**Current focus:** Phase 04 — data-backup-restore (verified; human UAT pending)
 
 ## Current Position
 
 Phase: 4 — Data Backup & Restore
 Plan: 3/3 complete
-Status: Executed — ready for `/gsd-verify-work`
-Last activity: 2026-07-23 — Implemented zod schema, backupService, Settings page, Today gear
+Status: Verified — human UAT pending (4 tests in 04-UAT.md)
+Last activity: 2026-07-23 — Verification 18/19 must-haves; SC4 post-import UI needs human check
 
 Progress: [██████████] 100% (16/16 plans)
 
@@ -88,11 +88,11 @@ None yet.
 ### Blockers/Concerns
 
 - Phase 2 human UAT still pending (4 tests in 02-UAT.md)
-- Phase 4 needs `/gsd-verify-work` + human UAT
+- Phase 4 human UAT pending (4 tests in 04-UAT.md)
 
 ## Session Continuity
 
-Last session: 2026-07-23T00:41:00.000Z
-Stopped at: Phase 4 execution complete — ready for verify/UAT
-Resume file: none — run `/gsd-verify-work` for Phase 4
-Next command: `/gsd-verify-work`
+Last session: 2026-07-23T00:45:00.000Z
+Stopped at: Phase 4 verification complete — awaiting human UAT
+Resume file: .planning/phases/04-data-backup-restore/04-UAT.md
+Next command: Complete human UAT items in 04-UAT.md (reply pass/fail per test)
