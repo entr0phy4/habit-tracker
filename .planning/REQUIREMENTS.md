@@ -57,7 +57,7 @@ Active milestone scope. Polish and flexibility after v1.0 validation.
 
 ### Dashboard Aggregation
 
-- [ ] **ENH-03**: User can see overall completion rate across all habits on the dashboard
+- [x] **ENH-03**: User can see overall completion rate across all habits on the dashboard
 
 ### Schedule Flexibility
 
@@ -66,7 +66,7 @@ Active milestone scope. Polish and flexibility after v1.0 validation.
 
 ### Quality Residual
 
-- [ ] **QA-01**: Phase 2 human UAT residual closed — reactive stats on toggle and Dexie failure fallbacks show safe empty/zero UI with no raw exceptions
+- [x] **QA-01**: Phase 2 human UAT residual closed — reactive stats on toggle and Dexie failure fallbacks show safe empty/zero UI with no raw exceptions
 
 ## Future Requirements (v2.0+)
 
@@ -108,8 +108,8 @@ Which phases cover which v1.1 requirements. Filled by roadmap.
 |-------------|-------|--------|
 | ENH-01 | Phase 5 | Complete |
 | ENH-02 | Phase 5 | Complete |
-| ENH-03 | Phase 6 | Pending |
-| QA-01 | Phase 6 | Pending |
+| ENH-03 | Phase 6 | Complete |
+| QA-01 | Phase 6 | Complete |
 | ENH-04 | Phase 7 | Pending |
 | ENH-05 | Phase 8 | Pending |
 

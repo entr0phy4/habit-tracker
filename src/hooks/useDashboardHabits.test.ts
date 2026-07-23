@@ -100,10 +100,10 @@ describe('useDashboardHabits', () => {
   it('computes pooled overallRate across active habits', async () => {
     // Habit A: 1/1 complete; Habit B: 0/1 complete → pooled 50%
     const a = await seedHabit('A', '2026-07-21T12:00:00.000Z');
-    const b = await seedHabit('B', '2026-07-21T12:00:00.000Z');
+    await seedHabit('B', '2026-07-21T12:00:00.000Z');
 
     await completeDays(a.id, ['2026-07-21']);
-    // b: no completions
+    // B: no completions
 
     const { result } = renderHook(() => useDashboardHabits(todayKey));
 
