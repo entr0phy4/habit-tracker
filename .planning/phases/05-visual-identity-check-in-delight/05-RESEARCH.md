@@ -415,7 +415,7 @@ Applicable ASVS: **V5 Input Validation** (Zod on import color). Auth/session/acc
 
 Step 2.6: SKIPPED for new external tools — code/CSS/Dexie/Zod only. Node/npm already used by the project. `node_modules` may be absent in fresh agents; `npm install` before `npm test`.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 None blocking. Discretion items resolved for planning:
 

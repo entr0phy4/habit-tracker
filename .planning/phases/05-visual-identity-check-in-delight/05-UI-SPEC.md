@@ -319,7 +319,7 @@ Swatch row: prefer single row of 8 on widths ≥360px; wrap is acceptable below 
 | Property | Spec |
 |----------|------|
 | New prop | `color: string` (habit hex) — required from history page |
-| Theme | `theme={{ dark: buildHeatmapTheme(color), light: buildHeatmapTheme(color) }}` |
+| Theme | `const theme = buildHeatmapTheme(normalizeHabitColor(color));` then `theme={theme}` where `buildHeatmapTheme` returns `{ dark: string[] }` (5 stops). Do **not** nest `theme={{ dark: buildHeatmapTheme(...) }}` — the helper already wraps `dark`. Add `light` only if ActivityCalendar requires it by spreading the same stops into `{ dark, light: dark }`. |
 | Today stroke | `habit.color` (replace `var(--primary)`) |
 | Missed stroke | `var(--destructive)` unchanged |
 | Levels / window / tooltips | Unchanged from Phase 3 |
@@ -344,8 +344,8 @@ Swatch row: prefer single row of 8 on widths ≥360px; wrap is acceptable below 
 |--------|------|
 | `HABIT_COLOR_PRESETS` | Readonly array of `{ id, hex, label }` for the 8 swatches |
 | `DEFAULT_HABIT_COLOR` | `'#3fb950'` |
-| `normalizeHabitColor(input: unknown): string` | Valid preset hex or default |
-| `buildHeatmapTheme(hex: string): string[]` | Length-5 array level 0…4 |
+| `normalizeHabitColor(input: unknown): string` | Accepts any `/^#[0-9a-f]{6}$/`; otherwise `DEFAULT_HABIT_COLOR` (backup/import may carry any valid hex; UI picker still presets-only) |
+| `buildHeatmapTheme(hex: string): { dark: string[] }` | Object with `dark` length-5 array levels 0…4; level 0 `#21262d`, level 4 normalized hex |
 
 Pure functions; colocated unit tests. Prefer domain over `src/lib/colors.ts`.
 
