@@ -37,11 +37,15 @@ describe('useDashboardHabits', () => {
     vi.restoreAllMocks();
   });
 
-  it('returns isLoading true while query is pending', () => {
+  it('returns loading status while query is pending', () => {
     const { result } = renderHook(() => useDashboardHabits(todayKey));
 
-    expect(result.current.isLoading).toBe(true);
-    expect(result.current.items).toEqual([]);
+    expect(result.current).toMatchObject({
+      status: 'loading',
+      isLoading: true,
+      items: [],
+      overallRate: 0,
+    });
   });
 
   it('sorts habits by currentStreak descending', async () => {
@@ -62,6 +66,7 @@ describe('useDashboardHabits', () => {
     const { result } = renderHook(() => useDashboardHabits(todayKey));
 
     await waitFor(() => {
+      expect(result.current.status).toBe('ready');
       expect(result.current.isLoading).toBe(false);
     });
 
@@ -72,21 +77,79 @@ describe('useDashboardHabits', () => {
     expect(result.current.items[1]?.currentStreak).toBe(3);
   });
 
-  it('excludes archived habits', async () => {
-    const active = await seedHabit('Active');
-    const archived = await seedHabit('Archived');
+  it('excludes archived habits from items and overallRate', async () => {
+    const active = await seedHabit('Active', '2026-07-21T12:00:00.000Z');
+    const archived = await seedHabit('Archived', '2026-07-21T12:00:00.000Z');
 
-    await completeDays(active.id, ['2026-07-20']);
-    await completeDays(archived.id, ['2026-07-20']);
+    await completeDays(active.id, ['2026-07-21']);
+    await completeDays(archived.id, []);
     await habitRepository.archive(archived.id);
 
     const { result } = renderHook(() => useDashboardHabits(todayKey));
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
+      expect(result.current.status).toBe('ready');
     });
 
     expect(result.current.items).toHaveLength(1);
     expect(result.current.items[0]?.habit.name).toBe('Active');
+    // Active only: 1/1 → 100%; archived excluded
+    expect(result.current.overallRate).toBe(100);
+  });
+
+  it('computes pooled overallRate across active habits', async () => {
+    // Habit A: 1/1 complete; Habit B: 0/1 complete → pooled 50%
+    const a = await seedHabit('A', '2026-07-21T12:00:00.000Z');
+    const b = await seedHabit('B', '2026-07-21T12:00:00.000Z');
+
+    await completeDays(a.id, ['2026-07-21']);
+    // b: no completions
+
+    const { result } = renderHook(() => useDashboardHabits(todayKey));
+
+    await waitFor(() => {
+      expect(result.current.status).toBe('ready');
+    });
+
+    expect(result.current.overallRate).toBe(50);
+    expect(result.current.items).toHaveLength(2);
+  });
+
+  it('returns error status with empty items and zero rate on IndexedDB failure', async () => {
+    await seedHabit('Will fail');
+
+    vi.spyOn(db.habits, 'filter').mockImplementation(() => {
+      throw new DOMException('The operation failed', 'AbortError');
+    });
+
+    const { result } = renderHook(() => useDashboardHabits(todayKey));
+
+    await waitFor(() => {
+      expect(result.current.status).toBe('error');
+    });
+
+    expect(result.current.items).toEqual([]);
+    expect(result.current.overallRate).toBe(0);
+    expect(result.current.isLoading).toBe(false);
+  });
+
+  it('updates overallRate after completionRepository.toggle without reload', async () => {
+    const habit = await seedHabit('Reactive', '2026-07-21T12:00:00.000Z');
+
+    const { result } = renderHook(() => useDashboardHabits(todayKey));
+
+    await waitFor(() => {
+      expect(result.current.status).toBe('ready');
+    });
+
+    expect(result.current.overallRate).toBe(0);
+    expect(result.current.items[0]?.currentStreak).toBe(0);
+
+    await completionRepository.toggle(habit.id, todayKey);
+
+    await waitFor(() => {
+      expect(result.current.overallRate).toBe(100);
+      expect(result.current.items[0]?.currentStreak).toBe(1);
+    });
   });
 });
