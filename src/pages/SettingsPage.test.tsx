@@ -55,6 +55,7 @@ const samplePayload: BackupPayload = {
       id: 'h1',
       name: 'Run',
       frequency: { type: 'daily' },
+      color: '#3fb950',
       archived: false,
       createdAt: '2026-07-01T10:00:00.000Z',
     },

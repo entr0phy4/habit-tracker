@@ -92,4 +92,24 @@ describe('HabitRow', () => {
       '#3fb950',
     );
   });
+
+  it('plays check-in reward when toggling an incomplete habit to complete', () => {
+    renderRow();
+    fireEvent.click(screen.getByTestId('habit-row-toggle'));
+    expect(
+      screen.getByTestId('habit-row-toggle').getAttribute('data-checkin-reward'),
+    ).toBe('true');
+  });
+
+  it('does not play check-in reward when un-completing', () => {
+    render(
+      <MemoryRouter>
+        <HabitRow habit={habit} isCompleted onToggle={vi.fn()} />
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByTestId('habit-row-toggle'));
+    expect(
+      screen.getByTestId('habit-row-toggle').getAttribute('data-checkin-reward'),
+    ).not.toBe('true');
+  });
 });

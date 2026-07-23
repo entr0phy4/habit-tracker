@@ -9,6 +9,7 @@ import { useStreak } from '@/hooks/useStreak';
 import { WeekDayDots } from './WeekDayDots';
 
 const SWIPE_THRESHOLD = 50;
+const REWARD_MS = 280;
 
 interface HabitRowProps {
   habit: Habit;
@@ -24,8 +25,28 @@ export function HabitRow({ habit, isCompleted, todayKey, onToggle }: HabitRowPro
   const startX = useRef(0);
   const startY = useRef(0);
   const isTouch = useRef(false);
+  const rewardTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [translateX, setTranslateX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [showReward, setShowReward] = useState(false);
+
+  function playCheckinReward() {
+    setShowReward(true);
+    if (rewardTimer.current) {
+      clearTimeout(rewardTimer.current);
+    }
+    rewardTimer.current = setTimeout(() => {
+      setShowReward(false);
+      rewardTimer.current = null;
+    }, REWARD_MS);
+  }
+
+  function requestToggle() {
+    if (!isCompleted) {
+      playCheckinReward();
+    }
+    onToggle();
+  }
 
   function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
     startX.current = event.clientX;
@@ -56,7 +77,7 @@ export function HabitRow({ habit, isCompleted, todayKey, onToggle }: HabitRowPro
     const deltaY = event.clientY - startY.current;
 
     if (isTouch.current && deltaX > SWIPE_THRESHOLD && deltaX > Math.abs(deltaY)) {
-      onToggle();
+      requestToggle();
     }
 
     setTranslateX(0);
@@ -65,7 +86,7 @@ export function HabitRow({ habit, isCompleted, todayKey, onToggle }: HabitRowPro
 
   function handleRowClick() {
     if (!isTouch.current) {
-      onToggle();
+      requestToggle();
     }
   }
 
@@ -79,15 +100,18 @@ export function HabitRow({ habit, isCompleted, todayKey, onToggle }: HabitRowPro
       <div
         data-testid="habit-row-toggle"
         data-habit-color={accent}
+        data-checkin-reward={showReward ? 'true' : undefined}
         role="button"
         tabIndex={0}
         className={cn(
           'relative flex min-h-11 touch-pan-y items-center gap-3 px-4 py-3 transition-transform active:scale-[0.98]',
           isCompleted ? 'bg-muted' : 'bg-card hover:bg-[#1c2128]',
+          showReward && 'habit-checkin-reward',
         )}
         style={{
           transform: translateX > 0 ? `translateX(${translateX}px)` : undefined,
           borderLeft: `4px solid ${accent}`,
+          ['--habit-reward-color' as string]: accent,
         }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -97,7 +121,7 @@ export function HabitRow({ habit, isCompleted, todayKey, onToggle }: HabitRowPro
         onKeyDown={(event) => {
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
-            onToggle();
+            requestToggle();
           }
         }}
       >
