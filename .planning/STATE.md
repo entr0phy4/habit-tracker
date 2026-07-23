@@ -4,15 +4,15 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 4
 current_phase_name: Data Backup & Restore
-status: planning
-stopped_at: Phase 4 context gathered
-last_updated: "2026-07-19T23:03:43.563Z"
-last_activity: 2026-07-19
-last_activity_desc: Phase 03 complete, transitioned to Phase 4
+status: planned
+stopped_at: Phase 4 plans ready for execution
+last_updated: "2026-07-22T11:55:00.000Z"
+last_activity: 2026-07-22
+last_activity_desc: Phase 4 planned — 3 plans (schema/service, settings shell, import/export UX)
 progress:
   total_phases: 4
   completed_phases: 3
-  total_plans: 13
+  total_plans: 16
   completed_plans: 13
 ---
 
@@ -23,22 +23,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-19)
 
 **Core value:** Make it effortless to log habits daily and impossible to ignore your progress — one tap to check in, one glance to see your streak.
-**Current focus:** Phase 03 — dashboard-progress-visualization
+**Current focus:** Phase 04 — data-backup-restore
 
 ## Current Position
 
 Phase: 4 — Data Backup & Restore
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-07-19 — Phase 03 complete, transitioned to Phase 4
+Plan: 01 of 03 (next to execute)
+Status: Ready to execute
+Last activity: 2026-07-22 — Phase 4 planned (RESEARCH, PATTERNS, UI-SPEC, VALIDATION, 04-01..03 PLAN)
 
-Progress: [██████████] 100%
+Progress: [████████░░] 81% (13/16 plans)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 9
+- Total plans completed: 13
 - Average duration: —
 - Total execution time: 0 hours
 
@@ -47,7 +47,9 @@ Progress: [██████████] 100%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01 | 5 | - | - |
+| 02 | 4 | - | - |
 | 03 | 4 | - | - |
+| 04 | 0/3 | - | - |
 
 **Recent Trend:**
 
@@ -82,37 +84,10 @@ Recent decisions affecting current work:
 
 - Roadmap: 4 vertical MVP phases — core loop first, then streaks, visualization, backup
 - Stack (from research): Vite + React 19 + Dexie 4, compute-on-read streaks, YYYY-MM-DD local dates
-- [Phase ?]: Manual Vite+shadcn scaffold because shadcn CLI init requires interactive prompts
-- [Phase ?]: Dexie compound completion key typed as Table for TS 7 compatibility
-- [Phase ?]: Toast on habit create deferred to Plan 02; navigation to / implemented now
-- [Phase ?]: Manual toggle components after shadcn CLI wrote to literal @/ path
-- [Phase ?]: HabitForm maps all-7-selected to daily, partial to weekly days array
-- [Phase ?]: Custom ConfirmDialog for destructive delete without new Radix dependency
-- [Phase ?]: HabitHistoryPage stub route until Plan 04 implements dot grid
-- [Phase ?]: useTodayHabits accepts todayKey for visibilitychange midnight refresh
-- [Phase ?]: Toggle failure shows sonner toast per UI-SPEC backstop
-- [Phase ?]: useCompletions queries Dexie compound key between getLast7Days range
-- [Phase ?]: Error sentinel Symbol in useLiveQuery callback avoids dexie-react-hooks stuck undefined
-- [Phase ?]: Fixed UI-SPEC copy only — no raw Dexie exception text (T-01-11 mitigation)
-- [Phase ?]: D-15: skip today when due but incomplete — start backward walk from yesterday
-- [Phase ?]: getHabitStartDate uses getLocalDateString(new Date(createdAt)) — never UTC slice
-- [Phase ?]: Badge hidden while useStreak isLoading per UI-SPEC loading state
-- [Phase ?]: Streak count uses text-foreground and Flame text-primary — not muted when row completed (D-04)
-- [Phase ?]: getWeekDayState uses today string param converted to noon-local Date for isFutureDate
-- [Phase ?]: Future scheduled days excluded from completion rate denominator via isFutureDate
-- [Phase ?]: HabitHistoryContent sub-component isolates useHabitStats to satisfy Rules of Hooks
-- [Phase ?]: Today primary ring on wrapper div so missed destructive ring stacks per UI-SPEC
-- [Phase ?]: MainLayout nests tab-bar routes; form routes stay outside
-- [Phase ?]: useDashboardHabits batch-computes streaks sorted descending
-- [Phase ?]: AppShell hasTabBar pb-20; Today FAB at bottom-[4.5rem] with list pb-28
-- [Phase ?]: Completed heatmap cells use level 4 per UI-SPEC binary mapping
-- [Phase ?]: Human-approved react-activity-calendar@3.2.1 install after package legitimacy checkpoint
-- [Phase ?]: buildHeatmapActivities reuses getWeekDayState — cellStates Map ready for Plan 04 renderBlock
-- [Phase ?]: DashboardCard button navigates to /habits/:id/history with Flame badge matching HabitRow
-- [Phase ?]: DashboardPage Spanish empty state and null loading per UI-SPEC
-- [Phase ?]: renderBlock wraps tappable cells in min-h-11 min-w-11 flex center for 44px touch targets
-- [Phase ?]: ActivityCalendar mocked in unit tests — full SVG calendar fails in jsdom without getBBox
-- [Phase ?]: Back navigation uses shared BackButton with navigate(-1) on loading and loaded shells
+- Phase 4: zod@4.4.3 + domain backupSchema + infrastructure backupService (no services/ folder)
+- Phase 4: Settings at `/settings` outside MainLayout; Today gear + keep Manage habits link
+- Phase 4: Full replace import after ConfirmDialog; Spanish toasts; version must be 1
+- Phase 4: Download via createObjectURL; gear on Today only (not Dashboard)
 
 ### Pending Todos
 
@@ -120,8 +95,7 @@ None yet.
 
 ### Blockers/Concerns
 
-- Phase 2 streak engine: timezone/DST and weekly-frequency edge cases need fixture tests during planning
-- Phase 3 heatmap: validate `react-activity-calendar` click-to-toggle behavior during planning
+- Phase 2 human UAT still pending (4 tests in 02-UAT.md) — does not block Phase 4 execution
 
 ## Deferred Items
 
@@ -133,6 +107,7 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-19T23:03:43.553Z
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-data-backup-restore/04-CONTEXT.md
+Last session: 2026-07-22T11:55:00.000Z
+Stopped at: Phase 4 plans ready for execution
+Resume file: .planning/phases/04-data-backup-restore/04-01-PLAN.md
+Next command: `/gsd-execute-phase 4`
