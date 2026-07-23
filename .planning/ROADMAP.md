@@ -1,5 +1,9 @@
 # Roadmap: Habit Tracker
 
+## Milestone
+
+**v1.0 — Complete** (2026-07-23) · Tag `v1.0.0` · See `.planning/milestones/v1.0-MILESTONE.md`
+
 ## Overview
 
 Deliver a local-first habit tracker in four vertical MVP slices: first the complete habit-and-logging loop with persistence, then streak motivation, then the dashboard and contribution-grid visualization that make progress impossible to ignore, and finally export/import so users own and protect their data. Each phase ships an end-to-end user capability before the next layer of value is added.
@@ -16,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Habit Management & Daily Logging** - Create habits, see what's due today, and check in with one tap (completed 2026-07-19)
 - [x] **Phase 2: Streaks & Statistics** - See current and longest streaks, completion rate, and weekly overview per habit (completed 2026-07-19)
 - [x] **Phase 3: Dashboard & Progress Visualization** - Glance at all streaks and explore GitHub-style history per habit (completed 2026-07-19)
-- [ ] **Phase 4: Data Backup & Restore** - Export and import JSON backups to protect local data
+- [x] **Phase 4: Data Backup & Restore** - Export and import JSON backups to protect local data (completed 2026-07-23)
 
 ## Phase Details
 
@@ -142,20 +146,20 @@ Plans:
   3. Import validates the file before writing and warns the user before replacing existing data
   4. After a successful import, streaks, stats, dashboard, and contribution grids reflect the restored data
 
-**Plans**: 3 plans
+**Plans**: 3/3 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 04-01-PLAN.md — TDD: zod + backupSchema parse + backupService export/import
+- [x] 04-01-PLAN.md — TDD: zod + backupSchema parse + backupService export/import
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 04-02-PLAN.md — Settings page shell, `/settings` route, Today gear entry
+- [x] 04-02-PLAN.md — Settings page shell, `/settings` route, Today gear entry
 
 **Wave 3** *(blocked on Waves 1 + 2 completion)*
 
-- [ ] 04-03-PLAN.md — Export download + import ConfirmDialog trust loop (DATA-02/03 UX)
+- [x] 04-03-PLAN.md — Export download + import ConfirmDialog trust loop (DATA-02/03 UX)
 
 **UI hint**: yes
 
@@ -169,6 +173,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Habit Management & Daily Logging | 5/5 | Complete    | 2026-07-19 |
 | 2. Streaks & Statistics | 4/4 | Complete*   | 2026-07-19 |
 | 3. Dashboard & Progress Visualization | 4/4 | Complete    | 2026-07-19 |
-| 4. Data Backup & Restore | 0/3 | Planned    | - |
+| 4. Data Backup & Restore | 3/3 | Complete    | 2026-07-23 |
 
 \* Phase 2 plans verified; human UAT still has pending items in `02-UAT.md`.
+Phase 4 UAT: 4/4 passed (`04-UAT.md`).

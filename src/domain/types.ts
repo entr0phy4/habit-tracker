@@ -15,3 +15,10 @@ export interface Completion {
   habitId: string;
   date: string;
 }
+
+export interface BackupPayload {
+  version: 1;
+  exportedAt: string;
+  habits: Habit[];
+  completions: Completion[];
+}

@@ -4,6 +4,8 @@
 
 A web application that helps people build and maintain daily, weekly, or custom habits through visual progress tracking and streak motivation. It's a clean, fast, visually pleasing tool for anyone who wants better routines — students, professionals, fitness enthusiasts, and people working on self-improvement — especially those who respond well to visual feedback and the psychological boost of "don't break the chain" streaks.
 
+**v1.0 shipped (2026-07-23):** local-first SPA with today check-in, schedule-aware streaks, dashboard + contribution heatmap, and JSON export/import backup.
+
 ## Core Value
 
 Make it effortless to log habits daily and impossible to ignore your progress — one tap to check in, one glance to see your streak.
@@ -12,17 +14,17 @@ Make it effortless to log habits daily and impossible to ignore your progress �
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] User can create custom habits with a name and frequency (daily, or specific days of the week) — Phase 1 (HABT-01)
+- [x] User can mark habits complete/incomplete for each day with a single tap or click — Phase 1 (LOG-01, LOG-02)
+- [x] User can view a visual calendar grid (GitHub contribution-graph style) showing streak history per habit — Phase 3 (VIZ-01)
+- [x] User can see a dashboard with current streaks (and per-habit rate/weekly overview on history) — Phases 2–3 (STRK-*, DASH-01)
+- [x] User gets satisfying visual feedback when maintaining a streak (flame icon, color fill) — Phase 2 (STRK-01 UI)
+- [x] User data persists locally in the browser with export/import backup capability — Phases 1 + 4 (DATA-01..03)
+- [x] App works as a responsive web experience on desktop and mobile browsers — Phase 1 (UI-01, UI-02)
 
 ### Active
 
-- [ ] User can create custom habits with a name and frequency (daily, or specific days of the week)
-- [ ] User can mark habits complete/incomplete for each day with a single tap or click
-- [ ] User can view a visual calendar grid (GitHub contribution-graph style) showing streak history per habit
-- [ ] User can see a dashboard with current streaks, completion rate, and weekly overview
-- [ ] User gets satisfying visual feedback when maintaining a streak (flame icon, color fill, or similar)
-- [ ] User data persists locally in the browser with export/import backup capability
-- [ ] App works as a responsive web experience on desktop and mobile browsers
+*(none — v1.0 complete; see REQUIREMENTS.md v2 for next milestone candidates)*
 
 ### Out of Scope
 
@@ -35,9 +37,9 @@ Make it effortless to log habits daily and impossible to ignore your progress �
 
 ## Context
 
-Most people struggle with consistency when building new habits (exercising, reading, meditating, drinking water, etc.). They start motivated but lose track, forget, or feel discouraged when they can't see progress. Existing solutions are often too complex, cluttered with features, or don't provide the right "nudge" to keep going.
+v1.0 is live as a local-first habit tracker: create habits, check in on Hoy, glance at Panel streaks, explore Historial heatmaps, and protect data via Ajustes export/import. The product still targets people who lose motivation without visible chains — the GitHub contribution pattern and flame badge remain the primary nudges.
 
-This project targets the gap: a deliberately simple habit tracker that makes logging frictionless and progress visible. The GitHub contribution graph is a proven visual pattern for streak motivation. The aesthetic direction is minimal dark mode (GitHub/Linear style) — clean, focused, and easy on the eyes for daily use.
+Known residual: Phase 2 human UAT (4 backstop/reactivity checks) was left open at milestone close; behavior is implemented and unit-tested. v2 candidates (reminders, colors, streak freeze, overall dashboard rate) stay deferred.
 
 ## Constraints
 
@@ -51,11 +53,13 @@ This project targets the gap: a deliberately simple habit tracker that makes log
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Local-first with export/import | No backend complexity; user owns their data; backup via export | — Pending |
-| Defer reminders to v2 | Avoids push permission UX and scheduling complexity in v1 | — Pending |
-| Responsive web (not PWA) | Covers mobile browsers without offline/install scope creep | — Pending |
-| Minimal dark mode aesthetic | Matches GitHub streak visual language; clean daily-use experience | — Pending |
-| No social or gamification beyond streaks | Keeps v1 focused on the core motivation loop | — Pending |
+| Local-first with export/import | No backend complexity; user owns their data; backup via export | ✓ Shipped Phase 4 — Zod-validated JSON + transactional replace |
+| Defer reminders to v2 | Avoids push permission UX and scheduling complexity in v1 | ✓ Held — REM-* still v2 |
+| Responsive web (not PWA) | Covers mobile browsers without offline/install scope creep | ✓ Held — no service worker in v1 |
+| Minimal dark mode aesthetic | Matches GitHub streak visual language; clean daily-use experience | ✓ Shipped Phase 1 UI-SPEC tokens |
+| No social or gamification beyond streaks | Keeps v1 focused on the core motivation loop | ✓ Held — flame + heatmap only |
+| Dexie + compute-on-read streaks | IndexedDB capacity; no denormalized streak columns | ✓ Shipped Phases 1–3 |
+| react-activity-calendar for heatmap | Dark theme + renderBlock toggles without custom SVG grid | ✓ Shipped Phase 3 |
 
 ## Evolution
 
@@ -75,4 +79,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-19 after initialization*
+*Last updated: 2026-07-23 after v1.0 milestone close*
