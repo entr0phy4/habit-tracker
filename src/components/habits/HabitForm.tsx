@@ -3,7 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import {
+  DEFAULT_HABIT_COLOR,
+  HABIT_COLOR_PRESETS,
+  normalizeHabitColor,
+} from '@/domain/colors';
 import type { Frequency } from '@/domain/types';
+import { cn } from '@/lib/utils';
 
 const DAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'] as const;
 const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
@@ -12,6 +18,7 @@ const EMPTY_NAME_ERROR = 'Enter a habit name to continue.';
 export interface HabitFormValues {
   name: string;
   frequency: Frequency;
+  color: string;
 }
 
 interface HabitFormProps {
@@ -39,6 +46,9 @@ export function HabitForm({ submitLabel, initialValues, onSubmit }: HabitFormPro
   const [selectedDays, setSelectedDays] = useState<number[]>(
     initialValues ? frequencyToDays(initialValues.frequency) : ALL_DAYS,
   );
+  const [color, setColor] = useState(
+    normalizeHabitColor(initialValues?.color ?? DEFAULT_HABIT_COLOR),
+  );
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -57,6 +67,7 @@ export function HabitForm({ submitLabel, initialValues, onSubmit }: HabitFormPro
       await onSubmit({
         name: trimmedName,
         frequency: toFrequency(selectedDays),
+        color: normalizeHabitColor(color),
       });
     } catch (submitError) {
       setError(
@@ -105,6 +116,36 @@ export function HabitForm({ submitLabel, initialValues, onSubmit }: HabitFormPro
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Label id="habit-color-label" className="font-semibold">
+          Color
+        </Label>
+        <div
+          role="radiogroup"
+          aria-labelledby="habit-color-label"
+          className="flex flex-wrap gap-2"
+        >
+          {HABIT_COLOR_PRESETS.map((preset) => {
+            const selected = color === preset;
+            return (
+              <button
+                key={preset}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                aria-label={`Color ${preset}`}
+                className={cn(
+                  'min-h-11 min-w-11 rounded-full border-2 border-transparent',
+                  selected && 'ring-2 ring-foreground ring-offset-2 ring-offset-background',
+                )}
+                style={{ backgroundColor: preset }}
+                onClick={() => setColor(preset)}
+              />
+            );
+          })}
+        </div>
       </div>
 
       <Button type="submit" size="lg" className="min-h-11 w-full" disabled={isSubmitting}>

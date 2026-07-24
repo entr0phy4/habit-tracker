@@ -7,6 +7,8 @@ export interface Habit {
   id: string;
   name: string;
   frequency: Frequency;
+  /** Hex accent from curated presets (e.g. `#3fb950`). */
+  color: string;
   archived: boolean;
   createdAt: string;
 }
