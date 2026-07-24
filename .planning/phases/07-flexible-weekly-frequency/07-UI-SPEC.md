@@ -1,7 +1,7 @@
 ---
 phase: 7
 slug: flexible-weekly-frequency
-status: draft
+status: approved
 shadcn_initialized: true
 preset: new-york, baseColor zinc, dark mode
 created: 2026-07-24
