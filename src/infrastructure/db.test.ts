@@ -20,6 +20,7 @@ describe('HabitTrackerDB', () => {
       id: 'habit-1',
       name: 'Read',
       frequency: { type: 'daily' },
+      color: '#3fb950',
       archived: false,
       createdAt: new Date().toISOString(),
     });

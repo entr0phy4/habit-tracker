@@ -22,6 +22,7 @@ const habit: Habit = {
   id: 'habit-1',
   name: 'Morning run',
   frequency: { type: 'daily' },
+  color: '#3fb950',
   archived: false,
   createdAt: '2026-07-19T12:00:00.000Z',
 };
@@ -83,5 +84,32 @@ describe('HabitRow', () => {
     );
     expect(screen.getByLabelText('5 day streak')).toBeTruthy();
     expect(screen.getByText('5')).toBeTruthy();
+  });
+
+  it('exposes habit color accent on the row', () => {
+    renderRow();
+    expect(screen.getByTestId('habit-row-toggle').getAttribute('data-habit-color')).toBe(
+      '#3fb950',
+    );
+  });
+
+  it('plays check-in reward when toggling an incomplete habit to complete', () => {
+    renderRow();
+    fireEvent.click(screen.getByTestId('habit-row-toggle'));
+    expect(
+      screen.getByTestId('habit-row-toggle').getAttribute('data-checkin-reward'),
+    ).toBe('true');
+  });
+
+  it('does not play check-in reward when un-completing', () => {
+    render(
+      <MemoryRouter>
+        <HabitRow habit={habit} isCompleted onToggle={vi.fn()} />
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByTestId('habit-row-toggle'));
+    expect(
+      screen.getByTestId('habit-row-toggle').getAttribute('data-checkin-reward'),
+    ).not.toBe('true');
   });
 });

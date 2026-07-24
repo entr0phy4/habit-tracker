@@ -6,6 +6,7 @@ const DAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'] as const;
 interface WeekDayDotsProps {
   frequency: Frequency;
   className?: string;
+  accentColor?: string;
 }
 
 function getScheduledDays(frequency: Frequency): Set<number> {
@@ -15,7 +16,7 @@ function getScheduledDays(frequency: Frequency): Set<number> {
   return new Set([0, 1, 2, 3, 4, 5, 6]);
 }
 
-export function WeekDayDots({ frequency, className }: WeekDayDotsProps) {
+export function WeekDayDots({ frequency, className, accentColor }: WeekDayDotsProps) {
   const scheduledDays = getScheduledDays(frequency);
 
   return (
@@ -32,8 +33,14 @@ export function WeekDayDots({ frequency, className }: WeekDayDotsProps) {
             <span
               className={cn(
                 'h-2 w-2 rounded-full',
-                isScheduled ? 'bg-primary' : 'bg-border',
+                isScheduled && !accentColor && 'bg-primary',
+                !isScheduled && 'bg-border',
               )}
+              style={
+                isScheduled && accentColor
+                  ? { backgroundColor: accentColor }
+                  : undefined
+              }
               aria-hidden
             />
           </div>

@@ -1,12 +1,18 @@
 import { getLocalDateString } from '@/domain/dates';
+import { normalizeHabitColor } from '@/domain/colors';
 import type { BackupPayload } from '@/domain/types';
 import { db } from './db';
 
 export async function exportBackup(): Promise<BackupPayload> {
-  const [habits, completions] = await Promise.all([
+  const [habitsRaw, completions] = await Promise.all([
     db.habits.toArray(),
     db.completions.toArray(),
   ]);
+
+  const habits = habitsRaw.map((habit) => ({
+    ...habit,
+    color: normalizeHabitColor(habit.color),
+  }));
 
   return {
     version: 1,
@@ -17,10 +23,15 @@ export async function exportBackup(): Promise<BackupPayload> {
 }
 
 export async function importBackup(payload: BackupPayload): Promise<void> {
+  const habits = payload.habits.map((habit) => ({
+    ...habit,
+    color: normalizeHabitColor(habit.color),
+  }));
+
   await db.transaction('rw', db.habits, db.completions, async () => {
     await db.habits.clear();
     await db.completions.clear();
-    await db.habits.bulkAdd(payload.habits);
+    await db.habits.bulkAdd(habits);
     await db.completions.bulkAdd(payload.completions);
   });
 }

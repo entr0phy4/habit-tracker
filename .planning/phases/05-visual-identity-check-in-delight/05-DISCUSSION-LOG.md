@@ -1,20 +1,26 @@
 # Phase 5 — Discussion Log
 
-**Mode:** assumptions (auto / yolo)
-**Date:** 2026-07-23
+**Date:** 2026-07-23  
+**Mode:** yolo auto-discuss (unblocked `/gsd-execute-phase 5` with `plan_count: 0`)
 
-## Process
+## Gray Areas Selected
 
-User invoked `/gsd-plan-phase 5` without prior `/gsd-discuss-phase 5`. Config `mode: yolo` + cloud-agent non-interactive path → synthesize CONTEXT from ROADMAP/REQUIREMENTS + codebase evidence (assumptions auto).
+All (auto): Color model & palette, Color picker UX, Surface application, Check-in delight, Backup compatibility
 
-## Assumptions locked (see 05-CONTEXT.md)
+## Decisions
 
-- Preset 8-color palette; default `#3fb950`
-- Dexie v2 backfill; backup stays version 1 with optional color + default
-- English "Color" label in HabitForm
-- Per-habit accents on Today / Panel / heatmap / Manage
-- CSS-only ≤200ms check-in animation + reduced-motion respect
+| Area | Question | Selected | Notes |
+|------|----------|----------|-------|
+| Color model | Picker type | Curated 8-swatch palette | No free hex |
+| Color model | Default | `#3fb950` | Matches `--primary` |
+| Surfaces | Where color shows | Row strip, Panel bar, heatmap theme, flame | D-09–D-12 |
+| Reward | Check-in delight | Color-fill pulse + scale CSS | Today→complete only |
+| Backup | Version | Keep v1 + optional color | Default on missing |
 
-## Corrections from user
+## Deferred
 
-None — auto-accepted for planning.
+- Free hex/icons, confetti/haptics, overall-rate coloring (Phase 6)
+
+## Claude's Discretion
+
+- Heatmap tint algorithm, reduced-motion handling, swipe-strip color match

@@ -43,6 +43,7 @@ export function HabitEditPage() {
     await habitRepository.update(id!, {
       name: values.name,
       frequency: values.frequency,
+      color: values.color,
     });
     toast.success('Habit updated');
     navigate('/habits/manage');
@@ -72,7 +73,11 @@ export function HabitEditPage() {
 
       <HabitForm
         submitLabel="Save changes"
-        initialValues={{ name: habit.name, frequency: habit.frequency }}
+        initialValues={{
+          name: habit.name,
+          frequency: habit.frequency,
+          color: habit.color,
+        }}
         onSubmit={handleUpdate}
       />
 
