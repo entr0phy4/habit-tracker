@@ -25,4 +25,12 @@ describe('StatCards', () => {
 
     expect(container.firstChild).toBeNull();
   });
+
+  it('renders large integers without abbreviation', () => {
+    render(<StatCards current={1234} longest={5678} rate={100} />);
+
+    expect(screen.getByText('1234')).toBeTruthy();
+    expect(screen.getByText('5678')).toBeTruthy();
+    expect(screen.queryByText(/1\.2K|5\.7K|1K|5K/i)).toBeNull();
+  });
 });

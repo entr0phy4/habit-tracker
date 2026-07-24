@@ -35,13 +35,13 @@ Make it effortless to log habits daily and impossible to ignore your progress �
 - [x] App works as a responsive web experience on desktop and mobile browsers — Phase 1 (UI-01, UI-02)
 - [x] User can assign a custom color to each habit — Phase 5 (ENH-01)
 - [x] User gets streak visual rewards (color fill, micro-animation) on check-in — Phase 5 (ENH-02)
+- [x] User can see overall completion rate across all habits on the dashboard — Phase 6 (ENH-03)
+- [x] Phase 2 UAT residual closed: reactive stats on toggle + Dexie failure fallbacks — Phase 6 (QA-01)
 
 ### Active
 
-- [ ] User can see overall completion rate across all habits on the dashboard (ENH-03)
 - [ ] User can set "X times per week" frequency for habits (ENH-04)
 - [ ] User can skip a day without breaking a streak (streak freeze) (ENH-05)
-- [ ] Phase 2 UAT residual closed: reactive stats on toggle + Dexie failure fallbacks (QA-01)
 
 ### Out of Scope
 

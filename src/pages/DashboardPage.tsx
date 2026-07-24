@@ -3,10 +3,22 @@ import { AppShell } from '@/components/layout/AppShell';
 import { useDashboardHabits } from '@/hooks/useDashboardHabits';
 
 export function DashboardPage() {
-  const { items, isLoading } = useDashboardHabits();
+  const { status, items, overallRate, isLoading } = useDashboardHabits();
 
-  if (isLoading) {
+  if (isLoading || status === 'loading') {
     return null;
+  }
+
+  if (status === 'error') {
+    return (
+      <AppShell title="Panel" hasTabBar>
+        <div className="flex min-h-[50dvh] flex-col items-center justify-center text-center">
+          <p className="text-sm text-muted-foreground">
+            No se pudieron cargar los hábitos.
+          </p>
+        </div>
+      </AppShell>
+    );
   }
 
   return (
@@ -19,13 +31,21 @@ export function DashboardPage() {
           </p>
         </div>
       ) : (
-        <ul className="flex flex-col gap-2 pb-20">
-          {items.map(({ habit, currentStreak }) => (
-            <li key={habit.id}>
-              <DashboardCard habit={habit} currentStreak={currentStreak} />
-            </li>
-          ))}
-        </ul>
+        <div className="pb-20">
+          <div className="mb-2">
+            <p className="text-xs text-muted-foreground">Tasa general</p>
+            <p className="mt-1 text-xl font-semibold text-foreground">
+              {overallRate}%
+            </p>
+          </div>
+          <ul className="flex flex-col gap-2">
+            {items.map(({ habit, currentStreak }) => (
+              <li key={habit.id}>
+                <DashboardCard habit={habit} currentStreak={currentStreak} />
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </AppShell>
   );
