@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Motivation Polish & Flexibility
-status: context_gathered
-stopped_at: Phase 8 context gathered — ready to plan
-last_updated: "2026-07-24T20:45:00.000Z"
+status: ready_to_execute
+stopped_at: Phase 8 planned — ready to execute
+last_updated: "2026-07-24T21:15:00.000Z"
 last_activity: 2026-07-24
-last_activity_desc: Phase 8 discuss-phase auto/yolo — CONTEXT captured (ENH-05 streak freeze)
+last_activity_desc: Phase 8 plan-phase — RESEARCH, UI-SPEC, PATTERNS, VALIDATION, 3 PLANs, PLAN-CHECK PASS
 progress:
   total_phases: 4
   completed_phases: 3
-  total_plans: 9
+  total_plans: 12
   completed_plans: 9
 ---
 
@@ -23,14 +23,14 @@ See: .planning/milestones/v1.0-MILESTONE.md
 See: .planning/MILESTONES.md
 
 **Core value:** Make it effortless to log habits daily and impossible to ignore your progress — one tap to check in, one glance to see your streak.
-**Current focus:** Milestone v1.1 — Phase 8 Streak Freeze (context gathered)
+**Current focus:** Milestone v1.1 — Phase 8 Streak Freeze (planned)
 
 ## Current Position
 
-Phase: 8 — Streak Freeze (CONTEXT GATHERED)
-Plan: none yet
-Status: Ready for planning — `/gsd-plan-phase 8`
-Last activity: 2026-07-24 — discuss-phase 8 (yolo/auto defaults locked)
+Phase: 8 — Streak Freeze (PLANNED)
+Plan: 08-01 ready (wave 1)
+Status: Ready for execution — `/gsd-execute-phase 8`
+Last activity: 2026-07-24 — plan-phase 8 (yolo/auto)
 
 Progress: [███████░░░] 75%
 
@@ -43,7 +43,7 @@ Progress: [███████░░░] 75%
 | 05 Visual Identity & Check-in Delight | 3/3 | Complete |
 | 06 Dashboard Aggregate & UAT Residual | 3/3 | Complete |
 | 07 Flexible Weekly Frequency | 3/3 | Complete |
-| 08 Streak Freeze | 0/? | Context gathered — ready to plan |
+| 08 Streak Freeze | 0/3 | Planned — ready to execute |
 
 ## Accumulated Context
 
@@ -54,7 +54,7 @@ Progress: [███████░░░] 75%
 - Phase 5: curated 8-color palette; backup v1 + optional color; CSS-only check-in pulse (05-CONTEXT.md)
 - Phase 6: pooled lifetime overall rate (not mean of rates); QUERY_ERROR in streak/stats/dashboard hooks; Panel "Tasa general" (06-CONTEXT.md)
 - Phase 7: `times_per_week` frequency; Mon–Sun quota due; week-level streaks; rate caps; HabitForm modes + WeekQuotaChip; backup v1 Zod (07-CONTEXT.md)
-- Phase 8: separate `Freeze` records; bridge-without-increment streaks; frozen ≠ done for rates; heatmap `'frozen'`; Dexie v2 + backup v1 `freezes[]`; Today secondary Skip + History freeze (08-CONTEXT.md)
+- Phase 8: separate `Freeze` records; bridge-without-increment streaks; frozen ≠ done for rates; heatmap `'frozen'`; Dexie v2 + backup v1 `freezes[]`; Today Omitir + History cycle (08-CONTEXT.md / 08-*-PLAN.md)
 
 ### Pending Todos
 
@@ -62,7 +62,7 @@ None.
 
 ### Blockers/Concerns
 
-None blocking. Phase 8 context locked; ready for `/gsd-plan-phase 8`.
+None blocking. Phase 8 plans verified (08-PLAN-CHECK.md PASS).
 
 ## Deferred Items
 
@@ -75,7 +75,7 @@ None blocking. Phase 8 context locked; ready for `/gsd-plan-phase 8`.
 
 ## Session Continuity
 
-Last session: 2026-07-24T20:45:00.000Z
-Stopped at: Phase 8 context gathered — ready to plan
-Resume file: .planning/phases/08-streak-freeze/08-CONTEXT.md
-Next command: `/gsd-plan-phase 8`
+Last session: 2026-07-24T21:15:00.000Z
+Stopped at: Phase 8 planned — ready to execute
+Resume file: .planning/phases/08-streak-freeze/08-01-PLAN.md
+Next command: `/gsd-execute-phase 8`
