@@ -97,4 +97,40 @@ describe('useTodayHabits', () => {
       expect(result.current).toEqual({ status: 'error' });
     });
   });
+
+  it('includes times_per_week habits when week completions are below quota', async () => {
+    const habit = await habitRepository.create({
+      name: 'Yoga',
+      frequency: { type: 'times_per_week', times: 3 },
+    });
+    // Week Mon 2026-07-20 … Sun 2026-07-26; today Tue 2026-07-21
+    await db.completions.put({ habitId: habit.id, date: '2026-07-20' });
+    await db.completions.put({ habitId: habit.id, date: '2026-07-21' });
+
+    const { result } = renderHook(() => useTodayHabits());
+
+    await waitFor(() => {
+      expect(result.current.status).toBe('ready');
+      if (result.current.status !== 'ready') return;
+      expect(result.current.habits).toHaveLength(1);
+      expect(result.current.habits[0]?.habit.id).toBe(habit.id);
+      expect(result.current.habits[0]?.weekCompletions).toBe(2);
+    });
+  });
+
+  it('hides times_per_week habits when weekly quota is met', async () => {
+    const habit = await habitRepository.create({
+      name: 'Yoga',
+      frequency: { type: 'times_per_week', times: 3 },
+    });
+    await db.completions.put({ habitId: habit.id, date: '2026-07-20' });
+    await db.completions.put({ habitId: habit.id, date: '2026-07-21' });
+    await db.completions.put({ habitId: habit.id, date: '2026-07-22' });
+
+    const { result } = renderHook(() => useTodayHabits());
+
+    await waitFor(() => {
+      expect(result.current).toEqual({ status: 'ready', habits: [] });
+    });
+  });
 });

@@ -1,6 +1,91 @@
-import { getPreviousDay, iterateDaysInRange } from './dates';
+import {
+  countCompletionsInCalendarWeek,
+  getLocalDateString,
+  getPreviousDay,
+  iterateCalendarWeeksInRange,
+  iterateDaysInRange,
+} from './dates';
 import { isDueOnDate } from './schedule';
 import type { Frequency } from './types';
+import { startOfWeek } from 'date-fns/startOfWeek';
+
+const WEEK_OPTS = { weekStartsOn: 1 as const };
+
+export function isWeekHit(
+  completedDates: Set<string>,
+  times: number,
+  dateInWeek: string,
+): boolean {
+  return countCompletionsInCalendarWeek(completedDates, dateInWeek) >= times;
+}
+
+function calculateCurrentWeekStreak(
+  completedDates: Set<string>,
+  times: number,
+  today: string,
+  habitStartDate: string,
+): number {
+  const habitWeekStart = getLocalDateString(
+    startOfWeek(new Date(`${habitStartDate}T12:00:00`), WEEK_OPTS),
+  );
+  const currentWeekStart = getLocalDateString(
+    startOfWeek(new Date(`${today}T12:00:00`), WEEK_OPTS),
+  );
+
+  let streak = 0;
+  let cursor = currentWeekStart;
+
+  while (cursor >= habitWeekStart) {
+    const hit = isWeekHit(completedDates, times, cursor);
+    const isCurrentWeek = cursor === currentWeekStart;
+
+    if (isCurrentWeek) {
+      if (hit) {
+        streak++;
+      }
+      // unmet current week: grace — do not break, do not count
+      cursor = getLocalDateString(
+        startOfWeek(
+          new Date(`${getPreviousDay(cursor)}T12:00:00`),
+          WEEK_OPTS,
+        ),
+      );
+      continue;
+    }
+
+    if (!hit) {
+      break;
+    }
+
+    streak++;
+    cursor = getLocalDateString(
+      startOfWeek(new Date(`${getPreviousDay(cursor)}T12:00:00`), WEEK_OPTS),
+    );
+  }
+
+  return streak;
+}
+
+function calculateLongestWeekStreak(
+  completedDates: Set<string>,
+  times: number,
+  startDate: string,
+  endDate: string,
+): number {
+  let longest = 0;
+  let current = 0;
+
+  for (const { weekStart } of iterateCalendarWeeksInRange(startDate, endDate)) {
+    if (isWeekHit(completedDates, times, weekStart)) {
+      current++;
+      longest = Math.max(longest, current);
+    } else {
+      current = 0;
+    }
+  }
+
+  return longest;
+}
 
 export function calculateCurrentStreak(
   completedDates: Set<string>,
@@ -8,6 +93,15 @@ export function calculateCurrentStreak(
   today: string,
   habitStartDate: string,
 ): number {
+  if (frequency.type === 'times_per_week') {
+    return calculateCurrentWeekStreak(
+      completedDates,
+      frequency.times,
+      today,
+      habitStartDate,
+    );
+  }
+
   let streak = 0;
   let cursor = today;
 
@@ -38,6 +132,15 @@ export function calculateLongestStreak(
   startDate: string,
   endDate: string,
 ): number {
+  if (frequency.type === 'times_per_week') {
+    return calculateLongestWeekStreak(
+      completedDates,
+      frequency.times,
+      startDate,
+      endDate,
+    );
+  }
+
   let longest = 0;
   let current = 0;
 

@@ -26,6 +26,42 @@ export function getCalendarWeekDates(today: Date = new Date()): string[] {
   }).map(getLocalDateString);
 }
 
+/** Count YYYY-MM-DD keys that fall in the Mon–Sun week containing dateInWeek. */
+export function countCompletionsInCalendarWeek(
+  completedDates: Set<string>,
+  dateInWeek: string,
+): number {
+  const weekDates = getCalendarWeekDates(new Date(`${dateInWeek}T12:00:00`));
+  let count = 0;
+  for (const date of weekDates) {
+    if (completedDates.has(date)) count++;
+  }
+  return count;
+}
+
+/** Yield each Mon–Sun week overlapping [startDate, endDate] (inclusive). */
+export function* iterateCalendarWeeksInRange(
+  startDate: string,
+  endDate: string,
+): Generator<{ weekStart: string; weekEnd: string }> {
+  if (startDate > endDate) return;
+
+  let cursor = getLocalDateString(
+    startOfWeek(new Date(`${startDate}T12:00:00`), WEEK_OPTS),
+  );
+  const lastWeekStart = getLocalDateString(
+    startOfWeek(new Date(`${endDate}T12:00:00`), WEEK_OPTS),
+  );
+
+  while (cursor <= lastWeekStart) {
+    const weekDates = getCalendarWeekDates(new Date(`${cursor}T12:00:00`));
+    const weekStart = weekDates[0]!;
+    const weekEnd = weekDates[6]!;
+    yield { weekStart, weekEnd };
+    cursor = getLocalDateString(addDays(new Date(`${weekStart}T12:00:00`), 7));
+  }
+}
+
 export function isFutureDate(dateStr: string, today: Date = new Date()): boolean {
   return isAfter(startOfDay(new Date(`${dateStr}T00:00:00`)), startOfDay(today));
 }

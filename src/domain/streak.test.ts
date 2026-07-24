@@ -3,6 +3,7 @@ import { calculateCurrentStreak, calculateLongestStreak } from './streak';
 
 const daily = { type: 'daily' as const };
 const monWedFri = { type: 'weekly' as const, days: [1, 3, 5] };
+const times3 = { type: 'times_per_week' as const, times: 3 };
 
 function completed(...dates: string[]): Set<string> {
   return new Set(dates);
@@ -63,6 +64,50 @@ describe('calculateCurrentStreak', () => {
     );
     expect(calculateCurrentStreak(dates, daily, '2026-07-19', '2026-07-14')).toBe(1);
   });
+
+  it('counts consecutive past hit weeks and grants grace for unmet current week', () => {
+    // Weeks: Jun 29–Jul 5 hit, Jul 6–12 hit, Jul 13–19 (today Thu) unmet
+    const dates = completed(
+      '2026-06-29',
+      '2026-07-01',
+      '2026-07-03',
+      '2026-07-06',
+      '2026-07-08',
+      '2026-07-10',
+      '2026-07-13',
+    );
+    expect(
+      calculateCurrentStreak(dates, times3, '2026-07-16', '2026-06-29'),
+    ).toBe(2);
+  });
+
+  it('breaks current streak when a fully past week misses the quota', () => {
+    // Jul 6–12 miss (only 1), Jul 13–19 unmet → streak 0
+    const dates = completed('2026-07-06', '2026-07-14');
+    expect(
+      calculateCurrentStreak(dates, times3, '2026-07-16', '2026-07-06'),
+    ).toBe(0);
+  });
+
+  it('counts the current week toward streak when quota is already met', () => {
+    const dates = completed(
+      '2026-07-06',
+      '2026-07-08',
+      '2026-07-10',
+      '2026-07-13',
+      '2026-07-14',
+      '2026-07-15',
+    );
+    expect(
+      calculateCurrentStreak(dates, times3, '2026-07-16', '2026-07-06'),
+    ).toBe(2);
+  });
+
+  it('returns 0 for times_per_week until the first hit week', () => {
+    expect(
+      calculateCurrentStreak(completed(), times3, '2026-07-16', '2026-07-13'),
+    ).toBe(0);
+  });
 });
 
 describe('calculateLongestStreak', () => {
@@ -97,6 +142,28 @@ describe('calculateLongestStreak', () => {
     const dates = completed('2026-07-20', '2026-07-22', '2026-07-24');
     expect(
       calculateLongestStreak(dates, monWedFri, '2026-07-20', '2026-07-24'),
+    ).toBe(3);
+  });
+
+  it('returns max consecutive hit weeks for times_per_week', () => {
+    // Three hit weeks then a miss then one hit
+    const dates = completed(
+      '2026-06-22',
+      '2026-06-23',
+      '2026-06-24', // week Jun 22–28 hit
+      '2026-06-29',
+      '2026-07-01',
+      '2026-07-03', // week Jun 29–Jul 5 hit
+      '2026-07-06',
+      '2026-07-08',
+      '2026-07-10', // week Jul 6–12 hit
+      // Jul 13–19 miss (0)
+      '2026-07-20',
+      '2026-07-21',
+      '2026-07-22', // week Jul 20–26 hit
+    );
+    expect(
+      calculateLongestStreak(dates, times3, '2026-06-22', '2026-07-22'),
     ).toBe(3);
   });
 });
