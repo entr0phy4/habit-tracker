@@ -2,48 +2,51 @@
 
 **Gathered:** 2026-07-23
 **Status:** Ready for planning
+**Source:** `/gsd-execute-phase 5` unblocked via yolo auto-discuss (no prior CONTEXT/plans)
 
 <domain>
 ## Phase Boundary
 
-Users can tell habits apart by color and feel a satisfying reward when they check in. This phase adds a custom color per habit (create/edit + accents on Today, Panel, and heatmap) and a check-in delight (habit-color fill + micro-animation beyond the existing static Flame badge). Overall dashboard rate, X/week frequency, streak freeze, and reminders remain in later phases.
+Users can assign a custom color to each habit and see that color across Today, Panel, and heatmap accents. Checking in today triggers a visible color-fill and/or micro-animation reward in addition to the existing flame badge. Overall completion rate, X/week frequency, streak freeze, and Phase 2 UAT residual remain out of scope (Phases 6–8).
 
 </domain>
 
 <decisions>
 ## Implementation Decisions
 
-### Color Palette & Picker
-- **D-01:** Color choice uses a fixed preset swatch row (6–8 colors), not a free hex/color-wheel picker — keeps the minimal dark aesthetic and guarantees contrast
-- **D-02:** Preset palette is dark-UI safe (readable on `#0d1117` / `#161b22`); include the current GitHub green `#3fb950` plus distinct hues (e.g. blue, purple, amber, coral, teal, pink) — exact hexes at Claude's discretion / UI-SPEC
-- **D-03:** Default color for new habits is the existing primary green (`#3fb950`) so habits without an explicit pick still match today's look
-- **D-04:** Color is set on create (`/habits/new`) and editable on edit (`/habits/:id/edit`) via the same swatch control in `HabitForm`
-- **D-05:** Persist `color` as a hex string field on `Habit` (required after migration; default applied for existing rows)
+### Color Model & Palette
+- **D-01:** Persist `color: string` on `Habit` as a hex value (e.g. `#3fb950`)
+- **D-02:** Curated preset palette only (no free-form hex/RGB picker) — 8 swatches tuned for dark UI contrast
+- **D-03:** Preset palette (locked): `#3fb950` (green), `#58a6ff` (blue), `#f778ba` (pink), `#d29922` (amber), `#a371f7` (purple), `#39c5cf` (cyan), `#f85149` (red), `#8b949e` (gray)
+- **D-04:** Default color for new habits and habits missing `color` = `#3fb950` (existing `--primary`)
+- **D-05:** Existing IndexedDB habits without `color` get the default at read/write boundary (normalize in repository/hooks) — no Dexie version bump required (no new indexes)
+
+### Color Picker UX
+- **D-06:** Color picker lives in `HabitForm` (create + edit) as a horizontal row of swatch buttons
+- **D-07:** Each swatch is ≥44×44px touch target; selected swatch shows a ring/check affordance
+- **D-08:** Spanish/English label consistency: use English label `"Color"` to match current HabitForm language (name/frequency are English today)
 
 ### Where Color Appears
-- **D-06:** Today `HabitRow`: left accent bar (or equivalent thin accent) + Flame + scheduled `WeekDayDots` use the habit color; completed state keeps strikethrough + muted row background (do not flood the whole row with habit color when done)
-- **D-07:** Panel `DashboardCard`: Flame (and a subtle accent, e.g. left bar or name underline/dot) uses habit color — card remains `bg-card`, not a colored fill
-- **D-08:** Contribution heatmap: empty/missed cells keep existing dark empty + destructive miss treatment; completed cells use a habit-tinted intensity scale derived from that habit's color (replace hard-coded GitHub-green-only completed levels)
-- **D-09:** Global chrome stays app primary green — FAB, bottom tab active state, primary buttons, focus rings do **not** become per-habit colors
+- **D-09:** Today `HabitRow`: left accent strip uses habit color (replaces fixed primary swipe reveal tint)
+- **D-10:** Panel `DashboardCard`: left color accent bar (4px) or leading color dot — prefer 4px left border/bar for scanability
+- **D-11:** Heatmap (`ContributionHeatmap`): `theme.dark` scale derived from habit color (empty cell stays `#21262d`; levels 1–4 are progressive tints/shades of habit color)
+- **D-12:** Flame icon may stay `text-primary` OR adopt habit color — **use habit color** for flame on that habit's row/card so identity is consistent
+- **D-13:** `WeekDayDots` completed/scheduled accent may use habit color when rendered in a habit-colored context (Today row) — pass optional `accentColor`
 
 ### Check-in Delight (ENH-02)
-- **D-10:** On transition to completed (toggle off→on for today), play a short delight: brief habit-color fill flash on the row **and** a Flame scale/pop micro-animation
-- **D-11:** Delight runs on every successful complete for today — not limited to streak milestones (7/30 celebrations deferred)
-- **D-12:** Unchecking (complete→incomplete) is quiet — no reverse celebration; keep existing mute/strikethrough settle
-- **D-13:** Respect `prefers-reduced-motion: reduce` — skip or replace motion with an instant color/state change only
-- **D-14:** Existing Flame + numeric streak badge remains visible after complete (carry-forward Phase 2 D-04); delight enhances it, does not replace it
+- **D-14:** Reward triggers only when toggling **to completed** for today (not when un-completing; not required for past-day heatmap toggles)
+- **D-15:** Reward = brief color-fill pulse on the row background (habit color at ~20–30% opacity) + subtle scale micro-animation (`active:scale` / short CSS transition ~200–300ms) — no confetti, no haptics API, no sound
+- **D-16:** Existing flame badge remains; reward is additive
+- **D-17:** Prefer CSS/`@keyframes` or Tailwind animate utilities — no new animation library dependency
 
-### Schema, Migration & Backup
-- **D-15:** Add `color: string` to `Habit`; existing IndexedDB habits get default `#3fb950` (lazy default on read and/or one-shot migration — planner choice)
-- **D-16:** Backup: bump payload to `version: 2` with `color` on habits; **import must still accept `version: 1`** backups by injecting default color — do not break v1.0 exports
-- **D-17:** Reject unknown future versions with the existing Spanish incompatible-version message pattern
+### Backup & Schema Compatibility
+- **D-18:** Keep backup `version: 1`; add optional `color` on habit schema — missing color on import → apply default `#3fb950`
+- **D-19:** Export always includes `color` for every habit after this phase
 
 ### Claude's Discretion
-- Exact 6–8 hex values and swatch order (must pass dark-background contrast)
-- Accent bar width/placement (2–4px left rail vs small color dot before name)
-- Animation duration/easing (~200–350ms range); CSS vs Framer Motion — prefer CSS/`tailwindcss-animate` if already available, avoid heavy deps
-- How heatmap theme array is derived from a single habit hex (2–4 intensity steps)
-- Whether History page header/stat accents also pick up habit color (nice-to-have within phase; Today + Panel + heatmap are required)
+- Exact heatmap tint algorithm (how to build 4 levels from one hex)
+- Whether swipe-reveal strip during drag matches habit color (should)
+- Exact animation class names / prefers-reduced-motion handling (honor `prefers-reduced-motion: reduce` by skipping scale/pulse)
 
 </decisions>
 
@@ -53,34 +56,28 @@ Users can tell habits apart by color and feel a satisfying reward when they chec
 **Downstream agents MUST read these before planning or implementing.**
 
 ### Project & Requirements
-- `.planning/PROJECT.md` — Current milestone v1.1 goals; minimal dark aesthetic; no reminders in this milestone
-- `.planning/REQUIREMENTS.md` — ENH-01 (custom color), ENH-02 (streak visual rewards on check-in)
-- `.planning/ROADMAP.md` — Phase 5 goal, success criteria, UI hint
-- `.planning/MILESTONES.md` — v1.0 shipped baseline; numbering continues at phase 5
+- `.planning/PROJECT.md` — v1.1 goals; minimal dark aesthetic; colors must stay accessible
+- `.planning/REQUIREMENTS.md` — ENH-01 (custom color), ENH-02 (check-in visual rewards)
+- `.planning/ROADMAP.md` — Phase 5 success criteria 1–4
+- `.planning/research/FEATURES.md` — habit color + streak visual rewards as polish
+- `.planning/research/ARCHITECTURE.md` — Habit `{ color? }` in data model sketch
 
-### Prior Phase Context (carry-forward)
-- `.planning/phases/01-habit-management-daily-logging/01-CONTEXT.md` — HabitForm dedicated pages, Today row patterns, FAB
-- `.planning/phases/01-habit-management-daily-logging/01-UI-SPEC.md` — Design tokens (`#3fb950` primary), touch targets, dark surfaces
-- `.planning/phases/02-streaks-statistics/02-CONTEXT.md` — Flame badge pattern; animated flame explicitly deferred to ENH-02 (D-02)
-- `.planning/phases/03-dashboard-progress-visualization/03-CONTEXT.md` — DashboardCard minimal glance; heatmap on history; Spanish labels
-- `.planning/phases/04-data-backup-restore/04-CONTEXT.md` — Backup versioning, Zod validate-before-write, Spanish error toasts; versioning must evolve carefully (D-15)
-
-### Research
-- `.planning/research/FEATURES.md` — Habit color/icon as v1.x differentiator; streak visual rewards as low-complexity delight
-- `.planning/research/STACK.md` — Tailwind v4, lucide-react, react-activity-calendar theme API
-- `.planning/research/ARCHITECTURE.md` — Habit document shape; Dexie schema evolution expectations
-- `.planning/research/PITFALLS.md` — Schema migrations vs export version drift
+### Prior Phase Contracts
+- `.planning/phases/01-habit-management-daily-logging/01-UI-SPEC.md` — dark tokens, touch-min 44px, primary `#3fb950`
+- `.planning/phases/01-habit-management-daily-logging/01-CONTEXT.md` — HabitForm / HabitRow patterns
+- `.planning/phases/03-dashboard-progress-visualization/03-CONTEXT.md` — DashboardCard + heatmap patterns
+- `.planning/phases/04-data-backup-restore/04-CONTEXT.md` — backup version 1 + Zod validation rules
 
 ### Code Integration Points
-- `src/domain/types.ts` — `Habit` (add `color`)
-- `src/domain/backupSchema.ts` — Zod habit + payload version
-- `src/infrastructure/db.ts` / `habitRepository.ts` — persist color
-- `src/components/habits/HabitForm.tsx` — swatch UI
-- `src/components/habits/HabitRow.tsx` — accent + delight trigger
-- `src/components/habits/WeekDayDots.tsx` — scheduled-day fill color
-- `src/components/dashboard/DashboardCard.tsx` — Flame accent
-- `src/components/heatmap/ContributionHeatmap.tsx` — per-habit theme
-- `src/index.css` — optional CSS variables / `@keyframes` for delight
+- `src/domain/types.ts` — Habit interface
+- `src/domain/backupSchema.ts` — Zod habit schema
+- `src/infrastructure/habitRepository.ts` — create/update
+- `src/infrastructure/db.ts` — Dexie schema (no color index)
+- `src/components/habits/HabitForm.tsx` — create/edit form
+- `src/components/habits/HabitRow.tsx` — today check-in + flame
+- `src/components/dashboard/DashboardCard.tsx` — panel cards
+- `src/components/heatmap/ContributionHeatmap.tsx` — theme prop
+- `src/components/habits/WeekDayDots.tsx` — schedule dots
 
 </canonical_refs>
 
@@ -88,48 +85,44 @@ Users can tell habits apart by color and feel a satisfying reward when they chec
 ## Existing Code Insights
 
 ### Reusable Assets
-- `HabitForm` / `HabitFormValues` — extend with `color`; create/edit pages already share the form
-- `HabitRow` — swipe/tap toggle + Flame; natural place for accent bar and complete-transition delight
-- `DashboardCard` — Flame + streak; add habit-color accent without changing sort/nav behavior
-- `ContributionHeatmap` — `theme` prop is a module constant today; make it habit-driven
-- `backupSchema` + `backupService` — established version gate and transactional replace
+- `HabitForm` — already shared by create/edit; natural place for color swatches
+- `HabitRow` — swipe/tap toggle + flame; add color strip + completion pulse here
+- `ContributionHeatmap` — accepts static `heatmapTheme`; make theme dynamic from habit color
+- `DashboardCard` — simple button row; add left accent
+- Zod `habitSchema` — extend with optional color without bumping backup version
 
 ### Established Patterns
-- Spanish UI copy for user-facing strings
-- GitHub/Linear dark tokens; global `--primary` = `#3fb950`
-- Compute-on-read streaks; Flame always `text-primary` today → becomes habit-colored
-- Backup `version: 1` strict today — Phase 5 must dual-read v1/v2
-- Minimal motion already: `active:scale-[0.98]`, swipe translate — extend, don't invent a second motion system
+- Local-first Dexie; compute-on-read; no denormalized stats
+- Spanish UI on Settings/Panel labels in places; HabitForm still English — keep form language consistent within HabitForm
+- TDD plans common in prior phases (`type: tdd`)
+- Touch targets ≥44px; dark GitHub/Linear aesthetic
 
 ### Integration Points
-- Create/edit form → repository → Dexie habit documents
-- Today list and Panel read habits via live queries — color flows automatically once on the document
-- Heatmap receives habit id/history page context — pass `habit.color` into theme builder
-- Export/import round-trip must include `color` for v2 and default it for v1
+- `habitRepository.create` / `update` must accept `color`
+- `useCreateHabit` / HabitEditPage submit paths must pass color
+- Tests that construct `Habit` fixtures need a `color` field (or helper default)
 
 </code_context>
 
 <specifics>
 ## Specific Ideas
 
-- Preset swatches over free color input — intentional simplicity (PROJECT.md)
-- Left accent rail on rows/cards echoes Linear/GitHub issue label affordances without turning rows into colored cards
-- Check-in delight should feel like Streaks-app subtlety: short, habit-colored, no confetti/casino
-- Reduced-motion users still get instant color state change (accessibility)
+- Palette inspired by GitHub primer accents so colors feel native on existing dark surfaces
+- Check-in pulse should feel like Streaks-app subtlety, not Habitica celebration
+- `[auto] Color model — Q: "Picker type?" → Selected: "Curated 8-swatch palette" (recommended default)`
+- `[auto] Surfaces — Q: "Where does color show?" → Selected: "Row strip + Panel bar + heatmap theme + habit-colored flame"`
+- `[auto] Reward — Q: "Check-in delight?" → Selected: "Color-fill pulse + short scale, CSS only, today-complete only"`
+- `[auto] Backup — Q: "Schema version?" → Selected: "Keep v1; optional color with default on import"`
 
 </specifics>
 
 <deferred>
 ## Deferred Ideas
 
-- Freeform hex / custom color picker — future polish if presets feel limiting
-- Per-habit icons / emoji — separate from color; not in ENH-01
-- Streak milestone celebrations (7 / 30 / 100 day fireworks) — ENH-02 this phase is every-check-in micro-delight only
-- Overall completion rate on Panel — Phase 6 (ENH-03)
-- X/week frequency — Phase 7 (ENH-04)
-- Streak freeze — Phase 8 (ENH-05)
-- Reminders / push — v2.0 (REM-01/02)
-- Light mode / theming — out of scope
+- Custom hex / image / icon per habit — out of phase scope
+- Per-habit light-mode themes — app is dark-only
+- Overall completion rate color coding — Phase 6
+- Confetti / sound / haptics — conflicts with minimal aesthetic
 
 </deferred>
 

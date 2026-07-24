@@ -33,11 +33,11 @@ Make it effortless to log habits daily and impossible to ignore your progress �
 - [x] User gets satisfying visual feedback when maintaining a streak (flame icon, color fill) — Phase 2 (STRK-01 UI)
 - [x] User data persists locally in the browser with export/import backup capability — Phases 1 + 4 (DATA-01..03)
 - [x] App works as a responsive web experience on desktop and mobile browsers — Phase 1 (UI-01, UI-02)
+- [x] User can assign a custom color to each habit — Phase 5 (ENH-01)
+- [x] User gets streak visual rewards (color fill, micro-animation) on check-in — Phase 5 (ENH-02)
 
 ### Active
 
-- [ ] User can assign a custom color to each habit (ENH-01)
-- [ ] User gets streak visual rewards (color fill, micro-animation) on check-in (ENH-02)
 - [ ] User can see overall completion rate across all habits on the dashboard (ENH-03)
 - [ ] User can set "X times per week" frequency for habits (ENH-04)
 - [ ] User can skip a day without breaking a streak (streak freeze) (ENH-05)

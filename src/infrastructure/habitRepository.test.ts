@@ -126,4 +126,26 @@ describe('habitRepository', () => {
     const stored = await db.habits.get(habit.id);
     expect(stored?.archived).toBe(false);
   });
+
+  it('creates a habit with default color when omitted', async () => {
+    const habit = await habitRepository.create({
+      name: 'Color default',
+      frequency: { type: 'daily' },
+    });
+    expect(habit.color).toBe('#3fb950');
+  });
+
+  it('persists an explicit preset color', async () => {
+    const habit = await habitRepository.create({
+      name: 'Blue habit',
+      frequency: { type: 'daily' },
+      color: '#58a6ff',
+    });
+    const stored = await db.habits.get(habit.id);
+    expect(stored?.color).toBe('#58a6ff');
+
+    await habitRepository.update(habit.id, { color: '#f778ba' });
+    const updated = await db.habits.get(habit.id);
+    expect(updated?.color).toBe('#f778ba');
+  });
 });

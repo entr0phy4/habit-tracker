@@ -23,7 +23,11 @@ function HabitHistoryContent({ habit }: { habit: Habit }) {
       <p className="mt-4 text-xs text-muted-foreground">Historial</p>
 
       <div className="mt-8">
-        <ContributionHeatmap habitId={habit.id} frequency={habit.frequency} />
+        <ContributionHeatmap
+          habitId={habit.id}
+          frequency={habit.frequency}
+          color={habit.color}
+        />
       </div>
     </>
   );

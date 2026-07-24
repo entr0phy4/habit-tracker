@@ -12,6 +12,7 @@ const activeHabit: Habit = {
   id: 'active-1',
   name: 'Run',
   frequency: { type: 'daily' },
+  color: '#3fb950',
   archived: false,
   createdAt: '2026-07-01T10:00:00.000Z',
 };
@@ -20,6 +21,7 @@ const archivedHabit: Habit = {
   id: 'archived-1',
   name: 'Old gym',
   frequency: { type: 'weekly', days: [1, 3, 5] },
+  color: '#58a6ff',
   archived: true,
   createdAt: '2026-06-01T10:00:00.000Z',
 };
