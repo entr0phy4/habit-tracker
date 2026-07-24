@@ -40,8 +40,8 @@ created: 2026-07-24
 |---------|------|------|-------------|----------------|-----------------|-----------|-------------------|-------------|--------|
 | 07-01-01 | 01 | 1 | ENH-04 | T-07-01 | Zod rejects times∉1..7 | unit | `npx vitest run src/domain/backupSchema.test.ts` | ✅ | ✅ green |
 | 07-01-02 | 01 | 1 | ENH-04 | — | Week count + isHabitDueOnDate quota | unit | `npx vitest run src/domain/dates.test.ts src/domain/schedule.test.ts` | ✅ | ✅ green |
-| 07-02-01 | 02 | 2 | ENH-04 | — | Week-hit streak + in-progress grace | unit | `npx vitest run src/domain/streak.test.ts` | ✅ | ⬜ pending |
-| 07-02-02 | 02 | 2 | ENH-04 | — | Week-cap counts; no missed state | unit | `npx vitest run src/domain/stats.test.ts` | ✅ | ⬜ pending |
+| 07-02-01 | 02 | 2 | ENH-04 | — | Week-hit streak + in-progress grace | unit | `npx vitest run src/domain/streak.test.ts` | ✅ | ✅ green |
+| 07-02-02 | 02 | 2 | ENH-04 | — | Week-cap counts; no missed state | unit | `npx vitest run src/domain/stats.test.ts` | ✅ | ✅ green |
 | 07-03-01 | 03 | 3 | ENH-04 | — | Today hide/show by quota | unit | `npx vitest run src/hooks/useTodayHabits.test.ts` | ✅ | ⬜ pending |
 | 07-03-02 | 03 | 3 | ENH-04 | — | Form emits times_per_week | component | `npx vitest run src/components/habits/HabitForm.test.tsx` | ✅ | ⬜ pending |
 | 07-03-03 | 03 | 3 | ENH-04 | — | Quota chip vs WeekDayDots | component | `npx vitest run src/components/habits/HabitRow.test.tsx` | ❌ W0 | ⬜ pending |

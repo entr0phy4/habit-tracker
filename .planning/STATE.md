@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Motivation Polish & Flexibility
 status: executing
-stopped_at: Phase 7 plan 07-01 complete — next 07-02
-last_updated: "2026-07-24T20:30:00.000Z"
+stopped_at: Phase 7 plan 07-02 complete — next 07-03
+last_updated: "2026-07-24T20:35:00.000Z"
 last_activity: 2026-07-24
-last_activity_desc: Phase 7 plan 07-01 complete (Frequency + week due + backup Zod)
+last_activity_desc: Phase 7 plan 07-02 complete (week-hit streaks + week-cap rates)
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 9
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -28,11 +28,11 @@ See: .planning/MILESTONES.md
 ## Current Position
 
 Phase: 7 — Flexible Weekly Frequency (IN PROGRESS)
-Plan: 07-02 next
-Status: Executing — 07-01 complete
-Last activity: 2026-07-24 — 07-01 Frequency + week due helpers + backup Zod
+Plan: 07-03 next
+Status: Executing — 07-01..02 complete
+Last activity: 2026-07-24 — 07-02 week-hit streaks + week-cap rates/heatmap
 
-Progress: [██████░░░░] 58%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
@@ -42,7 +42,7 @@ Progress: [██████░░░░] 58%
 |-------|-------|--------|
 | 05 Visual Identity & Check-in Delight | 3/3 | Complete |
 | 06 Dashboard Aggregate & UAT Residual | 3/3 | Complete |
-| 07 Flexible Weekly Frequency | 1/3 | In progress |
+| 07 Flexible Weekly Frequency | 2/3 | In progress |
 | 08 Streak Freeze | 0/? | Not started |
 
 ## Accumulated Context
@@ -73,7 +73,7 @@ None blocking. Execute Phase 7 before Phase 8 (freeze depends on extended freque
 
 ## Session Continuity
 
-Last session: 2026-07-24T20:30:00.000Z
-Stopped at: Phase 7 plan 07-01 complete — next 07-02
-Resume file: .planning/phases/07-flexible-weekly-frequency/07-02-PLAN.md
-Next command: continue `/gsd-execute-phase 7` (07-02)
+Last session: 2026-07-24T20:35:00.000Z
+Stopped at: Phase 7 plan 07-02 complete — next 07-03
+Resume file: .planning/phases/07-flexible-weekly-frequency/07-03-PLAN.md
+Next command: continue `/gsd-execute-phase 7` (07-03)

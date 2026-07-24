@@ -8,6 +8,7 @@ import {
 
 const daily = { type: 'daily' as const };
 const monWedFri = { type: 'weekly' as const, days: [1, 3, 5] };
+const times3 = { type: 'times_per_week' as const, times: 3 };
 
 function completed(...dates: string[]): Set<string> {
   return new Set(dates);
@@ -78,6 +79,37 @@ describe('countScheduledCompletions', () => {
         fixedToday,
       ),
     ).toEqual({ completed: 2, scheduled: 3 });
+  });
+
+  it('caps times_per_week counts per Mon–Sun week (under quota)', () => {
+    // One full past week Jul 6–12 with 2 completions; today Jul 16
+    expect(
+      countScheduledCompletions(
+        completed('2026-07-06', '2026-07-08'),
+        times3,
+        '2026-07-06',
+        '2026-07-12',
+        fixedToday,
+      ),
+    ).toEqual({ completed: 2, scheduled: 3 });
+  });
+
+  it('caps times_per_week completed at times when over-completed', () => {
+    expect(
+      countScheduledCompletions(
+        completed(
+          '2026-07-06',
+          '2026-07-07',
+          '2026-07-08',
+          '2026-07-09',
+          '2026-07-10',
+        ),
+        times3,
+        '2026-07-06',
+        '2026-07-12',
+        fixedToday,
+      ),
+    ).toEqual({ completed: 3, scheduled: 3 });
   });
 });
 
@@ -150,6 +182,24 @@ describe('calculateOverallCompletionRate', () => {
       ),
     ).toBe(0);
   });
+
+  it('uses capped week counts for a times_per_week habit', () => {
+    // One week Jul 6–12: 2 of 3 → 67%
+    const dates = completed('2026-07-06', '2026-07-08');
+    expect(
+      calculateOverallCompletionRate(
+        [
+          {
+            frequency: times3,
+            completedDates: dates,
+            startDate: '2026-07-06',
+          },
+        ],
+        '2026-07-12',
+        fixedToday,
+      ),
+    ).toBe(67);
+  });
 });
 
 describe('getWeekDayState', () => {
@@ -176,6 +226,18 @@ describe('getWeekDayState', () => {
   it('returns completed when the scheduled day is in the completion set', () => {
     expect(
       getWeekDayState('2026-07-20', monWedFri, completed('2026-07-20'), today),
+    ).toBe('completed');
+  });
+
+  it('never returns missed for times_per_week empty past days', () => {
+    expect(getWeekDayState('2026-07-20', times3, completed(), today)).toBe(
+      'not-scheduled',
+    );
+  });
+
+  it('returns completed for times_per_week days with a completion', () => {
+    expect(
+      getWeekDayState('2026-07-20', times3, completed('2026-07-20'), today),
     ).toBe('completed');
   });
 });
