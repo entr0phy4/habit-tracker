@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  countCompletionsInCalendarWeek,
   getCalendarWeekDates,
   getLast7Days,
   getLocalDateString,
@@ -64,5 +65,30 @@ describe('getCalendarWeekDates', () => {
     expect(dates).toHaveLength(7);
     expect(dates[0]).toBe('2026-07-13');
     expect(dates[6]).toBe('2026-07-19');
+  });
+});
+
+describe('countCompletionsInCalendarWeek', () => {
+  it('counts Mon–Sun membership for a date in the week', () => {
+    // Week of 2026-07-13 (Mon) … 2026-07-19 (Sun)
+    const completed = new Set([
+      '2026-07-13',
+      '2026-07-15',
+      '2026-07-19',
+      '2026-07-12', // previous Sunday — outside
+      '2026-07-20', // next Monday — outside
+    ]);
+    expect(countCompletionsInCalendarWeek(completed, '2026-07-16')).toBe(3);
+  });
+
+  it('ignores completions outside the Mon–Sun week', () => {
+    const completed = new Set(['2026-07-12', '2026-07-20', '2026-07-06']);
+    expect(countCompletionsInCalendarWeek(completed, '2026-07-15')).toBe(0);
+  });
+
+  it('includes Sunday and Monday boundary dates of the same week', () => {
+    const completed = new Set(['2026-07-13', '2026-07-19']);
+    expect(countCompletionsInCalendarWeek(completed, '2026-07-13')).toBe(2);
+    expect(countCompletionsInCalendarWeek(completed, '2026-07-19')).toBe(2);
   });
 });

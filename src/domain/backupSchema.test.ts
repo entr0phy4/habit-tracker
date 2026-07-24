@@ -113,4 +113,47 @@ describe('parseBackupJson', () => {
       expect(result.data.habits[0]?.color).toBe('#58a6ff');
     }
   });
+
+  it('accepts times_per_week frequencies with times 1..7 (version stays 1)', () => {
+    for (const times of [1, 3, 7] as const) {
+      const habit = {
+        id: `tpw-${times}`,
+        name: 'Yoga',
+        frequency: { type: 'times_per_week' as const, times },
+        archived: false,
+        createdAt: '2026-07-01T10:00:00.000Z',
+      };
+      const payload = { ...validEmpty, habits: [habit] };
+      const result = parseBackupJson(JSON.stringify(payload));
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.data.version).toBe(1);
+        expect(result.data.habits[0]?.frequency).toEqual({
+          type: 'times_per_week',
+          times,
+        });
+      }
+    }
+  });
+
+  it('rejects times_per_week with times outside 1..7', () => {
+    for (const times of [0, 8] as const) {
+      const payload = {
+        ...validEmpty,
+        habits: [
+          {
+            id: 'bad',
+            name: 'Bad',
+            frequency: { type: 'times_per_week', times },
+            archived: false,
+            createdAt: '2026-07-01T10:00:00.000Z',
+          },
+        ],
+      };
+      expect(parseBackupJson(JSON.stringify(payload))).toEqual({
+        ok: false,
+        error: 'invalid',
+      });
+    }
+  });
 });

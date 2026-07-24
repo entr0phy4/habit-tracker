@@ -8,6 +8,10 @@ const frequencySchema = z.union([
     type: z.literal('weekly'),
     days: z.array(z.number().int().min(0).max(6)),
   }),
+  z.object({
+    type: z.literal('times_per_week'),
+    times: z.number().int().min(1).max(7),
+  }),
 ]);
 
 const habitSchema = z.object({
