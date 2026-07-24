@@ -1,6 +1,9 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { getLocalDateString } from '@/domain/dates';
-import { isDueOnDate } from '@/domain/schedule';
+import {
+  getCalendarWeekDates,
+  getLocalDateString,
+} from '@/domain/dates';
+import { isHabitDueOnDate } from '@/domain/schedule';
 import type { Habit } from '@/domain/types';
 import { db } from '@/infrastructure/db';
 
@@ -9,6 +12,8 @@ const QUERY_ERROR = Symbol('QUERY_ERROR');
 export type TodayHabitEntry = {
   habit: Habit;
   isCompleted: boolean;
+  /** Completions in the current Mon–Sun week (for quota chip). */
+  weekCompletions: number;
 };
 
 export type TodayHabitsState =
@@ -21,17 +26,43 @@ export function useTodayHabits(todayKey?: string): TodayHabitsState {
 
   const result = useLiveQuery(async () => {
     try {
-      const habits = await db.habits
-        .filter((habit) => !habit.archived && isDueOnDate(habit.frequency, today))
+      const weekDates = getCalendarWeekDates(new Date(`${today}T12:00:00`));
+      const weekStart = weekDates[0]!;
+      const weekEnd = weekDates[6]!;
+
+      const activeHabits = await db.habits
+        .filter((habit) => !habit.archived)
         .toArray();
 
-      const completions = await db.completions.where('date').equals(today).toArray();
-      const completedIds = new Set(completions.map((completion) => completion.habitId));
+      const weekCompletions = await db.completions
+        .where('date')
+        .between(weekStart, weekEnd, true, true)
+        .toArray();
 
-      return habits.map((habit) => ({
-        habit,
-        isCompleted: completedIds.has(habit.id),
-      }));
+      const completionsByHabit = new Map<string, Set<string>>();
+      for (const completion of weekCompletions) {
+        let set = completionsByHabit.get(completion.habitId);
+        if (!set) {
+          set = new Set();
+          completionsByHabit.set(completion.habitId, set);
+        }
+        set.add(completion.date);
+      }
+
+      const dueHabits: TodayHabitEntry[] = [];
+      for (const habit of activeHabits) {
+        const dates = completionsByHabit.get(habit.id) ?? new Set<string>();
+        if (!isHabitDueOnDate(habit.frequency, today, dates)) {
+          continue;
+        }
+        dueHabits.push({
+          habit,
+          isCompleted: dates.has(today),
+          weekCompletions: dates.size,
+        });
+      }
+
+      return dueHabits;
     } catch {
       return QUERY_ERROR;
     }

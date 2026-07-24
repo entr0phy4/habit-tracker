@@ -50,3 +50,57 @@ describe('HabitForm color picker', () => {
     expect(swatch.getAttribute('aria-checked')).toBe('true');
   });
 });
+
+describe('HabitForm schedule modes', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('submits times_per_week when Times per week mode is selected', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    render(<HabitForm submitLabel="Create habit" onSubmit={onSubmit} />);
+
+    fireEvent.click(screen.getByRole('radio', { name: /times per week/i }));
+    // default times is 3; change to 3 explicitly via toggle if needed
+    fireEvent.click(screen.getByRole('radio', { name: /^3$/ }));
+    fireEvent.change(screen.getByLabelText(/habit name/i), {
+      target: { value: 'Read' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /create habit/i }));
+
+    await vi.waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'Read',
+          frequency: { type: 'times_per_week', times: 3 },
+        }),
+      );
+    });
+  });
+
+  it('submits daily when Specific days keeps all seven selected', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    render(<HabitForm submitLabel="Create habit" onSubmit={onSubmit} />);
+
+    fireEvent.change(screen.getByLabelText(/habit name/i), {
+      target: { value: 'Water' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /create habit/i }));
+
+    await vi.waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'Water',
+          frequency: { type: 'daily' },
+        }),
+      );
+    });
+  });
+
+  it('shows times control and hides day toggles in times_per_week mode', () => {
+    render(<HabitForm submitLabel="Create habit" onSubmit={vi.fn()} />);
+    fireEvent.click(screen.getByRole('radio', { name: /times per week/i }));
+    expect(screen.getByRole('radio', { name: /^1$/ })).toBeTruthy();
+    expect(screen.queryByLabelText('Repeat on days')).toBeNull();
+  });
+});

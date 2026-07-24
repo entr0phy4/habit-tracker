@@ -112,4 +112,29 @@ describe('HabitRow', () => {
       screen.getByTestId('habit-row-toggle').getAttribute('data-checkin-reward'),
     ).not.toBe('true');
   });
+
+  it('renders WeekQuotaChip for times_per_week habits', () => {
+    const xWeek: Habit = {
+      ...habit,
+      frequency: { type: 'times_per_week', times: 3 },
+    };
+    render(
+      <MemoryRouter>
+        <HabitRow
+          habit={xWeek}
+          isCompleted={false}
+          weekCompletions={2}
+          onToggle={vi.fn()}
+        />
+      </MemoryRouter>,
+    );
+    expect(screen.getByText('2/3')).toBeTruthy();
+    expect(screen.getByLabelText('2 of 3 this week')).toBeTruthy();
+    expect(screen.getByLabelText('5 week streak')).toBeTruthy();
+  });
+
+  it('renders scheduled-days chrome for daily habits', () => {
+    renderRow();
+    expect(screen.getByLabelText('Scheduled days')).toBeTruthy();
+  });
 });

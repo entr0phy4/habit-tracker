@@ -1,6 +1,12 @@
 import type { Frequency } from './types';
 import { isDueOnDate } from './schedule';
-import { isFutureDate, iterateDaysInRange } from './dates';
+import {
+  countCompletionsInCalendarWeek,
+  getLocalDateString,
+  isFutureDate,
+  iterateCalendarWeeksInRange,
+  iterateDaysInRange,
+} from './dates';
 
 export type WeekDayState = 'completed' | 'missed' | 'not-scheduled' | 'future';
 
@@ -22,6 +28,31 @@ export function countScheduledCompletions(
   endDate: string,
   today: Date = new Date(),
 ): ScheduledCompletionCounts {
+  if (frequency.type === 'times_per_week') {
+    let scheduled = 0;
+    let completed = 0;
+    const todayKey = getLocalDateString(today);
+    const rangeEnd = endDate < todayKey ? endDate : todayKey;
+
+    if (startDate > rangeEnd) {
+      return { completed: 0, scheduled: 0 };
+    }
+
+    for (const { weekStart } of iterateCalendarWeeksInRange(
+      startDate,
+      rangeEnd,
+    )) {
+      if (weekStart > todayKey) continue;
+      scheduled += frequency.times;
+      completed += Math.min(
+        countCompletionsInCalendarWeek(completedDates, weekStart),
+        frequency.times,
+      );
+    }
+
+    return { completed, scheduled };
+  }
+
   let scheduled = 0;
   let completed = 0;
 
@@ -83,6 +114,12 @@ export function getWeekDayState(
   completedDates: Set<string>,
   today: string,
 ): WeekDayState {
+  if (frequency.type === 'times_per_week') {
+    if (completedDates.has(date)) return 'completed';
+    if (isFutureDate(date, new Date(`${today}T12:00:00`))) return 'future';
+    return 'not-scheduled';
+  }
+
   if (!isDueOnDate(frequency, date)) return 'not-scheduled';
   if (isFutureDate(date, new Date(`${today}T12:00:00`))) return 'future';
   return completedDates.has(date) ? 'completed' : 'missed';

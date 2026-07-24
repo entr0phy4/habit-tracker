@@ -7,6 +7,7 @@ import { normalizeHabitColor } from '@/domain/colors';
 import type { Habit } from '@/domain/types';
 import { useStreak } from '@/hooks/useStreak';
 import { WeekDayDots } from './WeekDayDots';
+import { WeekQuotaChip } from './WeekQuotaChip';
 
 const SWIPE_THRESHOLD = 50;
 const REWARD_MS = 280;
@@ -15,10 +16,18 @@ interface HabitRowProps {
   habit: Habit;
   isCompleted: boolean;
   todayKey?: string;
+  /** Completions in current Mon–Sun week (for times_per_week chip). */
+  weekCompletions?: number;
   onToggle: () => void;
 }
 
-export function HabitRow({ habit, isCompleted, todayKey, onToggle }: HabitRowProps) {
+export function HabitRow({
+  habit,
+  isCompleted,
+  todayKey,
+  weekCompletions = 0,
+  onToggle,
+}: HabitRowProps) {
   const navigate = useNavigate();
   const { currentStreak, isLoading } = useStreak(habit, todayKey);
   const accent = normalizeHabitColor(habit.color);
@@ -136,7 +145,11 @@ export function HabitRow({ habit, isCompleted, todayKey, onToggle }: HabitRowPro
         {!isLoading && (
           <span
             className="flex shrink-0 items-center gap-1"
-            aria-label={`${currentStreak} day streak`}
+            aria-label={
+              habit.frequency.type === 'times_per_week'
+                ? `${currentStreak} week streak`
+                : `${currentStreak} day streak`
+            }
           >
             <Flame className="h-4 w-4" style={{ color: accent }} aria-hidden />
             <span className="text-xs font-semibold text-foreground">
@@ -144,11 +157,19 @@ export function HabitRow({ habit, isCompleted, todayKey, onToggle }: HabitRowPro
             </span>
           </span>
         )}
-        <WeekDayDots
-          frequency={habit.frequency}
-          accentColor={accent}
-          className="shrink-0"
-        />
+        {habit.frequency.type === 'times_per_week' ? (
+          <WeekQuotaChip
+            done={weekCompletions}
+            times={habit.frequency.times}
+            accentColor={accent}
+          />
+        ) : (
+          <WeekDayDots
+            frequency={habit.frequency}
+            accentColor={accent}
+            className="shrink-0"
+          />
+        )}
         <Button
           type="button"
           variant="ghost"

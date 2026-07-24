@@ -79,6 +79,36 @@ describe('countScheduledCompletions', () => {
       ),
     ).toEqual({ completed: 2, scheduled: 3 });
   });
+
+  it('caps times_per_week week at times for scheduled and completed (D-14)', () => {
+    const thrice = { type: 'times_per_week' as const, times: 3 };
+    const today = new Date(2026, 6, 22); // after week Mon 13 – Sun 19
+    expect(
+      countScheduledCompletions(
+        completed('2026-07-13', '2026-07-14'),
+        thrice,
+        '2026-07-13',
+        '2026-07-19',
+        today,
+      ),
+    ).toEqual({ completed: 2, scheduled: 3 });
+
+    expect(
+      countScheduledCompletions(
+        completed(
+          '2026-07-13',
+          '2026-07-14',
+          '2026-07-15',
+          '2026-07-16',
+          '2026-07-17',
+        ),
+        thrice,
+        '2026-07-13',
+        '2026-07-19',
+        today,
+      ),
+    ).toEqual({ completed: 3, scheduled: 3 });
+  });
 });
 
 describe('calculateOverallCompletionRate', () => {
@@ -150,6 +180,25 @@ describe('calculateOverallCompletionRate', () => {
       ),
     ).toBe(0);
   });
+
+  it('pools times_per_week using week-capped counts', () => {
+    const thrice = { type: 'times_per_week' as const, times: 3 };
+    const today = new Date(2026, 6, 22);
+    // One week, 2 of 3 → 67%
+    expect(
+      calculateOverallCompletionRate(
+        [
+          {
+            frequency: thrice,
+            completedDates: completed('2026-07-13', '2026-07-14'),
+            startDate: '2026-07-13',
+          },
+        ],
+        '2026-07-19',
+        today,
+      ),
+    ).toBe(67);
+  });
 });
 
 describe('getWeekDayState', () => {
@@ -177,5 +226,18 @@ describe('getWeekDayState', () => {
     expect(
       getWeekDayState('2026-07-20', monWedFri, completed('2026-07-20'), today),
     ).toBe('completed');
+  });
+
+  it('never returns missed for times_per_week empty past days (D-16)', () => {
+    const thrice = { type: 'times_per_week' as const, times: 3 };
+    expect(getWeekDayState('2026-07-20', thrice, completed(), today)).toBe(
+      'not-scheduled',
+    );
+    expect(
+      getWeekDayState('2026-07-20', thrice, completed('2026-07-20'), today),
+    ).toBe('completed');
+    expect(getWeekDayState('2026-07-24', thrice, completed(), today)).toBe(
+      'future',
+    );
   });
 });

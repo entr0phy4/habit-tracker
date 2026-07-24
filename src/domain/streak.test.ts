@@ -63,6 +63,65 @@ describe('calculateCurrentStreak', () => {
     );
     expect(calculateCurrentStreak(dates, daily, '2026-07-19', '2026-07-14')).toBe(1);
   });
+
+  describe('times_per_week', () => {
+    const thrice = { type: 'times_per_week' as const, times: 3 };
+    // Week A: 06–12, Week B: 13–19, Week C (current): 20–26 when today=22
+
+    it('counts consecutive past hit weeks; unmet current does not break (D-11)', () => {
+      const dates = completed(
+        // Week A hit
+        '2026-07-06',
+        '2026-07-07',
+        '2026-07-08',
+        // Week B hit
+        '2026-07-13',
+        '2026-07-14',
+        '2026-07-15',
+        // Week C unmet (1 of 3)
+        '2026-07-20',
+      );
+      expect(
+        calculateCurrentStreak(dates, thrice, '2026-07-22', '2026-07-06'),
+      ).toBe(2);
+    });
+
+    it('breaks when a fully past week missed quota (D-10)', () => {
+      const dates = completed(
+        // Week A hit
+        '2026-07-06',
+        '2026-07-07',
+        '2026-07-08',
+        // Week B miss (only 1)
+        '2026-07-13',
+        // Week C unmet
+        '2026-07-20',
+      );
+      expect(
+        calculateCurrentStreak(dates, thrice, '2026-07-22', '2026-07-06'),
+      ).toBe(0);
+    });
+
+    it('counts current week when quota already met (D-12)', () => {
+      const dates = completed(
+        '2026-07-13',
+        '2026-07-14',
+        '2026-07-15',
+        '2026-07-20',
+        '2026-07-21',
+        '2026-07-22',
+      );
+      expect(
+        calculateCurrentStreak(dates, thrice, '2026-07-22', '2026-07-13'),
+      ).toBe(2);
+    });
+
+    it('returns 0 before first hit week (D-13)', () => {
+      expect(
+        calculateCurrentStreak(completed(), thrice, '2026-07-22', '2026-07-20'),
+      ).toBe(0);
+    });
+  });
 });
 
 describe('calculateLongestStreak', () => {
@@ -98,5 +157,28 @@ describe('calculateLongestStreak', () => {
     expect(
       calculateLongestStreak(dates, monWedFri, '2026-07-20', '2026-07-24'),
     ).toBe(3);
+  });
+
+  it('tracks longest consecutive hit weeks for times_per_week', () => {
+    const thrice = { type: 'times_per_week' as const, times: 3 };
+    const dates = completed(
+      // Week A hit
+      '2026-07-06',
+      '2026-07-07',
+      '2026-07-08',
+      // Week B hit
+      '2026-07-13',
+      '2026-07-14',
+      '2026-07-15',
+      // Week C miss
+      '2026-07-20',
+      // Week D hit (endDate in this week as hit)
+      '2026-07-27',
+      '2026-07-28',
+      '2026-07-29',
+    );
+    expect(
+      calculateLongestStreak(dates, thrice, '2026-07-06', '2026-07-29'),
+    ).toBe(2);
   });
 });

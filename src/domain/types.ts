@@ -1,7 +1,9 @@
 // Frequency: days use JS convention 0=Sun … 6=Sat (matches Date.getDay())
+// times_per_week.times ∈ 1..7 (runtime enforced by Zod + HabitForm)
 export type Frequency =
   | { type: 'daily' }
-  | { type: 'weekly'; days: number[] };
+  | { type: 'weekly'; days: number[] }
+  | { type: 'times_per_week'; times: number };
 
 export interface Habit {
   id: string;

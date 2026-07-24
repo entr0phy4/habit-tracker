@@ -1,24 +1,51 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { getLocalDateString } from '@/domain/dates';
-import { isDueOnDate } from '@/domain/schedule';
+import {
+  getCalendarWeekDates,
+  getLocalDateString,
+} from '@/domain/dates';
+import { isHabitDueOnDate } from '@/domain/schedule';
 import { HabitTrackerDB } from '@/infrastructure/db';
 import { habitRepository } from '@/infrastructure/habitRepository';
 import { completionRepository } from '@/infrastructure/completionRepository';
 import { db } from '@/infrastructure/db';
 
-async function getTodayHabits(db: HabitTrackerDB) {
+async function getTodayHabits(dbInstance: HabitTrackerDB) {
   const today = getLocalDateString(new Date());
-  const habits = await db.habits
-    .filter((habit) => !habit.archived && isDueOnDate(habit.frequency, today))
+  const weekDates = getCalendarWeekDates(new Date(`${today}T12:00:00`));
+  const weekStart = weekDates[0]!;
+  const weekEnd = weekDates[6]!;
+
+  const habits = await dbInstance.habits
+    .filter((habit) => !habit.archived)
     .toArray();
 
-  const completions = await db.completions.where('date').equals(today).toArray();
-  const completedIds = new Set(completions.map((completion) => completion.habitId));
+  const weekCompletions = await dbInstance.completions
+    .where('date')
+    .between(weekStart, weekEnd, true, true)
+    .toArray();
 
-  return habits.map((habit) => ({
-    habit,
-    isCompleted: completedIds.has(habit.id),
-  }));
+  const byHabit = new Map<string, Set<string>>();
+  for (const completion of weekCompletions) {
+    let set = byHabit.get(completion.habitId);
+    if (!set) {
+      set = new Set();
+      byHabit.set(completion.habitId, set);
+    }
+    set.add(completion.date);
+  }
+
+  return habits
+    .filter((habit) =>
+      isHabitDueOnDate(
+        habit.frequency,
+        today,
+        byHabit.get(habit.id) ?? new Set(),
+      ),
+    )
+    .map((habit) => ({
+      habit,
+      isCompleted: (byHabit.get(habit.id) ?? new Set()).has(today),
+    }));
 }
 
 describe('walking skeleton', () => {

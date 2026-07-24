@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
+  countCompletionsInCalendarWeek,
   getCalendarWeekDates,
   getLast7Days,
   getLocalDateString,
   getPreviousDay,
   isFutureDate,
+  iterateCalendarWeeksInRange,
   iterateDaysInRange,
 } from './dates';
 
@@ -64,5 +66,37 @@ describe('getCalendarWeekDates', () => {
     expect(dates).toHaveLength(7);
     expect(dates[0]).toBe('2026-07-13');
     expect(dates[6]).toBe('2026-07-19');
+  });
+});
+
+describe('countCompletionsInCalendarWeek', () => {
+  it('counts only completions in the Mon–Sun week of dateInWeek', () => {
+    // Week of 2026-07-19 (Sun): Mon 13 – Sun 19
+    const completed = new Set([
+      '2026-07-13',
+      '2026-07-15',
+      '2026-07-19',
+      '2026-07-20', // next Monday — outside week
+      '2026-07-12', // previous Sunday — outside week
+    ]);
+    expect(countCompletionsInCalendarWeek(completed, '2026-07-19')).toBe(3);
+    expect(countCompletionsInCalendarWeek(completed, '2026-07-15')).toBe(3);
+  });
+
+  it('uses Mon–Sun boundaries across week start', () => {
+    const completed = new Set(['2026-07-20', '2026-07-26']);
+    // Week Mon 20 – Sun 26
+    expect(countCompletionsInCalendarWeek(completed, '2026-07-20')).toBe(2);
+    expect(countCompletionsInCalendarWeek(completed, '2026-07-23')).toBe(2);
+  });
+});
+
+describe('iterateCalendarWeeksInRange', () => {
+  it('yields Mon–Sun weeks overlapping the range', () => {
+    const weeks = [...iterateCalendarWeeksInRange('2026-07-15', '2026-07-22')];
+    expect(weeks).toEqual([
+      { weekStart: '2026-07-13', weekEnd: '2026-07-19' },
+      { weekStart: '2026-07-20', weekEnd: '2026-07-26' },
+    ]);
   });
 });

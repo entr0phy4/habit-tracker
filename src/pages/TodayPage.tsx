@@ -73,12 +73,13 @@ export function TodayPage() {
         </div>
       ) : (
         <ul className="flex flex-col gap-2 pb-28">
-          {todayHabits.map(({ habit, isCompleted }) => (
+          {todayHabits.map(({ habit, isCompleted, weekCompletions }) => (
             <li key={habit.id}>
               <HabitRow
                 habit={habit}
                 isCompleted={isCompleted}
                 todayKey={todayKey}
+                weekCompletions={weekCompletions}
                 onToggle={() => {
                   void toggle(habit.id, todayKey);
                 }}

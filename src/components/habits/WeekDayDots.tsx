@@ -13,6 +13,9 @@ function getScheduledDays(frequency: Frequency): Set<number> {
   if (frequency.type === 'weekly') {
     return new Set(frequency.days);
   }
+  if (frequency.type === 'times_per_week') {
+    return new Set(); // HabitRow uses WeekQuotaChip instead
+  }
   return new Set([0, 1, 2, 3, 4, 5, 6]);
 }
 

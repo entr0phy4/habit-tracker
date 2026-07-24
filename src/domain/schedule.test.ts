@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isDaily, isDueOnDate } from './schedule';
+import { isDaily, isDueOnDate, isHabitDueOnDate } from './schedule';
 
 describe('isDueOnDate', () => {
   it('returns true for daily frequency on any date', () => {
@@ -34,6 +34,47 @@ describe('isDueOnDate', () => {
       expect(isDueOnDate(monWedFri, date)).toBe(due);
     }
   });
+
+  it('returns false for times_per_week on any date', () => {
+    const thrice = { type: 'times_per_week' as const, times: 3 };
+    expect(isDueOnDate(thrice, '2026-07-20')).toBe(false);
+    expect(isDueOnDate(thrice, '2026-07-22')).toBe(false);
+  });
+});
+
+describe('isHabitDueOnDate', () => {
+  const thrice = { type: 'times_per_week' as const, times: 3 };
+
+  it('is due when week completions are below times', () => {
+    const completed = new Set(['2026-07-20', '2026-07-21']);
+    expect(isHabitDueOnDate(thrice, '2026-07-22', completed)).toBe(true);
+  });
+
+  it('is not due when week quota is met', () => {
+    const completed = new Set(['2026-07-20', '2026-07-21', '2026-07-22']);
+    expect(isHabitDueOnDate(thrice, '2026-07-23', completed)).toBe(false);
+  });
+
+  it('is not due when over-completed in the week', () => {
+    const completed = new Set([
+      '2026-07-20',
+      '2026-07-21',
+      '2026-07-22',
+      '2026-07-23',
+    ]);
+    expect(isHabitDueOnDate(thrice, '2026-07-24', completed)).toBe(false);
+  });
+
+  it('matches isDueOnDate for daily and weekly (ignores completions)', () => {
+    const empty = new Set<string>();
+    const filled = new Set(['2026-07-20', '2026-07-21', '2026-07-22']);
+    expect(isHabitDueOnDate({ type: 'daily' }, '2026-07-21', filled)).toBe(
+      true,
+    );
+    const monWedFri = { type: 'weekly' as const, days: [1, 3, 5] };
+    expect(isHabitDueOnDate(monWedFri, '2026-07-20', empty)).toBe(true);
+    expect(isHabitDueOnDate(monWedFri, '2026-07-21', empty)).toBe(false);
+  });
 });
 
 describe('isDaily', () => {
@@ -41,5 +82,10 @@ describe('isDaily', () => {
     expect(isDaily({ type: 'daily' })).toBe(true);
     expect(isDaily({ type: 'weekly', days: [0, 1, 2, 3, 4, 5, 6] })).toBe(true);
     expect(isDaily({ type: 'weekly', days: [1, 3, 5] })).toBe(false);
+  });
+
+  it('returns false for times_per_week even when times is 7', () => {
+    expect(isDaily({ type: 'times_per_week', times: 7 })).toBe(false);
+    expect(isDaily({ type: 'times_per_week', times: 3 })).toBe(false);
   });
 });

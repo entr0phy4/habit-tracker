@@ -1,6 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { db } from '@/infrastructure/db';
+import { completionRepository } from '@/infrastructure/completionRepository';
 import { habitRepository } from '@/infrastructure/habitRepository';
 import { useTodayHabits } from './useTodayHabits';
 
@@ -95,6 +96,44 @@ describe('useTodayHabits', () => {
 
     await waitFor(() => {
       expect(result.current).toEqual({ status: 'error' });
+    });
+  });
+
+  it('includes times_per_week habit while weekly quota remains', async () => {
+    // 2026-07-21 is Tuesday; week Mon 20 – Sun 26
+    const habit = await habitRepository.create({
+      name: 'Read',
+      frequency: { type: 'times_per_week', times: 3 },
+    });
+    await completionRepository.toggle(habit.id, '2026-07-20');
+    await completionRepository.toggle(habit.id, '2026-07-21');
+
+    const { result } = renderHook(() => useTodayHabits());
+
+    await waitFor(() => {
+      expect(result.current.status).toBe('ready');
+      if (result.current.status !== 'ready') return;
+      expect(result.current.habits).toHaveLength(1);
+      expect(result.current.habits[0]?.weekCompletions).toBe(2);
+      expect(result.current.habits[0]?.isCompleted).toBe(true);
+    });
+  });
+
+  it('hides times_per_week habit when weekly quota is met', async () => {
+    // Mid-week so three past/today dates exist in Mon–Sun week
+    vi.setSystemTime(new Date('2026-07-23T12:00:00'));
+    const habit = await habitRepository.create({
+      name: 'Read',
+      frequency: { type: 'times_per_week', times: 3 },
+    });
+    await completionRepository.toggle(habit.id, '2026-07-20');
+    await completionRepository.toggle(habit.id, '2026-07-21');
+    await completionRepository.toggle(habit.id, '2026-07-22');
+
+    const { result } = renderHook(() => useTodayHabits('2026-07-23'));
+
+    await waitFor(() => {
+      expect(result.current).toEqual({ status: 'ready', habits: [] });
     });
   });
 });
