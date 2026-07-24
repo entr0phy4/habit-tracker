@@ -16,8 +16,8 @@ After shipping the local-first core loop, deepen motivation without expanding in
 - Integer phases continue from the previous milestone (v1.0 ended at 4 → v1.1 starts at 5)
 - Decimal phases (5.1, 5.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 5: Visual Identity & Check-in Delight** - Color habits and reward check-ins with fill + micro-animation
-- [ ] **Phase 6: Dashboard Aggregate & UAT Residual** - Overall completion rate plus Phase 2 reactivity/fallback UAT closeout
+- [x] **Phase 5: Visual Identity & Check-in Delight** - Color habits and reward check-ins with fill + micro-animation
+- [x] **Phase 6: Dashboard Aggregate & UAT Residual** - Overall completion rate plus Phase 2 reactivity/fallback UAT closeout
 - [ ] **Phase 7: Flexible Weekly Frequency** - "X times per week" schedules with due-today and streak rules
 - [ ] **Phase 8: Streak Freeze** - Explicit skip/freeze days that preserve streaks without silent forgiveness
 
@@ -36,7 +36,12 @@ After shipping the local-first core loop, deepen motivation without expanding in
   3. Completing a habit today triggers a visible color-fill and/or micro-animation reward (in addition to the existing flame badge)
   4. Colors remain readable on the dark UI (sufficient contrast on surfaces and heatmap cells)
 
-**Plans**: TBD
+**Plans**: 3/3 plans
+
+Plans:
+- [x] 05-01-PLAN.md — Color domain, Habit.color, repo + backup (wave 1)
+- [x] 05-02-PLAN.md — Color picker + Today/Panel/heatmap accents (wave 2)
+- [x] 05-03-PLAN.md — Check-in color-fill micro-animation (wave 3)
 
 **UI hint**: yes
 
@@ -53,7 +58,12 @@ After shipping the local-first core loop, deepen motivation without expanding in
   3. Flame/streak badges and History stat cards update immediately after toggle without reload
   4. When IndexedDB reads fail, streak/stats UI shows zero/hidden safe states with no raw exception text
 
-**Plans**: TBD
+**Plans**: 3/3 complete (06-01 domain, 06-02 hooks, 06-03 Panel UI + UAT)
+
+Plans:
+- [x] 06-01-PLAN.md — countScheduledCompletions + calculateOverallCompletionRate (wave 1)
+- [x] 06-02-PLAN.md — hooks overallRate + QUERY_ERROR (wave 2)
+- [x] 06-03-PLAN.md — Panel UI + StatCards integer + 02-UAT closeout (wave 3)
 
 **UI hint**: yes
 
@@ -98,8 +108,8 @@ Phases execute in numeric order: 5 → 6 → 7 → 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 5. Visual Identity & Check-in Delight | 0/? | Not started | — |
-| 6. Dashboard Aggregate & UAT Residual | 0/? | Not started | — |
+| 5. Visual Identity & Check-in Delight | 3/3 | Complete | 2026-07-23 |
+| 6. Dashboard Aggregate & UAT Residual | 3/3 | Complete | 2026-07-23 |
 | 7. Flexible Weekly Frequency | 0/? | Not started | — |
 | 8. Streak Freeze | 0/? | Not started | — |
 

@@ -28,14 +28,20 @@ vi.mock('react-activity-calendar', () => ({
   ActivityCalendar: ({
     data,
     renderBlock,
+    theme,
   }: {
     data: Activity[];
+    theme?: { dark?: string[] };
     renderBlock?: (
       block: ReactElement,
       activity: Activity,
     ) => ReactElement;
   }) => (
-    <div data-testid="activity-calendar-mock">
+    <div
+      data-testid="activity-calendar-mock"
+      data-theme-level0={theme?.dark?.[0]}
+      data-theme-level3={theme?.dark?.[3]}
+    >
       {data.map((activity) => {
         const block = <rect data-date={activity.date} />;
         return renderBlock ? (
@@ -116,5 +122,19 @@ describe('ContributionHeatmap', () => {
     fireEvent.click(cell!);
 
     expect(mockToggle).not.toHaveBeenCalled();
+  });
+
+  it('applies heatmap theme derived from habit color', () => {
+    render(
+      <ContributionHeatmap
+        habitId="habit-1"
+        frequency={monWedFri}
+        color="#58a6ff"
+      />,
+    );
+
+    const calendar = screen.getByTestId('activity-calendar-mock');
+    expect(calendar.getAttribute('data-theme-level0')).toBe('#21262d');
+    expect(calendar.getAttribute('data-theme-level3')).toBe('#58a6ff');
   });
 });

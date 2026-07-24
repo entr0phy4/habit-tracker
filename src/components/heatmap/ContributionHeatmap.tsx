@@ -1,24 +1,28 @@
-import { cloneElement, useCallback, useEffect, useRef, type KeyboardEvent } from 'react';
+import { cloneElement, useCallback, useEffect, useMemo, useRef, type KeyboardEvent } from 'react';
 import { ActivityCalendar, type Activity, type BlockElement } from 'react-activity-calendar';
 import 'react-activity-calendar/tooltips.css';
 import { toast } from 'sonner';
+import { buildHeatmapTheme, normalizeHabitColor } from '@/domain/colors';
 import { getLocalDateString } from '@/domain/dates';
 import { formatHeatmapTooltip } from '@/domain/heatmap';
 import type { Frequency } from '@/domain/types';
 import { useHeatmapData } from '@/hooks/useHeatmapData';
 
-const heatmapTheme = {
-  dark: ['#21262d', '#0e4429', '#006d32', '#26a641', '#3fb950'],
-};
-
 interface ContributionHeatmapProps {
   habitId: string;
   frequency: Frequency;
+  color?: string;
 }
 
-export function ContributionHeatmap({ habitId, frequency }: ContributionHeatmapProps) {
+export function ContributionHeatmap({
+  habitId,
+  frequency,
+  color,
+}: ContributionHeatmapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const today = getLocalDateString(new Date());
+  const accent = normalizeHabitColor(color);
+  const heatmapTheme = useMemo(() => buildHeatmapTheme(accent), [accent]);
   const { activities, cellStates, isLoading, toggle } = useHeatmapData(
     habitId,
     frequency,

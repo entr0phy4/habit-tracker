@@ -18,6 +18,7 @@ const habit: Habit = {
   id: 'habit-1',
   name: 'Morning run',
   frequency: { type: 'daily' },
+  color: '#3fb950',
   archived: false,
   createdAt: '2026-07-19T12:00:00.000Z',
 };
@@ -69,5 +70,12 @@ describe('DashboardCard', () => {
     renderCard(0);
     expect(screen.getByLabelText('0 day streak')).toBeTruthy();
     expect(screen.getByText('0')).toBeTruthy();
+  });
+
+  it('exposes habit color accent on the card', () => {
+    renderCard();
+    expect(screen.getByRole('button').getAttribute('data-habit-color')).toBe(
+      '#3fb950',
+    );
   });
 });
