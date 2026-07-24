@@ -18,7 +18,7 @@ After shipping the local-first core loop, deepen motivation without expanding in
 
 - [x] **Phase 5: Visual Identity & Check-in Delight** - Color habits and reward check-ins with fill + micro-animation
 - [x] **Phase 6: Dashboard Aggregate & UAT Residual** - Overall completion rate plus Phase 2 reactivity/fallback UAT closeout
-- [ ] **Phase 7: Flexible Weekly Frequency** - "X times per week" schedules with due-today and streak rules
+- [x] **Phase 7: Flexible Weekly Frequency** - "X times per week" schedules with due-today and streak rules
 - [ ] **Phase 8: Streak Freeze** - Explicit skip/freeze days that preserve streaks without silent forgiveness
 
 ## Phase Details
@@ -80,12 +80,12 @@ Plans:
   3. Current/longest streak and completion rate respect the weekly quota (not daily weekday lists)
   4. Export/import round-trips the new frequency shape without data loss
 
-**Plans**: 2/3 complete
+**Plans**: 3/3 complete
 
 Plans:
 - [x] 07-01-PLAN.md — Frequency + week due helpers + backup Zod (wave 1)
 - [x] 07-02-PLAN.md — Week-hit streaks + week-cap rates/heatmap (wave 2)
-- [ ] 07-03-PLAN.md — Today hook + HabitForm modes + WeekQuotaChip (wave 3)
+- [x] 07-03-PLAN.md — Today hook + HabitForm modes + WeekQuotaChip (wave 3)
 
 **UI hint**: yes
 
@@ -115,7 +115,7 @@ Phases execute in numeric order: 5 → 6 → 7 → 8
 |-------|----------------|--------|-----------|
 | 5. Visual Identity & Check-in Delight | 3/3 | Complete | 2026-07-23 |
 | 6. Dashboard Aggregate & UAT Residual | 3/3 | Complete | 2026-07-23 |
-| 7. Flexible Weekly Frequency | 2/3 | In progress | — |
+| 7. Flexible Weekly Frequency | 3/3 | Complete | 2026-07-24 |
 | 8. Streak Freeze | 0/? | Not started | — |
 
 v1.0 phases 1–4 remain archived in `.planning/phases/01-*`…`04-*` and `.planning/milestones/v1.0-MILESTONE.md`.

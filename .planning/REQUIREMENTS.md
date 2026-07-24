@@ -61,7 +61,7 @@ Active milestone scope. Polish and flexibility after v1.0 validation.
 
 ### Schedule Flexibility
 
-- [ ] **ENH-04**: User can set "X times per week" frequency for habits
+- [x] **ENH-04**: User can set "X times per week" frequency for habits
 - [ ] **ENH-05**: User can skip a day without breaking a streak (streak freeze)
 
 ### Quality Residual
@@ -110,7 +110,7 @@ Which phases cover which v1.1 requirements. Filled by roadmap.
 | ENH-02 | Phase 5 | Complete |
 | ENH-03 | Phase 6 | Complete |
 | QA-01 | Phase 6 | Complete |
-| ENH-04 | Phase 7 | Pending |
+| ENH-04 | Phase 7 | Complete |
 | ENH-05 | Phase 8 | Pending |
 
 **Coverage:**
