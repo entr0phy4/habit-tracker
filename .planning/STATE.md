@@ -2,11 +2,11 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Motivation Polish & Flexibility
-status: phase_complete
-stopped_at: Phase 6 verified — ready for Phase 7 discuss/plan
-last_updated: "2026-07-23T18:40:00.000Z"
-last_activity: 2026-07-23
-last_activity_desc: Phase 6 Dashboard Aggregate & UAT Residual executed and verified
+status: context_gathered
+stopped_at: Phase 7 context gathered — ready to plan
+last_updated: "2026-07-24T19:55:00.000Z"
+last_activity: 2026-07-24
+last_activity_desc: Phase 7 Flexible Weekly Frequency discuss — CONTEXT.md captured (yolo defaults)
 progress:
   total_phases: 4
   completed_phases: 2
@@ -23,14 +23,14 @@ See: .planning/milestones/v1.0-MILESTONE.md
 See: .planning/MILESTONES.md
 
 **Core value:** Make it effortless to log habits daily and impossible to ignore your progress — one tap to check in, one glance to see your streak.
-**Current focus:** Milestone v1.1 — next Phase 7 Flexible Weekly Frequency
+**Current focus:** Milestone v1.1 — Phase 7 Flexible Weekly Frequency (context gathered)
 
 ## Current Position
 
-Phase: 6 — Dashboard Aggregate & UAT Residual (COMPLETE)
+Phase: 7 — Flexible Weekly Frequency (CONTEXT READY)
 Plan: —
-Status: Phase verified — human UAT optional (end-of-phase)
-Last activity: 2026-07-23 — Phase 6 plans 01–03 executed; ENH-03/QA-01 satisfied
+Status: Context gathered — ready for `/gsd-plan-phase 7`
+Last activity: 2026-07-24 — Phase 7 discuss (yolo); decisions D-01–D-21 locked
 
 Progress: [█████░░░░░] 50%
 
@@ -42,7 +42,7 @@ Progress: [█████░░░░░] 50%
 |-------|-------|--------|
 | 05 Visual Identity & Check-in Delight | 3/3 | Complete |
 | 06 Dashboard Aggregate & UAT Residual | 3/3 | Complete |
-| 07 Flexible Weekly Frequency | 0/? | Not started |
+| 07 Flexible Weekly Frequency | 0/? | Context gathered |
 | 08 Streak Freeze | 0/? | Not started |
 
 ## Accumulated Context
@@ -53,6 +53,7 @@ Progress: [█████░░░░░] 50%
 - Phase numbering continues from v1.0 (last phase 4 → start at 5)
 - Phase 5: curated 8-color palette; backup v1 + optional color; CSS-only check-in pulse (05-CONTEXT.md)
 - Phase 6: pooled lifetime overall rate (not mean of rates); QUERY_ERROR in streak/stats/dashboard hooks; Panel "Tasa general" (06-CONTEXT.md)
+- Phase 7: `times_per_week` frequency variant; Mon–Sun quota due-today; week-level streaks; rate caps per week; backup v1 union extend (07-CONTEXT.md)
 
 ### Pending Todos
 
@@ -68,10 +69,11 @@ None blocking. Streak freeze and X/week both touch schedule-aware streak math �
 |----------|------|--------|-------------|
 | v2.0 | REM-01, REM-02 reminders/push | Planned for v2.0 | 2026-07-23 |
 | Future | PWA / `navigator.storage.persist()` | Optional later | 2026-07-23 |
+| Future | Interval schedules (every N days) | Out of v1.1 | 2026-07-24 |
 
 ## Session Continuity
 
-Last session: 2026-07-23T18:40:00.000Z
-Stopped at: Phase 6 verified — ready for Phase 7 discuss/plan
-Resume file: .planning/ROADMAP.md
-Next command: `/gsd-discuss-phase 7` or `/gsd-plan-phase 7`
+Last session: 2026-07-24T19:55:00.000Z
+Stopped at: Phase 7 context gathered — ready to plan
+Resume file: .planning/phases/07-flexible-weekly-frequency/07-CONTEXT.md
+Next command: `/gsd-plan-phase 7`
