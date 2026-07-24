@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import type { BackupPayload } from './types';
+import { normalizeHabitColor } from './colors';
+import type { BackupPayload, Habit } from './types';
 
 const frequencySchema = z.union([
   z.object({ type: z.literal('daily') }),
@@ -13,6 +14,7 @@ const habitSchema = z.object({
   id: z.string().min(1),
   name: z.string(),
   frequency: frequencySchema,
+  color: z.string().optional(),
   archived: z.boolean(),
   createdAt: z.string().min(1),
 });
@@ -32,6 +34,15 @@ const backupPayloadSchema = z.object({
 export type ParseBackupResult =
   | { ok: true; data: BackupPayload }
   | { ok: false; error: 'invalid' | 'unsupported_version' };
+
+function withNormalizedColors(
+  habits: z.infer<typeof habitSchema>[],
+): Habit[] {
+  return habits.map((habit) => ({
+    ...habit,
+    color: normalizeHabitColor(habit.color),
+  }));
+}
 
 export function parseBackupJson(raw: string): ParseBackupResult {
   let parsed: unknown;
@@ -55,5 +66,11 @@ export function parseBackupJson(raw: string): ParseBackupResult {
     return { ok: false, error: 'invalid' };
   }
 
-  return { ok: true, data: result.data as BackupPayload };
+  return {
+    ok: true,
+    data: {
+      ...result.data,
+      habits: withNormalizedColors(result.data.habits),
+    },
+  };
 }

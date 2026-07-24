@@ -30,20 +30,32 @@ describe('parseBackupJson', () => {
     expect(result).toEqual({ ok: true, data: validEmpty });
   });
 
-  it('preserves daily habit and completion fields', () => {
+  it('preserves daily habit and completion fields and normalizes color', () => {
     const payload = {
       ...validEmpty,
       habits: [dailyHabit],
       completions: [{ habitId: 'h1', date: '2026-07-14' }],
     };
     const result = parseBackupJson(JSON.stringify(payload));
-    expect(result).toEqual({ ok: true, data: payload });
+    expect(result).toEqual({
+      ok: true,
+      data: {
+        ...payload,
+        habits: [{ ...dailyHabit, color: '#3fb950' }],
+      },
+    });
   });
 
   it('accepts weekly frequency with days 0–6', () => {
     const payload = { ...validEmpty, habits: [weeklyHabit] };
     const result = parseBackupJson(JSON.stringify(payload));
-    expect(result).toEqual({ ok: true, data: payload });
+    expect(result).toEqual({
+      ok: true,
+      data: {
+        ...payload,
+        habits: [{ ...weeklyHabit, color: '#3fb950' }],
+      },
+    });
   });
 
   it('returns invalid for corrupt JSON', () => {
@@ -76,5 +88,29 @@ describe('parseBackupJson', () => {
       ok: false,
       error: 'invalid',
     });
+  });
+
+  it('accepts habits without color and normalizes to default', () => {
+    const payload = {
+      ...validEmpty,
+      habits: [dailyHabit],
+    };
+    const result = parseBackupJson(JSON.stringify(payload));
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.habits[0]?.color).toBe('#3fb950');
+    }
+  });
+
+  it('preserves valid preset color on import parse', () => {
+    const payload = {
+      ...validEmpty,
+      habits: [{ ...dailyHabit, color: '#58a6ff' }],
+    };
+    const result = parseBackupJson(JSON.stringify(payload));
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.habits[0]?.color).toBe('#58a6ff');
+    }
   });
 });

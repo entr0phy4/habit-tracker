@@ -8,41 +8,56 @@ import {
 import type { Habit } from '@/domain/types';
 import { completionRepository } from '@/infrastructure/completionRepository';
 
+const QUERY_ERROR = Symbol('QUERY_ERROR');
+
 export function useHabitStats(habit: Habit, todayKey?: string) {
   const today = todayKey ?? getLocalDateString(new Date());
   const startDate = getHabitStartDate(habit);
 
   const result = useLiveQuery(async () => {
-    const dates = await completionRepository.getByHabitInRange(
-      habit.id,
-      startDate,
-      today,
-    );
-    const completedDates = new Set(dates);
-    const todayDate = new Date(`${today}T12:00:00`);
+    try {
+      const dates = await completionRepository.getByHabitInRange(
+        habit.id,
+        startDate,
+        today,
+      );
+      const completedDates = new Set(dates);
+      const todayDate = new Date(`${today}T12:00:00`);
 
-    return {
-      current: calculateCurrentStreak(
-        completedDates,
-        habit.frequency,
-        today,
-        startDate,
-      ),
-      longest: calculateLongestStreak(
-        completedDates,
-        habit.frequency,
-        startDate,
-        today,
-      ),
-      rate: calculateCompletionRate(
-        completedDates,
-        habit.frequency,
-        startDate,
-        today,
-        todayDate,
-      ),
-    };
+      return {
+        current: calculateCurrentStreak(
+          completedDates,
+          habit.frequency,
+          today,
+          startDate,
+        ),
+        longest: calculateLongestStreak(
+          completedDates,
+          habit.frequency,
+          startDate,
+          today,
+        ),
+        rate: calculateCompletionRate(
+          completedDates,
+          habit.frequency,
+          startDate,
+          today,
+          todayDate,
+        ),
+      };
+    } catch {
+      return QUERY_ERROR;
+    }
   }, [habit.id, habit.frequency, habit.createdAt, today]);
+
+  if (result === QUERY_ERROR) {
+    return {
+      current: 0,
+      longest: 0,
+      rate: 0,
+      isLoading: false,
+    };
+  }
 
   return {
     current: result?.current ?? 0,

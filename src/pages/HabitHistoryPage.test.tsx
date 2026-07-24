@@ -11,6 +11,7 @@ const habit: Habit = {
   id: 'habit-1',
   name: 'Morning run',
   frequency: { type: 'daily' },
+  color: '#3fb950',
   archived: false,
   createdAt: '2026-07-19T12:00:00.000Z',
 };
@@ -40,14 +41,17 @@ vi.mock('@/components/heatmap/ContributionHeatmap', () => ({
   ContributionHeatmap: ({
     habitId,
     frequency,
+    color,
   }: {
     habitId: string;
     frequency: Habit['frequency'];
+    color?: string;
   }) => (
     <div
       data-testid="contribution-heatmap-mock"
       data-habit-id={habitId}
       data-frequency={frequency.type}
+      data-color={color}
     />
   ),
 }));
@@ -87,12 +91,13 @@ describe('HabitHistoryPage', () => {
     expect(screen.queryByText('This week')).toBeNull();
   });
 
-  it('renders ContributionHeatmap with habit id and frequency', () => {
+  it('renders ContributionHeatmap with habit id, frequency, and color', () => {
     renderPage();
 
     const heatmap = screen.getByTestId('contribution-heatmap-mock');
     expect(heatmap.getAttribute('data-habit-id')).toBe('habit-1');
     expect(heatmap.getAttribute('data-frequency')).toBe('daily');
+    expect(heatmap.getAttribute('data-color')).toBe('#3fb950');
   });
 
   it('uses navigate(-1) on loading shell back button', () => {
