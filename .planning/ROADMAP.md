@@ -19,7 +19,7 @@ After shipping the local-first core loop, deepen motivation without expanding in
 - [x] **Phase 5: Visual Identity & Check-in Delight** - Color habits and reward check-ins with fill + micro-animation
 - [x] **Phase 6: Dashboard Aggregate & UAT Residual** - Overall completion rate plus Phase 2 reactivity/fallback UAT closeout
 - [x] **Phase 7: Flexible Weekly Frequency** - "X times per week" schedules with due-today and streak rules
-- [ ] **Phase 8: Streak Freeze** - Explicit skip/freeze days that preserve streaks without silent forgiveness
+- [x] **Phase 8: Streak Freeze** - Explicit skip/freeze days that preserve streaks without silent forgiveness (completed 2026-07-25)
 
 ## Phase Details
 
@@ -125,6 +125,6 @@ Phases execute in numeric order: 5 → 6 → 7 → 8
 | 5. Visual Identity & Check-in Delight | 3/3 | Complete | 2026-07-23 |
 | 6. Dashboard Aggregate & UAT Residual | 3/3 | Complete | 2026-07-23 |
 | 7. Flexible Weekly Frequency | 3/3 | Complete | 2026-07-24 |
-| 8. Streak Freeze | 3/3 | In Progress|  |
+| 8. Streak Freeze | 3/3 | Complete    | 2026-07-25 |
 
 v1.0 phases 1–4 remain archived in `.planning/phases/01-*`…`04-*` and `.planning/milestones/v1.0-MILESTONE.md`.
