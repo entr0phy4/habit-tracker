@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Reminders & PWA
 status: planning
-last_updated: "2026-07-25T16:51:16.720Z"
+last_updated: "2026-07-25T17:00:00.000Z"
 last_activity: 2026-07-25
 progress:
-  total_phases: 0
+  total_phases: 6
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -19,21 +19,23 @@ progress:
 
 See: .planning/PROJECT.md (updated 2026-07-25)  
 See: .planning/MILESTONES.md  
-See: .planning/milestones/v1.1-ROADMAP.md
+See: .planning/ROADMAP.md
 
 **Core value:** Make it effortless to log habits daily and impossible to ignore your progress — one tap to check in, one glance to see your streak.  
-**Current focus:** Planning next milestone
+**Current focus:** v2.0 Phase 9 — PWA Install & Manifest
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-07-25 — Milestone v2.0 started
+Phase: 9 of 14 (PWA Install & Manifest) — v2.0 Phases 9–14  
+Plan: —  
+Status: Ready to plan  
+Last activity: 2026-07-25 — v2.0 roadmap created (6 phases, 11 requirements mapped)
+
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
-**By Phase (v1.1):**
+**By Phase (v1.1 — complete):**
 
 | Phase | Plans | Status |
 |-------|-------|--------|
@@ -42,19 +44,13 @@ Last activity: 2026-07-25 — Milestone v2.0 started
 | 07 Flexible Weekly Frequency | 3/3 | Complete |
 | 08 Streak Freeze | 3/3 | Complete |
 
-**Per-Plan Metrics (Phase 8 sample):**
-
-| Plan | Duration | Tasks | Files |
-|------|----------|-------|-------|
-| Phase 08-streak-freeze P01 | 3min | 2 tasks | 11 files |
-| Phase 08-streak-freeze P02 | 4min | 2 tasks | 7 files |
-| Phase 08-streak-freeze P03 | 5min | 2 tasks | 17 files |
+**v2.0:** No plans executed yet.
 
 ## Accumulated Context
 
 ### Decisions
 
-Key decisions logged in PROJECT.md (v1.1 close). Highlights: curated colors; pooled overall rate; `times_per_week`; separate Freeze entity with bridge-without-increment streaks.
+v2.0 roadmap (2026-07-25): 6 phases (9–14); PWA foundation before push; REM-05/06 in Phase 13 (SW-side suppression + deep links); REM-02 closed in Phase 14 (relay delivery). Research Phase 15 integration hardening folded into Phases 13–14 success criteria.
 
 ### Pending Todos
 
@@ -68,27 +64,18 @@ None.
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
-| v2.0 | REM-01, REM-02 reminders/push | Planned for v2.0 | 2026-07-23 |
-| Future | PWA / `navigator.storage.persist()` | Optional later | 2026-07-23 |
-| Future | Interval schedules (every N days) | Out of v1.1 | 2026-07-24 |
-| Future | Soft freeze monthly caps / auto-freeze rules | Out of Phase 8 SC | 2026-07-24 |
-
-Items acknowledged and deferred at milestone close on 2026-07-25 (`override_closeout`):
-
-| Category | Item | Status |
-|----------|------|--------|
-| uat_gap | 05-UAT.md | pending |
-| uat_gap | 06-UAT.md | testing (3 pending scenarios) |
-| verification_gap | 01-VERIFICATION.md | human_needed |
-| verification_gap | 02-VERIFICATION.md | human_needed |
+| v2.x+ | REM-07 notification actions, REM-08 quiet hours | Future | 2026-07-25 |
+| v2.x+ | PWA-06 multi-reminder, PWA-07 widgets | Future | 2026-07-25 |
+| v1.1 | Human UAT / verification residuals (Phases 1–2, 5–6) | Out of v2.0 scope | 2026-07-25 |
 
 ## Session Continuity
 
 Last session: 2026-07-25  
-Stopped at: Milestone v1.1 archived  
+Stopped at: v2.0 roadmap written  
 Resume file: None  
-Next command: `/gsd-new-milestone`
+Next command: `/gsd-plan-phase 9`
 
 ## Operator Next Steps
 
-- Start the next milestone with `/gsd-new-milestone`
+- Plan Phase 9 with `/gsd-plan-phase 9`
+- Phases 11 and 12 can parallelize with 9–10 once schema is defined

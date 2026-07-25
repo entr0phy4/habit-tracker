@@ -119,17 +119,27 @@ Explicitly excluded for v2.0. Documented to prevent scope creep.
 
 ## Traceability
 
-Which phases cover which requirements. Filled by roadmap.
+Which phases cover which requirements. Updated by v2.0 roadmap (2026-07-25).
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| — | — | Pending |
+| PWA-01 | Phase 9 | Pending |
+| PWA-02 | Phase 10 | Pending |
+| PWA-03 | Phase 10 | Pending |
+| PWA-04 | Phase 11 | Pending |
+| PWA-05 | Phase 10 | Pending |
+| REM-01 | Phase 12 | Pending |
+| REM-02 | Phase 14 | Pending |
+| REM-03 | Phase 12 | Pending |
+| REM-04 | Phase 12 | Pending |
+| REM-05 | Phase 13 | Pending |
+| REM-06 | Phase 13 | Pending |
 
 **Coverage:**
 
 - v2.0 requirements: 11 total
-- Mapped to phases: 0
-- Unmapped: 11 ⚠️
+- Mapped to phases: 11
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-25 after v2.0 milestone research*
