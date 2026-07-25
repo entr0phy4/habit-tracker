@@ -1,8 +1,9 @@
-import { useRef, useState, type ChangeEvent } from 'react';
+import { useRef, useState, useSyncExternalStore, type ChangeEvent } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/habits/ConfirmDialog';
+import { IosInstallModal } from '@/components/pwa/IosInstallModal';
 import { AppShell } from '@/components/layout/AppShell';
 import { Button } from '@/components/ui/button';
 import { parseBackupJson } from '@/domain/backupSchema';
@@ -13,6 +14,17 @@ import {
   exportBackup,
   importBackup,
 } from '@/infrastructure/backupService';
+import {
+  getDeferredPrompt,
+  isStandaloneDisplayMode,
+  shouldShowChromiumInstallFlow,
+  shouldShowIosInstallFlow,
+  subscribeInstallPrompt,
+  triggerInstallPrompt,
+} from '@/platform/install';
+
+const CHROMIUM_FALLBACK =
+  'Abre el menú del navegador (⋮) y selecciona «Instalar app» o «Añadir a la pantalla de inicio».';
 
 function readFileAsText(file: File): Promise<string> {
   if (typeof file.text === 'function') {
@@ -35,6 +47,12 @@ export function SettingsPage() {
     null,
   );
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [iosModalOpen, setIosModalOpen] = useState(false);
+  const hasDeferredPrompt = useSyncExternalStore(
+    subscribeInstallPrompt,
+    () => getDeferredPrompt() !== null,
+    () => false,
+  );
 
   async function handleExport() {
     const payload = await exportBackup();
@@ -105,6 +123,43 @@ export function SettingsPage() {
         Volver
       </Link>
 
+      {!isStandaloneDisplayMode() && (
+        <section className="mb-8 flex flex-col gap-2">
+          <h2 className="text-xs font-semibold text-muted-foreground">
+            Instalar app
+          </h2>
+          <p className="mb-2 text-sm text-muted-foreground">
+            Instala la app para acceder sin conexión y más rápido.
+          </p>
+
+          {shouldShowIosInstallFlow() && (
+            <Button
+              type="button"
+              className="min-h-11 w-full"
+              onClick={() => setIosModalOpen(true)}
+            >
+              Cómo instalar
+            </Button>
+          )}
+
+          {shouldShowChromiumInstallFlow() && hasDeferredPrompt && (
+            <Button
+              type="button"
+              className="min-h-11 w-full"
+              onClick={() => {
+                void triggerInstallPrompt();
+              }}
+            >
+              Instalar
+            </Button>
+          )}
+
+          {shouldShowChromiumInstallFlow() && !hasDeferredPrompt && (
+            <p className="text-sm text-muted-foreground">{CHROMIUM_FALLBACK}</p>
+          )}
+        </section>
+      )}
+
       <section className="flex flex-col gap-2">
         <h2 className="text-xs font-semibold text-muted-foreground">
           Copia de seguridad
@@ -154,6 +209,11 @@ export function SettingsPage() {
           void handleConfirmImport();
         }}
         onCancel={handleCancelImport}
+      />
+
+      <IosInstallModal
+        open={iosModalOpen}
+        onClose={() => setIosModalOpen(false)}
       />
     </AppShell>
   );
