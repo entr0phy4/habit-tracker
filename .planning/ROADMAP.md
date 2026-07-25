@@ -61,20 +61,20 @@ Phase dirs archived: `.planning/milestones/v1.1-phases/`
   3. User sees a contextual install prompt that explains value (not a blocking first-visit modal)
   4. On iOS, user sees guidance that installing to the home screen is required before push reminders will work
 
-**Plans**: 3 plans
+**Plans**: 3/3 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 09-01-PLAN.md — Static manifest, flame icons, index.html meta, platform/install.ts + unit tests
+- [x] 09-01-PLAN.md — Static manifest, flame icons, index.html meta, platform/install.ts + unit tests
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 09-02-PLAN.md — InstallBanner, IosInstallModal, MainLayout mount + component tests
+- [x] 09-02-PLAN.md — InstallBanner, IosInstallModal, MainLayout mount + component tests
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 09-03-PLAN.md — Settings install section, SettingsPage tests, phase scope fence
+- [x] 09-03-PLAN.md — Settings install section, SettingsPage tests, phase scope fence
 
 **UI hint**: yes
 
@@ -165,7 +165,7 @@ Plans:
 | 6. Dashboard Aggregate & UAT Residual | v1.1 | 3/3 | Complete | 2026-07-23 |
 | 7. Flexible Weekly Frequency | v1.1 | 3/3 | Complete | 2026-07-24 |
 | 8. Streak Freeze | v1.1 | 3/3 | Complete | 2026-07-25 |
-| 9. PWA Install & Manifest | v2.0 | 0/3 | Not started | - |
+| 9. PWA Install & Manifest | v2.0 | 3/3 | In Progress|  |
 | 10. Service Worker, Offline & Updates | v2.0 | 0/TBD | Not started | - |
 | 11. Storage Durability | v2.0 | 0/TBD | Not started | - |
 | 12. Reminder Preferences | v2.0 | 0/TBD | Not started | - |

@@ -77,7 +77,7 @@ Requirements for milestone v2.0 Reminders & PWA. Each maps to roadmap phases (9+
 
 ### PWA & Durability
 
-- [ ] **PWA-01**: User can install the app to their home screen (manifest, icons, standalone display)
+- [x] **PWA-01**: User can install the app to their home screen (manifest, icons, standalone display)
 - [ ] **PWA-02**: App shell loads offline after the first visit (service worker precache)
 - [ ] **PWA-03**: User can check in, view streaks, and export/import backup with no network connection
 - [ ] **PWA-04**: User can request durable IndexedDB storage with clear status messaging and an export CTA if persistence is denied
@@ -123,7 +123,7 @@ Which phases cover which requirements. Updated by v2.0 roadmap (2026-07-25).
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PWA-01 | Phase 9 | Pending |
+| PWA-01 | Phase 9 | Complete |
 | PWA-02 | Phase 10 | Pending |
 | PWA-03 | Phase 10 | Pending |
 | PWA-04 | Phase 11 | Pending |
