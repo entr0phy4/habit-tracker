@@ -39,6 +39,7 @@ After shipping the local-first core loop, deepen motivation without expanding in
 **Plans**: 3/3 plans
 
 Plans:
+
 - [x] 05-01-PLAN.md — Color domain, Habit.color, repo + backup (wave 1)
 - [x] 05-02-PLAN.md — Color picker + Today/Panel/heatmap accents (wave 2)
 - [x] 05-03-PLAN.md — Check-in color-fill micro-animation (wave 3)
@@ -61,6 +62,7 @@ Plans:
 **Plans**: 3/3 complete (06-01 domain, 06-02 hooks, 06-03 Panel UI + UAT)
 
 Plans:
+
 - [x] 06-01-PLAN.md — countScheduledCompletions + calculateOverallCompletionRate (wave 1)
 - [x] 06-02-PLAN.md — hooks overallRate + QUERY_ERROR (wave 2)
 - [x] 06-03-PLAN.md — Panel UI + StatCards integer + 02-UAT closeout (wave 3)
@@ -83,6 +85,7 @@ Plans:
 **Plans**: 3/3 complete
 
 Plans:
+
 - [x] 07-01-PLAN.md — Frequency + week due helpers + backup Zod (wave 1)
 - [x] 07-02-PLAN.md — Week-hit streaks + week-cap rates/heatmap (wave 2)
 - [x] 07-03-PLAN.md — Today hook + HabitForm modes + WeekQuotaChip (wave 3)
@@ -102,10 +105,11 @@ Plans:
   3. Heatmap/history distinguishes freeze from complete and incomplete
   4. Export/import preserves freeze records; streaks recompute correctly after restore
 
-**Plans**: 3/3 plans
+**Plans**: 1/3 plans executed
 
 Plans:
-- [ ] 08-01-PLAN.md — Freeze entity, Dexie v2, repos + backup (wave 1)
+
+- [x] 08-01-PLAN.md — Freeze entity, Dexie v2, repos + backup (wave 1)
 - [ ] 08-02-PLAN.md — Bridge streaks + rate exclusion + frozen heatmap state (wave 2)
 - [ ] 08-03-PLAN.md — Today Omitir + History cycle + hook wiring (wave 3)
 
@@ -121,6 +125,6 @@ Phases execute in numeric order: 5 → 6 → 7 → 8
 | 5. Visual Identity & Check-in Delight | 3/3 | Complete | 2026-07-23 |
 | 6. Dashboard Aggregate & UAT Residual | 3/3 | Complete | 2026-07-23 |
 | 7. Flexible Weekly Frequency | 3/3 | Complete | 2026-07-24 |
-| 8. Streak Freeze | 0/3 | Planned | — |
+| 8. Streak Freeze | 1/3 | In Progress|  |
 
 v1.0 phases 1–4 remain archived in `.planning/phases/01-*`…`04-*` and `.planning/milestones/v1.0-MILESTONE.md`.
