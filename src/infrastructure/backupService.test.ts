@@ -32,6 +32,9 @@ describe('backupService', () => {
     await db.open();
     await db.habits.clear();
     await db.completions.clear();
+    if (db.freezes) {
+      await db.freezes.clear();
+    }
   });
 
   it('exports empty arrays from an empty database', async () => {
@@ -39,6 +42,7 @@ describe('backupService', () => {
     expect(payload.version).toBe(1);
     expect(payload.habits).toEqual([]);
     expect(payload.completions).toEqual([]);
+    expect(payload.freezes).toEqual([]);
     expect(payload.exportedAt.length).toBeGreaterThan(0);
   });
 
@@ -56,6 +60,40 @@ describe('backupService', () => {
       'archived-1',
     ]);
     expect(payload.completions).toHaveLength(2);
+  });
+
+  it('export includes freezes and import round-trips them', async () => {
+    await db.habits.add(activeHabit);
+    await db.freezes?.add({ habitId: 'active-1', date: '2026-07-15' });
+
+    const exported = await exportBackup();
+    expect(exported.freezes).toEqual([
+      { habitId: 'active-1', date: '2026-07-15' },
+    ]);
+
+    await db.habits.clear();
+    await db.completions.clear();
+    await db.freezes?.clear();
+
+    await importBackup(exported);
+
+    expect(await db.freezes?.toArray()).toEqual([
+      { habitId: 'active-1', date: '2026-07-15' },
+    ]);
+  });
+
+  it('imports old payload without freezes key', async () => {
+    const incoming: BackupPayload = {
+      version: 1,
+      exportedAt: '2026-07-22T12:00:00.000Z',
+      habits: [activeHabit],
+      completions: [],
+    };
+
+    await importBackup(incoming);
+
+    expect(await db.habits.toArray()).toEqual([activeHabit]);
+    expect(await db.freezes?.toArray()).toEqual([]);
   });
 
   it('replaces existing data on import', async () => {

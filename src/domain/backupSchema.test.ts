@@ -156,4 +156,38 @@ describe('parseBackupJson', () => {
       });
     }
   });
+
+  it('accepts payload with freezes array and keeps version 1', () => {
+    const payload = {
+      ...validEmpty,
+      freezes: [{ habitId: 'h1', date: '2026-07-14' }],
+    };
+    const result = parseBackupJson(JSON.stringify(payload));
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.version).toBe(1);
+      expect(result.data.freezes).toEqual([
+        { habitId: 'h1', date: '2026-07-14' },
+      ]);
+    }
+  });
+
+  it('defaults missing freezes to empty array', () => {
+    const result = parseBackupJson(JSON.stringify(validEmpty));
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.freezes).toEqual([]);
+    }
+  });
+
+  it('rejects malformed freeze dates', () => {
+    const payload = {
+      ...validEmpty,
+      freezes: [{ habitId: 'h1', date: '07/14/2026' }],
+    };
+    expect(parseBackupJson(JSON.stringify(payload))).toEqual({
+      ok: false,
+      error: 'invalid',
+    });
+  });
 });

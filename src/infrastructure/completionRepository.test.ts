@@ -1,8 +1,9 @@
 import { subDays } from 'date-fns/subDays';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getLocalDateString } from '@/domain/dates';
 import { completionRepository } from './completionRepository';
 import { db } from './db';
+import { freezeRepository } from './freezeRepository';
 import { habitRepository } from './habitRepository';
 
 describe('completionRepository', () => {
@@ -58,6 +59,23 @@ describe('completionRepository', () => {
 
     await completionRepository.toggle(habit.id, '2099-01-01');
     expect(await db.completions.count()).toBe(0);
+  });
+
+  it('toggling completion on clears existing freeze for same day', async () => {
+    vi.setSystemTime(new Date('2026-07-21T12:00:00'));
+    const habit = await habitRepository.create({
+      name: 'Yoga',
+      frequency: { type: 'daily' },
+    });
+    const yesterday = getLocalDateString(subDays(new Date(), 1));
+
+    await freezeRepository.set(habit.id, yesterday);
+    expect(await db.freezes?.get([habit.id, yesterday])).toBeDefined();
+
+    await completionRepository.toggle(habit.id, yesterday);
+
+    expect(await db.completions.get([habit.id, yesterday])).toBeDefined();
+    expect(await db.freezes?.get([habit.id, yesterday])).toBeUndefined();
   });
 
   it('returns completed dates in range', async () => {

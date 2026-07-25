@@ -15,6 +15,11 @@ describe('HabitTrackerDB', () => {
     await database.close();
   });
 
+  it('exposes freezes table at schema version 2', async () => {
+    expect(database.verno).toBe(2);
+    expect(database.freezes).toBeDefined();
+  });
+
   it('persists data across closing and reopening the database', async () => {
     await database.habits.add({
       id: 'habit-1',
