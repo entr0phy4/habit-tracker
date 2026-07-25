@@ -74,7 +74,7 @@ export function TodayPage() {
           </p>
         </div>
       ) : (
-        <ul className="flex flex-col gap-2 pb-28">
+        <ul className="flex flex-col gap-2 pb-36">
           {todayHabits.map(({ habit, isCompleted, weekCompletions }) => (
             <li key={habit.id}>
               <HabitRow

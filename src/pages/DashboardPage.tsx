@@ -31,7 +31,7 @@ export function DashboardPage() {
           </p>
         </div>
       ) : (
-        <div className="pb-20">
+        <div className="pb-36">
           <div className="mb-2">
             <p className="text-xs text-muted-foreground">Tasa general</p>
             <p className="mt-1 text-xl font-semibold text-foreground">

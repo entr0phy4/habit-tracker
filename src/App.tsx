@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router';
+import '@/platform/install';
 import { Toaster } from '@/components/ui/sonner';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { DashboardPage } from '@/pages/DashboardPage';
@@ -8,8 +10,13 @@ import { HabitNewPage } from '@/pages/HabitNewPage';
 import { ManageHabitsPage } from '@/pages/ManageHabitsPage';
 import { SettingsPage } from '@/pages/SettingsPage';
 import { TodayPage } from '@/pages/TodayPage';
+import { recordSessionVisit } from '@/platform/install';
 
 export function App() {
+  useEffect(() => {
+    recordSessionVisit();
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>
