@@ -12,7 +12,10 @@ export const completionRepository = {
       return;
     }
 
-    await db.completions.put({ habitId, date });
+    await db.transaction('rw', db.completions, db.freezes, async () => {
+      await db.freezes.delete(key);
+      await db.completions.put({ habitId, date });
+    });
   },
 
   async getByHabitInRange(

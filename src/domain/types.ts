@@ -20,9 +20,15 @@ export interface Completion {
   date: string;
 }
 
+export interface Freeze {
+  habitId: string;
+  date: string;
+}
+
 export interface BackupPayload {
   version: 1;
   exportedAt: string;
   habits: Habit[];
   completions: Completion[];
+  freezes?: Freeze[];
 }

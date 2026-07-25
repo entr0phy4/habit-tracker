@@ -28,11 +28,17 @@ const completionSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });
 
+const freezeSchema = z.object({
+  habitId: z.string().min(1),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+});
+
 const backupPayloadSchema = z.object({
   version: z.literal(1),
   exportedAt: z.string().min(1),
   habits: z.array(habitSchema),
   completions: z.array(completionSchema),
+  freezes: z.array(freezeSchema).optional().default([]),
 });
 
 export type ParseBackupResult =

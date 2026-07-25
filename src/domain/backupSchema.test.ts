@@ -6,6 +6,7 @@ const validEmpty = {
   exportedAt: '2026-07-22T12:00:00.000Z',
   habits: [],
   completions: [],
+  freezes: [] as { habitId: string; date: string }[],
 };
 
 const dailyHabit = {

@@ -4,9 +4,10 @@ import type { BackupPayload } from '@/domain/types';
 import { db } from './db';
 
 export async function exportBackup(): Promise<BackupPayload> {
-  const [habitsRaw, completions] = await Promise.all([
+  const [habitsRaw, completions, freezes] = await Promise.all([
     db.habits.toArray(),
     db.completions.toArray(),
+    db.freezes.toArray(),
   ]);
 
   const habits = habitsRaw.map((habit) => ({
@@ -19,6 +20,7 @@ export async function exportBackup(): Promise<BackupPayload> {
     exportedAt: new Date().toISOString(),
     habits,
     completions,
+    freezes,
   };
 }
 
@@ -28,11 +30,15 @@ export async function importBackup(payload: BackupPayload): Promise<void> {
     color: normalizeHabitColor(habit.color),
   }));
 
-  await db.transaction('rw', db.habits, db.completions, async () => {
+  const freezes = payload.freezes ?? [];
+
+  await db.transaction('rw', db.habits, db.completions, db.freezes, async () => {
     await db.habits.clear();
     await db.completions.clear();
+    await db.freezes.clear();
     await db.habits.bulkAdd(habits);
     await db.completions.bulkAdd(payload.completions);
+    await db.freezes.bulkAdd(freezes);
   });
 }
 
