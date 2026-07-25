@@ -6,7 +6,19 @@ import { buildHeatmapTheme, normalizeHabitColor } from '@/domain/colors';
 import { getLocalDateString } from '@/domain/dates';
 import { formatHeatmapTooltip } from '@/domain/heatmap';
 import type { Frequency } from '@/domain/types';
+import type { WeekDayState } from '@/domain/stats';
 import { useHeatmapData } from '@/hooks/useHeatmapData';
+
+const FREEZE_COLOR = '#58a6ff';
+
+function isInteractiveCell(state: WeekDayState | undefined): boolean {
+  return (
+    state === 'completed' ||
+    state === 'missed' ||
+    state === 'frozen' ||
+    state === 'not-scheduled'
+  );
+}
 
 interface ContributionHeatmapProps {
   habitId: string;
@@ -23,7 +35,7 @@ export function ContributionHeatmap({
   const today = getLocalDateString(new Date());
   const accent = normalizeHabitColor(color);
   const heatmapTheme = useMemo(() => buildHeatmapTheme(accent), [accent]);
-  const { activities, cellStates, isLoading, toggle } = useHeatmapData(
+  const { activities, cellStates, isLoading, cycle } = useHeatmapData(
     habitId,
     frequency,
   );
@@ -44,34 +56,39 @@ export function ContributionHeatmap({
   const handleCellClick = useCallback(
     async (date: string) => {
       try {
-        await toggle(date);
+        await cycle(date);
       } catch {
         toast.error("Couldn't update. Try again.");
       }
     },
-    [toggle],
+    [cycle],
   );
 
   const renderBlock = useCallback(
     (block: BlockElement, activity: Activity) => {
       const state = cellStates.get(activity.date);
-      const isInteractive = state === 'completed' || state === 'missed';
+      const isInteractive = isInteractiveCell(state);
       const isNotScheduled = state === 'not-scheduled';
       const isMissed = state === 'missed';
+      const isFrozen = state === 'frozen';
       const isToday = activity.date === today;
       const isFuture = state === 'future';
 
       return cloneElement(block, {
         style: {
           ...block.props.style,
+          fill: isFrozen ? 'rgba(88, 166, 255, 0.35)' : block.props.style?.fill,
           opacity: isNotScheduled ? 0.2 : isFuture ? 0.4 : 1,
           cursor: isInteractive ? 'pointer' : 'default',
-          stroke: isMissed
-            ? 'var(--destructive)'
-            : isToday
-              ? 'var(--primary)'
-              : block.props.style?.stroke,
-          strokeWidth: isMissed || isToday ? 2 : block.props.style?.strokeWidth,
+          stroke: isFrozen
+            ? FREEZE_COLOR
+            : isMissed
+              ? 'var(--destructive)'
+              : isToday
+                ? 'var(--primary)'
+                : block.props.style?.stroke,
+          strokeWidth: isFrozen || isMissed || isToday ? 2 : block.props.style?.strokeWidth,
+          strokeDasharray: isFrozen ? '3 2' : block.props.style?.strokeDasharray,
         },
         onClick: isInteractive
           ? () => void handleCellClick(activity.date)

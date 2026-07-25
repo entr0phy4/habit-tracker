@@ -67,7 +67,7 @@ describe('useStreak', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(result.current.currentStreak).toBe(3);
+    expect(result.current.currentStreak).toBe(2);
   });
 
   it('returns zero streak when IndexedDB read fails', async () => {

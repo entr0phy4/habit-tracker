@@ -7,11 +7,13 @@ import { HabitRow } from '@/components/habits/HabitRow';
 import { getLocalDateString } from '@/domain/dates';
 import { useTodayHabits } from '@/hooks/useTodayHabits';
 import { useToggleCompletion } from '@/hooks/useToggleCompletion';
+import { useToggleFreeze } from '@/hooks/useToggleFreeze';
 
 export function TodayPage() {
   const [todayKey, setTodayKey] = useState(() => getLocalDateString(new Date()));
   const state = useTodayHabits(todayKey);
   const { toggle } = useToggleCompletion();
+  const { freezeToday } = useToggleFreeze();
 
   useEffect(() => {
     function handleVisibilityChange() {
@@ -82,6 +84,9 @@ export function TodayPage() {
                 weekCompletions={weekCompletions}
                 onToggle={() => {
                   void toggle(habit.id, todayKey);
+                }}
+                onSkip={() => {
+                  void freezeToday(habit.id, todayKey);
                 }}
               />
             </li>

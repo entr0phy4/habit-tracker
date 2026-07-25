@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { CalendarDays, Flame } from 'lucide-react';
+import { CalendarDays, Flame, Snowflake } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ interface HabitRowProps {
   todayKey?: string;
   weekCompletions?: number;
   onToggle: () => void;
+  onSkip?: () => void;
 }
 
 export function HabitRow({
@@ -26,6 +27,7 @@ export function HabitRow({
   todayKey,
   weekCompletions = 0,
   onToggle,
+  onSkip,
 }: HabitRowProps) {
   const navigate = useNavigate();
   const { currentStreak, isLoading } = useStreak(habit, todayKey);
@@ -168,6 +170,21 @@ export function HabitRow({
             accentColor={accent}
             className="shrink-0"
           />
+        )}
+        {onSkip && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-11 w-11 shrink-0"
+            aria-label="Omitir"
+            onClick={(event) => {
+              event.stopPropagation();
+              onSkip();
+            }}
+          >
+            <Snowflake className="h-5 w-5" />
+          </Button>
         )}
         <Button
           type="button"

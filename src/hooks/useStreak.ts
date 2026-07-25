@@ -3,6 +3,7 @@ import { getHabitStartDate, getLocalDateString } from '@/domain/dates';
 import { calculateCurrentStreak } from '@/domain/streak';
 import type { Habit } from '@/domain/types';
 import { completionRepository } from '@/infrastructure/completionRepository';
+import { freezeRepository } from '@/infrastructure/freezeRepository';
 
 const QUERY_ERROR = Symbol('QUERY_ERROR');
 
@@ -12,17 +13,18 @@ export function useStreak(habit: Habit, todayKey?: string) {
 
   const result = useLiveQuery(async () => {
     try {
-      const dates = await completionRepository.getByHabitInRange(
-        habit.id,
-        startDate,
-        today,
-      );
+      const [dates, freezeDates] = await Promise.all([
+        completionRepository.getByHabitInRange(habit.id, startDate, today),
+        freezeRepository.getByHabitInRange(habit.id, startDate, today),
+      ]);
       const completedDates = new Set(dates);
+      const frozenDates = new Set(freezeDates);
       return calculateCurrentStreak(
         completedDates,
         habit.frequency,
         today,
         startDate,
+        frozenDates,
       );
     } catch {
       return QUERY_ERROR;

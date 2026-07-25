@@ -122,7 +122,7 @@ describe('useHeatmapData', () => {
     });
   });
 
-  it('delegates toggle to completionRepository for habit and date', async () => {
+  it('cycles missed day to completed via cycle', async () => {
     const habit = await habitRepository.create({
       name: 'Toggle habit',
       frequency: { type: 'daily' },
@@ -136,7 +136,7 @@ describe('useHeatmapData', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    await result.current.toggle('2026-07-18');
+    await result.current.cycle('2026-07-18');
 
     const dates = await completionRepository.getByHabitInRange(
       habit.id,

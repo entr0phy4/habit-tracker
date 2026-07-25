@@ -26,10 +26,15 @@ export function useTodayHabits(todayKey?: string): TodayHabitsState {
       const weekStart = weekDates[0]!;
       const weekEnd = weekDates[6]!;
 
-      const weekRows = await db.completions
-        .where('date')
-        .between(weekStart, weekEnd, true, true)
-        .toArray();
+      const [weekRows, todayFreezes] = await Promise.all([
+        db.completions
+          .where('date')
+          .between(weekStart, weekEnd, true, true)
+          .toArray(),
+        db.freezes.where('date').equals(today).toArray(),
+      ]);
+
+      const frozenToday = new Set(todayFreezes.map((freeze) => freeze.habitId));
 
       const completedByHabit = new Map<string, Set<string>>();
       for (const row of weekRows) {
@@ -44,6 +49,7 @@ export function useTodayHabits(todayKey?: string): TodayHabitsState {
       const habits = await db.habits
         .filter((habit) => {
           if (habit.archived) return false;
+          if (frozenToday.has(habit.id)) return false;
           const completedDates = completedByHabit.get(habit.id) ?? new Set();
           return isHabitDueOnDate(habit.frequency, today, completedDates);
         })

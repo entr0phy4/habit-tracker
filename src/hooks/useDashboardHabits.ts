@@ -4,6 +4,7 @@ import { calculateOverallCompletionRate } from '@/domain/stats';
 import { calculateCurrentStreak } from '@/domain/streak';
 import type { Habit } from '@/domain/types';
 import { completionRepository } from '@/infrastructure/completionRepository';
+import { freezeRepository } from '@/infrastructure/freezeRepository';
 import { db } from '@/infrastructure/db';
 
 const QUERY_ERROR = Symbol('QUERY_ERROR');
@@ -30,22 +31,24 @@ export function useDashboardHabits(todayKey?: string): DashboardHabitsState {
       const withCompletions = await Promise.all(
         habits.map(async (habit) => {
           const start = getHabitStartDate(habit);
-          const dates = await completionRepository.getByHabitInRange(
-            habit.id,
-            start,
-            today,
-          );
+          const [dates, freezeDates] = await Promise.all([
+            completionRepository.getByHabitInRange(habit.id, start, today),
+            freezeRepository.getByHabitInRange(habit.id, start, today),
+          ]);
           const completedDates = new Set(dates);
+          const frozenDates = new Set(freezeDates);
 
           return {
             habit,
             completedDates,
+            frozenDates,
             startDate: start,
             currentStreak: calculateCurrentStreak(
               completedDates,
               habit.frequency,
               today,
               start,
+              frozenDates,
             ),
           };
         }),
@@ -56,9 +59,10 @@ export function useDashboardHabits(todayKey?: string): DashboardHabitsState {
         .sort((a, b) => b.currentStreak - a.currentStreak);
 
       const overallRate = calculateOverallCompletionRate(
-        withCompletions.map(({ habit, completedDates, startDate }) => ({
+        withCompletions.map(({ habit, completedDates, frozenDates, startDate }) => ({
           frequency: habit.frequency,
           completedDates,
+          frozenDates,
           startDate,
         })),
         today,
