@@ -1,219 +1,225 @@
 # Feature Research
 
-**Domain:** Habit tracking web application (local-first, streak-motivated)
-**Researched:** 2026-07-19
-**Confidence:** MEDIUM
+**Domain:** Habit tracking web application — v2.0 Reminders & PWA (local-first, streak-motivated)
+**Researched:** 2026-07-25
+**Confidence:** MEDIUM-HIGH
+
+> **Scope:** NEW v2.0 features only. Core loop (habit CRUD, check-in, streaks, heatmap, export/import, colors, delight, overall rate, X/week, streak freeze) is **shipped in v1.0–v1.1** and treated as prerequisites, not re-litigated here.
 
 ## Feature Landscape
 
 ### Table Stakes (Users Expect These)
 
-Features users assume exist. Missing these = product feels incomplete or users churn to competitors.
+Features users assume exist once a habit tracker advertises reminders or "install the app." Missing these = v2.0 feels broken or users stay on Loop/Streaks/Productive.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| One-tap habit check-in | Present in 100% of 114 surveyed apps; friction is the #1 churn driver | LOW | Binary done/undone per day is sufficient for v1; must complete in under 3 seconds |
-| Custom habit creation (name + frequency) | 98% of apps support flexible schedules (daily, specific weekdays); daily-only feels broken | LOW | v1: daily + specific days of week; defer "X times per week" and interval schedules |
-| Streak counter (current + longest) | Present in ~89% of surveyed apps; core motivation loop for streak-oriented users | MEDIUM | Streak logic must respect per-habit frequency (e.g., Mon/Wed/Fri habit shouldn't break on Tuesday) |
-| Visual progress history | Charts/analytics in 97% of apps; users expect to *see* consistency over time | MEDIUM | Calendar dots, bar charts, or heatmap all qualify; this project chooses heatmap |
-| Basic completion statistics | Completion rate and weekly summary expected alongside streaks (Habitify, HabitNow, Loop all ship this) | LOW | Dashboard: current streaks, completion %, weekly overview — matches user vision |
-| Undo / toggle completion | Users make mistakes; inability to correct erodes trust | LOW | Same tap toggles complete ↔ incomplete for a day |
-| Habit list / today view | Every app surfaces "what do I do today?" as the primary screen | LOW | Group or sort habits; optional ordering is nice but not required for v1 |
-| Data persistence | Obvious baseline; losing data on refresh is unacceptable | LOW | Local-first via IndexedDB or localStorage; no account required |
-| Responsive mobile + desktop web | 87% of apps offer multi-platform; web-only is viable if mobile browser UX is solid | MEDIUM | Touch targets ≥44px; grid must scroll horizontally on small screens |
-| Dark mode | Standard in developer-aesthetic trackers (GitHub, Linear, Streaks); expected by target audience | LOW | Minimal dark mode is a design constraint, not optional polish |
-| Edit / archive / delete habits | Users change goals; permanent habits with no lifecycle management feels rigid | LOW | Soft-delete (archive) preferred over hard delete to preserve history |
-| Reminders / notifications | Present in ~89% of surveyed apps; widely cited as essential in buyer guides | MEDIUM | **Market table stakes, but explicitly deferred to v2** in this project to avoid permission UX and scheduling complexity |
+| **Per-habit optional reminder time** (REM-01) | ~89% of surveyed habit apps ship reminders; Loop, Streaks, Habitify, Productive all offer per-habit schedules at a chosen time of day | MEDIUM | One reminder slot per habit is sufficient for v2.0; multiple times per habit is a v2.x nice-to-have. Reminder must be **off by default** — opt-in per habit |
+| **Push notifications when app is closed** (REM-02) | Users install reminder features specifically to be nudged when they forget; in-tab `Notification` API alone fails when the tab is closed | HIGH | Requires service worker + Web Push + server-side send at scheduled time. Cannot deliver reliably with client-only timers when the PWA is not running |
+| **Permission flow tied to user intent** | Industry best practice (web.dev, APIScout): asking on first page load yields ~60% denial; asking after user enables a reminder yields ~40% grant | LOW | Show value prop → user toggles reminder → then request `Notification.permission`. Never prompt on cold visit |
+| **Global and per-habit reminder disable** | Users expect to silence reminders without deleting habits or uninstalling; Loop and Productive both support dismiss/disable paths | LOW | Per-habit toggle + optional "pause all reminders" in settings. Respect browser-level notification block gracefully |
+| **Schedule-aware reminders** | A Mon/Wed/Fri habit should not fire on Tuesday; X×/week habits should not nag daily | MEDIUM | **Depends on v1.1 schedule engine** (`daily`, `weekdays[]`, `times_per_week`). Reminder scheduler must read the same frequency rules as streak logic |
+| **Don't remind if already done** | Notification fatigue is the #1 complaint in habit-app reviews; reminding after check-in erodes trust | LOW | Before send (server) or at display (SW): suppress if completion exists for today (local timezone) |
+| **Tap notification → open app** | Baseline mobile UX; every major tracker deep-links to the relevant habit or today view | LOW | `notificationclick` in service worker → `clients.openWindow('/?habit=…')` or today panel |
+| **Web app manifest + installability** (PWA-01) | Users who want "app-like" experience expect Add to Home Screen / Install; Lighthouse PWA checklist is the bar | MEDIUM | `name`, `short_name`, `start_url`, `display: standalone`, theme/background colors, maskable icons 192+512. Dark theme tokens must match existing aesthetic |
+| **Offline app shell** (PWA-02) | "Works offline" is the minimum credible PWA claim; users will toggle airplane mode to verify | MEDIUM | Service worker precaches HTML/JS/CSS/icons via Workbox (`vite-plugin-pwa`). First visit needs network; repeat visits load shell offline |
+| **Full offline use of core loop** (PWA-03) | For a local-first habit tracker, offline must mean check-in + streak view + backup — not just a cached landing page | MEDIUM | **Dexie is already source of truth**; v2.0 adds SW shell so UI boots offline. No network calls in normal CRUD path |
+| **Update prompt on new version** (PWA-05) | Silent auto-reload during check-in loses in-progress state; Workbox/vite-plugin-pwa default is user-prompted refresh | LOW | `registerType: 'prompt'` + toast/banner with Reload / Later. Defer reload if user is mid-form |
+| **HTTPS in production** | Web Push and service workers require secure context; users never see this but it is a hard gate | LOW | Deployment constraint, not a product feature — document in stack phase |
 
 ### Differentiators (Competitive Advantage)
 
-Features that set the product apart. Not required to be "a habit tracker," but aligned with this project's core value: effortless logging + impossible-to-ignore progress.
+Features that set this product apart in the reminders/PWA slice. Not universal, but aligned with core value: effortless logging + impossible-to-ignore progress — **without accounts or cloud sync**.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| GitHub-style contribution grid per habit | Only ~15–20% of mainstream apps use this exact pattern; it shows *trends* not just today's number, fails gracefully on missed days, and resonates with developer/designer audience | HIGH | Year-at-a-glance grid with color intensity; per-habit view is the signature visual |
-| Streak visual rewards (flame, color fill, micro-animation) | Satisfying feedback on check-in without full gamification; Streaks (Apple Design Award) proves minimal delight works | LOW | Trigger on complete + streak milestone (7, 30 days); keep subtle, not casino-like |
-| Local-first + export/import | Privacy segment is underserved; Loop, Kadō, OpenHabitTracker compete here; no account = zero onboarding friction | MEDIUM | JSON export/import minimum; CSV nice-to-have for v1.x; anti-lock-in is a selling point |
-| Intentional simplicity (no bloat) | Category is cluttered; 40% have gamification, 29% have social — most add noise | LOW | Product philosophy, not a feature toggle; caps scope creep |
-| Minimal dark aesthetic (GitHub/Linear) | Differentiates from colorful wellness apps (HabitMinder, Finch) and RPG apps (Habitica) | LOW | Visual identity; reinforces "serious tool for consistent people" positioning |
-| Dashboard weekly overview | Common but often buried behind paywalls or stats tabs; surfacing it prominently supports the "one glance" core value | LOW | Aggregate + per-habit breakdown on one screen |
-| No artificial habit limits | Streaks caps at 12 habits (intentional constraint); unlimited free habits is a differentiator for power users | LOW | Don't copy Streaks' limit unless research shows focus benefit for your audience |
-| Web-first, no install required | Avoids app store friction; instant access via URL; contrasts with iOS-only Streaks | LOW | PWA/offline deferred per PROJECT.md; responsive web is sufficient for v1 |
+| **Reminders without user accounts** | 87% of competitors tie push to cloud accounts; local-first + anonymous device token is a privacy selling point | HIGH | Store push subscription keyed by anonymous device ID (httpOnly cookie or local ID + server mapping). Minimal relay only — no user profile server |
+| **Schedule + freeze-aware smart suppression** | Don't nag on frozen days, non-scheduled weekdays, or after weekly quota met — most apps only check "done today" | MEDIUM | **Unique to this codebase:** integrates REM with v1.1 `Freeze` entity and `times_per_week` quota. Loop checks completion but not explicit skip/freeze semantics |
+| **Minimal dark installable PWA** | Category is cluttered with colorful wellness apps; GitHub/Linear aesthetic + install = "serious tool on your home screen" | LOW | Differentiator is restraint: no onboarding carousel, no premium upsell in install flow |
+| **Honest storage durability UX** (`navigator.storage.persist()`) | Local-first users fear losing years of streaks to browser eviction; most PWAs never explain this | LOW | Call `persist()` after install or first backup; show plain-language status ("Your data is protected from automatic cleanup" / "Export regularly — browser may clear unused sites"). Chrome grants persistence more readily for installed PWAs |
+| **Check-in from notification action** (optional PWA enhancement) | Loop's killer UX: complete habit from notification shade without opening app | MEDIUM | `notification.actions` + SW message to IndexedDB or `clients.matchAll` + `postMessage`. Platform support varies (Android Chrome good; iOS limited). Ship as enhancement if feasible, not blocker |
+| **"Offline ready" acknowledgment** | First-time offline success is a trust moment; vite-plugin-pwa's `onOfflineReady` is underused | LOW | One-time subtle toast after SW precache completes — reinforces local-first promise |
+| **Quiet hours / Do Not Disturb window** | Power users with 5+ habits want control over evening/morning boundaries; open-source Rehabi-techo ships this | MEDIUM | Optional v2.x: global window that suppresses server-side send. Not in PROJECT.md v2.0 list — flag for roadmap if scope allows |
+| **Deferred install prompt** | Better conversion than browser default banner; matches minimal UX | LOW | Listen for `beforeinstallprompt`, show custom "Install for reminders" only after user enables first reminder — ties install value to feature |
 
 ### Anti-Features (Commonly Requested, Often Problematic)
 
-Features that seem good but create problems — or are explicitly out of scope for v1.
+Features that seem good but create problems — or are explicitly out of scope per PROJECT.md.
 
 | Feature | Why Requested | Why Problematic | Alternative |
 |---------|---------------|-----------------|-------------|
-| Social sharing / friends / leaderboards | 29% of apps offer it; users think accountability helps | Adds backend, moderation, privacy concerns; distracts from private streak loop; only 13% of daily-streak apps include social | Keep tracking private; export grid as image if user wants to share manually (v2+) |
-| Full gamification (RPG, badges, points, levels) | Habitica has loyal fans; engagement spikes early | 60% of apps skip it; retention often drops after novelty; scope explosion; conflicts with minimal aesthetic | Streak flames and color-fill rewards only — sufficient psychology for v1 |
-| Complex analytics (trends, correlations, ML insights) | Power users want "insights"; 97% of apps have some analytics | Diminishing returns for casual users; engineering cost high; Habitify's depth is their entire product | Completion rate + weekly overview + heatmap — enough reflection without analysis paralysis |
-| Cloud sync + user accounts | 87% of apps offer sync; multi-device is a common request | Backend, auth, GDPR, conflict resolution, ongoing ops cost; contradicts local-first v1 decision | Export/import backup; revisit sync as v2+ premium path if validated |
-| Push notifications / reminders | Cited in nearly every "essential features" list; #1 requested v2 feature | Permission prompts, scheduling engine, timezone edge cases, notification fatigue | Defer to v2; v1 assumes self-motivated users who open the app daily |
-| Native mobile apps | Users want widgets and home-screen access | App store overhead, dual codebases, review cycles; widgets are a major draw but expensive | Responsive web with touch-optimized check-in; PWA/widgets in v2 |
-| Routine builders / habit stacking | 50% of apps offer routines; popular in Productive, Routinery | Different product philosophy (sequenced workflows vs. streak tracking); only 33% of streak apps include routines | Flat habit list; user mentally stacks by habit order |
-| Numerical / quantitative tracking | Needed for water, pages read, workout minutes | Doubles UI complexity (input vs. tap); intensity levels on heatmap require numeric model | Binary done/undone for v1; numeric goals are a natural v1.x extension |
-| Skip days / streak freezes | Habitify's "skip" is highly praised; prevents vacation demoralization | Streak logic complexity; risk of over-forgiving streaks that lose motivational power | v1: honest streak breaks; consider "skip without breaking" in v1.x based on user feedback |
-| Commitment contracts / financial stakes | Beeminder/stickK niche is passionate | 1.8% penetration; liability, payment integration, narrow audience | Not applicable to this product vision |
-| AI coaching / habit suggestions | Trending in 2025–2026 app marketing | Scope creep, API costs, trust issues, not core to logging loop | User defines all habits manually |
-| Health app integrations (Apple Health, Google Fit) | Expected in fitness-oriented trackers (93% have wellness framing) | Platform APIs, permissions, sync complexity | Out of scope; pure behavior tracking, not biometrics |
+| **Aggressive / guilt-based notification copy** | Duolingo-style retention hacks | Damages brand; users disable all notifications; conflicts with minimal respectful UX | Neutral copy: habit name + "Time to check in" — no streak shaming |
+| **Multiple reminders per habit** | Power users want morning + evening nudges | Scheduling matrix explodes; notification fatigue; Loop uses separate habits instead | One time per habit in v2.0; duplicate habit workaround documented |
+| **Client-only scheduling (no push server)** | Avoid backend cost entirely | `setTimeout` / Alarm API do not fire when PWA is fully closed on most platforms; Periodic Background Sync is Chrome-only and unreliable for exact times | Minimal push relay (VAPID + cron/worker) as PROJECT.md specifies |
+| **Firebase Cloud Messaging / OneSignal / full push SaaS** | Faster integration | Vendor lock-in, privacy policy overhead, account coupling — overkill for accountless local-first app | `web-push` npm + tiny self-hosted or edge relay (Cloudflare Worker pattern) |
+| **Cloud sync to enable reminders** | "Sync reminders across devices" | Contradicts local-first constraint; conflict resolution is a separate product | Per-device reminders; export/import for data (not reminder state) |
+| **Email / SMS reminders** | Reach users off-device | Requires accounts, deliverability, cost, compliance | Web Push only for v2.0 |
+| **Home screen widgets** | Loop/Streaks retention driver on native | Requires native APIs or immature Web Widget APIs; explicitly deferred past v2.0 in PROJECT.md | Installable PWA icon + push is the web equivalent |
+| **Auto-update without user prompt** | Always latest code | Reload mid-check-in loses state; jarring on mobile | `registerType: 'prompt'` per PROJECT.md PWA-05 |
+| **Reminding for habits already frozen** | Simplicity — "remind daily at 8am" | Nagging on intentional skip days undermines streak-freeze trust built in v1.1 | Suppress when `Freeze` record exists for today |
+| **Mandatory reminders on habit create** | "More engagement" | Permission prompt fatigue; users abandon during onboarding | Default `reminderEnabled: false` |
+| **Snooze chains / escalating nag frequency** | Recover missed habits | Notification spam; users uninstall PWA | Single daily fire; optional one manual snooze (v2.x) |
+| **Background Sync for habit data upload** | "True offline-first" pattern for server apps | No server in this app; adds complexity with zero user value | Dexie write-first; export/import remains backup |
+| **Social accountability reminders** | "Your friend hasn't checked in" | Out of scope; needs backend + social graph | Private reminders only |
+| **Smart AI reminder timing** | Habitify premium marketing | ML scope creep, no training data in local-first model | User-chosen fixed time |
 
 ## Feature Dependencies
 
 ```
-[Habit CRUD (name, frequency, color)]
-    └──requires──> [Local persistence layer]
-                       └──requires──> [Data schema design]
+[v1.1 Habit CRUD + schedules + Freeze]  (SHIPPED — prerequisite)
+    └──requires──> [Per-habit reminder time field] (REM-01)
+    └──requires──> [Schedule-aware "is due today?" logic]
+    └──requires──> [Completion + freeze lookup for suppression]
 
-[One-tap daily logging]
-    └──requires──> [Habit CRUD]
-    └──requires──> [Date-aware completion storage]
-    └──enables──> [Streak calculation]
-    └──enables──> [Contribution grid cells]
+[Service worker registration]  (PWA foundation)
+    └──requires──> [HTTPS production deploy]
+    └──enables──> [App shell offline cache] (PWA-02)
+    └──enables──> [Web Push subscription] (REM-02)
+    └──enables──> [Update prompt lifecycle] (PWA-05)
 
-[Streak calculation (current + longest)]
-    └──requires──> [Daily logging]
-    └──requires──> [Frequency rules engine]
-    └──enables──> [Dashboard stats]
-    └──enables──> [Streak visual rewards]
+[Web app manifest + icons]  (PWA-01)
+    └──enables──> [Install prompt / A2HS]
+    └──enhances──> [iOS Web Push eligibility] (must be installed standalone on iOS 16.4+)
 
-[GitHub-style contribution grid]
-    └──requires──> [Daily logging history]
-    └──requires──> [Per-habit date range rendering]
-    └──enhances──> [Dashboard weekly overview]
+[Minimal push relay server]  (REM-02)
+    └──requires──> [VAPID key pair]
+    └──requires──> [Subscription storage keyed by anonymous device]
+    └──requires──> [Cron/scheduler to fire at reminder times]
+    └──requires──> [Service worker push + notificationclick handlers]
 
-[Dashboard (streaks, completion %, weekly overview)]
-    └──requires──> [Streak calculation]
-    └──requires──> [Completion aggregation queries]
-    └──enhances──> [Contribution grid] (cross-links to detail view)
+[Full offline core loop]  (PWA-03)
+    └──requires──> [Dexie persistence] (SHIPPED)
+    └──requires──> [SW precached app shell] (PWA-02)
+    └──conflicts──> [Network-only code paths in UI] (audit for fetch calls)
 
-[Export / import]
-    └──requires──> [Stable data schema]
-    └──requires──> [Local persistence layer]
-    └──conflicts──> [Schema migrations without version field]
+[navigator.storage.persist()]  (PWA-04)
+    └──enhances──> [IndexedDB durability under storage pressure]
+    └──enhances──> [User trust in long-term streak data]
+    └──optional──> [PWA install] (Chrome persistence heuristic)
 
-[Streak visual rewards]
-    └──requires──> [Streak calculation]
-    └──enhances──> [One-tap logging] (feedback loop)
+[Update prompt]  (PWA-05)
+    └──requires──> [Service worker with versioned precache]
+    └──conflicts──> [autoUpdate during active check-in session]
 
-[Reminders v2]
-    └──requires──> [Habit CRUD with schedule]
-    └──conflicts──> [Pure local-first v1] (service worker / push adds complexity)
+[Check-in from notification action]
+    └──requires──> [REM-02 push handler]
+    └──requires──> [SW → client Dexie write or API-less postMessage]
+    └──conflicts──> [iOS limited action button support]
+
+[Quiet hours / DND window]
+    └──requires──> [REM-02 server-side send logic]
+    └──enhances──> [REM-01 user control]
 ```
 
 ### Dependency Notes
 
-- **Habit CRUD requires local persistence:** No backend means the browser storage layer must be designed first with a versioned schema to support future export/import and migrations.
-- **Streak calculation requires frequency rules engine:** A Mon/Wed/Fri habit must not count Tuesday as a miss. Weekly habits (e.g., "3x per week") add significant complexity — defer to v1.x.
-- **Contribution grid requires logging history:** The grid is a read-only visualization over completion records; build logging + storage before the grid.
-- **Export/import conflicts with schema changes:** Ship schema version in export format from day one to avoid breaking restores after updates.
-- **Reminders conflict with v1 local-only scope:** Push notifications need service workers or native APIs; keep out of v1 to protect ship date.
+- **REM-01 requires v1.1 schedule model:** Reminder time is meaningless without `frequency`, `weekdays`, and `times_per_week` from existing habit schema. Reuse `isHabitDueOnDate()` (or equivalent) — do not duplicate schedule logic.
+- **REM-02 requires PWA service worker:** Web Push subscription is bound to SW registration; build PWA shell phase before or alongside push, not after.
+- **REM-02 requires minimal backend (PROJECT.md constraint):** Pure client cannot schedule exact-time pushes when app is killed. The relay stores subscriptions and fires at `reminderTime` per timezone — smallest possible server, no accounts.
+- **iOS Web Push requires installed PWA:** Safari only subscribes in standalone mode (iOS 16.4+). Install flow (PWA-01) must precede or accompany push permission on iOS — show A2HS guide before `PushManager.subscribe()`.
+- **PWA-03 is mostly already true at data layer:** Dexie handles offline CRUD today; v2.0 work is SW precaching + ensuring no network assumptions in UI routes.
+- **PWA-04 is complementary, not a substitute for export/import:** `persist()` reduces eviction risk but users can still clear site data manually — backup UX remains essential.
+- **Freeze-aware suppression bridges v1.1 → v2.0:** Phase 8 explicitly deferred "reminders about frozen days" to v2.0; implement suppression when `freezes` record exists for `today`.
 
 ## MVP Definition
 
-### Launch With (v1)
+### Launch With (v2.0)
 
-Minimum viable product — what's needed to validate the concept.
+Minimum for milestone success per PROJECT.md — validates "remember to check in when app is closed" + "installable offline app."
 
-- [ ] **Create custom habits** (name, daily or specific weekdays) — without this, nothing else matters
-- [ ] **One-tap check-in for today** — core loop; must feel instant
-- [ ] **Toggle completion for past days** — users need to backfill and correct mistakes
-- [ ] **Per-habit GitHub-style contribution grid** — signature differentiator; validates visual motivation hypothesis
-- [ ] **Dashboard with current streaks, completion rate, weekly overview** — "one glance" progress promised in core value
-- [ ] **Streak visual feedback** (flame, color fill, or similar) — emotional reward on check-in without full gamification
-- [ ] **Local persistence** (survives browser refresh) — table stakes for any tracker
-- [ ] **Export and import data** — safety net for local-first; builds user trust
-- [ ] **Responsive web layout** (desktop + mobile browser) — platform constraint
-- [ ] **Minimal dark mode UI** — design constraint and audience expectation
+- [ ] **Per-habit optional reminder time** (REM-01) — opt-in toggle + time picker on habit edit; persisted on habit record
+- [ ] **Web Push delivery when app closed** (REM-02) — VAPID, SW push handler, minimal relay, subscription on permission grant
+- [ ] **Installable PWA** (PWA-01) — manifest, maskable icons, standalone display, theme colors
+- [ ] **Offline app shell** (PWA-02) — SW precache via vite-plugin-pwa; app loads after first visit without network
+- [ ] **Full offline habit use** (PWA-03) — check-in, streak view, export/import work offline (Dexie + cached shell)
+- [ ] **`navigator.storage.persist()` + eviction-risk UX** (PWA-04) — request persistence; surface status and backup nudge if denied
+- [ ] **Update prompt on new version** (PWA-05) — user-controlled reload via `registerType: 'prompt'`
+- [ ] **Schedule-aware + done/freeze suppression** — table-stakes quality for this codebase's schedule/freeze model
+- [ ] **Notification tap opens today/habit** — baseline deep-link behavior
 
-### Add After Validation (v1.x)
+### Add After Validation (v2.x)
 
-Features to add once core loop is proven with real usage.
+Features to add once v2.0 core is stable in production.
 
-- [ ] **"X times per week" frequency** — common schedule type (98% of apps support); adds streak logic complexity
-- [ ] **Skip / rest day without breaking streak** — high user demand per Habitify/Loop feedback; needs careful streak semantics
-- [ ] **Habit color/icon customization** — low effort, improves grid readability when tracking 5+ habits
-- [ ] **Habit reordering and archiving** — quality-of-life once habit count grows
-- [ ] **CSV export** — interoperability with spreadsheets and other apps
-- [ ] **Partial completion / numeric goals** — enables heatmap intensity levels (lighter cells for partial days)
-- [ ] **Keyboard shortcuts** — power-user affordance for desktop; low cost
-- [ ] **Undo last action** — safety net beyond toggle; nice polish
+- [ ] **Check-in / dismiss from notification actions** — Loop parity; platform-gated
+- [ ] **Global quiet hours (Do Not Disturb window)** — suppress sends between user-chosen times
+- [ ] **One-tap snooze (e.g., +30 min)** — single snooze only to avoid nag chains
+- [ ] **Multiple reminder times per habit** — only if user research demands it
+- [ ] **Weekly-quota mid-week nudge** — "2 of 3 workouts done this week" for `times_per_week` habits
+- [ ] **Custom deferred install prompt** — after first reminder enabled, not on cold visit
+- [ ] **Reminder sync across devices via export** — reminder *settings* in export JSON (not push subscription)
 
-### Future Consideration (v2+)
+### Future Consideration (v3+)
 
-Features to defer until product-market fit is established.
+Explicitly deferred past v2.0 per PROJECT.md.
 
-- [ ] **Reminders / push notifications** — table stakes in market but high implementation cost; #1 expected v2 feature
-- [ ] **PWA with offline support** — extends local-first without native app cost
-- [ ] **Home screen widgets** — major retention driver on mobile; requires PWA or native
-- [ ] **Cloud sync with optional account** — monetization path used by 87% of competitors; only after local-first is solid
-- [ ] **Multi-device real-time sync** — conflict resolution is a project unto itself
-- [ ] **Routine builder / habit stacking** — different product direction; only if user research demands it
-- [ ] **Social accountability** — only if pivoting away from private streak focus
-- [ ] **Advanced analytics** — trend lines, best-day-of-week, habit correlations
-- [ ] **Theming / light mode** — dark-first is the brand; light mode is polish
+- [ ] **Home screen widgets** — native/advanced PWA APIs; major retention lever but separate project
+- [ ] **Cloud sync + cross-device reminder state** — needs accounts
+- [ ] **Local alarm scheduling without server** — revisit only if Web Alarms API matures cross-browser
+- [ ] **Email/SMS fallback reminders** — needs identity + deliverability stack
+- [ ] **AI-optimized reminder timing** — out of product vision
 
 ## Feature Prioritization Matrix
 
 | Feature | User Value | Implementation Cost | Priority |
 |---------|------------|---------------------|----------|
-| One-tap daily logging | HIGH | LOW | P1 |
-| Habit CRUD (name + frequency) | HIGH | LOW | P1 |
-| Local persistence | HIGH | LOW | P1 |
-| Contribution grid per habit | HIGH | HIGH | P1 |
-| Dashboard (streaks, completion %, weekly) | HIGH | MEDIUM | P1 |
-| Streak visual rewards | MEDIUM | LOW | P1 |
-| Export/import (JSON) | MEDIUM | MEDIUM | P1 |
-| Responsive dark UI | HIGH | MEDIUM | P1 |
-| Toggle past days | HIGH | LOW | P1 |
-| Edit/archive/delete habits | MEDIUM | LOW | P2 |
-| Habit color customization | LOW | LOW | P2 |
-| "X times per week" frequency | MEDIUM | MEDIUM | P2 |
-| Skip/rest day semantics | MEDIUM | MEDIUM | P2 |
-| CSV export | LOW | LOW | P2 |
-| Numeric/partial completion | MEDIUM | HIGH | P3 |
-| Reminders | HIGH | HIGH | P3 (v2) |
-| PWA offline | MEDIUM | MEDIUM | P3 (v2) |
-| Cloud sync | MEDIUM | HIGH | P3 (v2) |
-| Social features | LOW | HIGH | P3 (never v1) |
-| Full gamification | LOW | HIGH | P3 (never v1) |
+| Per-habit optional reminder time (REM-01) | HIGH | MEDIUM | P1 |
+| Web Push when app closed (REM-02) | HIGH | HIGH | P1 |
+| Service worker + offline shell (PWA-02) | HIGH | MEDIUM | P1 |
+| Web manifest + installability (PWA-01) | HIGH | LOW | P1 |
+| Full offline core loop (PWA-03) | HIGH | LOW | P1 |
+| Schedule-aware + done/freeze suppression | HIGH | MEDIUM | P1 |
+| Permission-on-intent UX | HIGH | LOW | P1 |
+| Update prompt (PWA-05) | MEDIUM | LOW | P1 |
+| `storage.persist()` + eviction UX (PWA-04) | MEDIUM | LOW | P1 |
+| Notification deep-link to habit/today | HIGH | LOW | P1 |
+| iOS A2HS-before-push guide | MEDIUM | LOW | P1 |
+| Check-in from notification action | MEDIUM | MEDIUM | P2 |
+| Global quiet hours | MEDIUM | MEDIUM | P2 |
+| Snooze (+30 min, once) | LOW | MEDIUM | P2 |
+| Multiple times per habit | LOW | MEDIUM | P3 |
+| Weekly-quota mid-week nudge | MEDIUM | MEDIUM | P3 |
+| Home screen widgets | HIGH | HIGH | P3 (v3+) |
+| Cloud sync for reminders | MEDIUM | HIGH | P3 (never v2) |
 
 **Priority key:**
-- P1: Must have for launch
-- P2: Should have, add when possible
-- P3: Nice to have, future consideration
+- P1: Must have for v2.0 launch
+- P2: Should have, add when P1 stable
+- P3: Nice to have or explicitly deferred
 
 ## Competitor Feature Analysis
 
-| Feature | Streaks (iOS) | Loop (Android) | Habitify | Way of Life | Our Approach |
-|---------|---------------|----------------|----------|-------------|--------------|
-| Check-in UX | One-tap circle fill | Tap score from widget | One-tap + skip option | Color dot per day | One-tap toggle; optimistic UI |
-| Schedule flexibility | Daily, specific days, X/week | Daily, weekly, custom | Full flexibility | Daily, specific days | v1: daily + specific weekdays |
-| Streak display | Ring + counter | Score graph + streaks | Counter + skip-aware | Chain targets | Counter + flame/color reward |
-| Progress visualization | Minimal stats | Bar charts + calendar | Heatmaps + charts | Color-coded long-term grid | **GitHub contribution grid per habit** |
-| Dashboard | Habit grid IS the dashboard | Separate stats screen | Rich analytics dashboard | Journal + trends | Streaks + completion % + weekly overview |
-| Data model | iCloud sync | Local SQLite only | Cloud account + sync | Cloud sync | **Local-first, export/import** |
-| Gamification | None | None | None | None | Streak visuals only (no RPG) |
-| Social | None | None | Unclear | None | None (by design) |
-| Reminders | Per-habit | Per-habit | Per-habit + smart | Per-habit | Deferred to v2 |
-| Pricing | $5.99 one-time | Free, open source | Freemium subscription | Freemium subscription | Free web app (no monetization in v1) |
-| Habit limit | 12 max (intentional) | Unlimited | 3 free / unlimited paid | 3 free | Unlimited |
-| Platform | iOS/macOS/Watch only | Android only | iOS/Android/Mac/Web | iOS/Android | **Web responsive** |
+| Feature | Loop (Android) | Streaks (iOS) | Productive | Habitify | Our v2.0 Approach |
+|---------|----------------|---------------|------------|----------|-------------------|
+| Per-habit reminder time | ✓ one time each | ✓ | ✓ smart summary | ✓ (premium smart) | ✓ optional, off by default |
+| Push when app closed | ✓ native | ✓ native | ✓ native | ✓ native | ✓ Web Push + minimal relay |
+| Check-in from notification | ✓ check/dismiss/snooze | ✓ | ✓ | ✓ | P2 — action buttons where supported |
+| Schedule-aware reminders | ✓ | ✓ | ✓ | ✓ | ✓ incl. `times_per_week` + freeze |
+| Offline use | ✓ local SQLite | ✓ local | partial cloud | cloud | ✓ Dexie + SW shell (full offline) |
+| Installable / home screen | widget | native app | native app | native + web | ✓ PWA install (no app store) |
+| Account required for reminders | ✗ | ✗ (iCloud implicit) | ✓ | ✓ | ✗ anonymous device token |
+| Quiet hours | ✗ (OS DND only) | OS DND | ✓ smart | ✓ | P2 global window |
+| Data model | local SQLite | iCloud | cloud | cloud | **local-first + export/import** |
+| Widgets | ✓ Android | ✓ iOS | ✓ | ✓ | Deferred v3+ (PROJECT.md) |
 
 ## Sources
 
-- [Steal What Works: 114 Habit Tracking Apps Feature Comparison](https://stealwhatworks.com/blogs/news/habit-tracking-app-features) — PRIMARY: quantitative feature penetration across 114 apps (HIGH confidence for prevalence data)
-- [Zapier: Best Habit Tracker Apps](https://zapier.com/blog/best-habit-tracker-app/) — qualitative expert review of top apps (MEDIUM confidence)
-- [HabitBox: Daily Habit Tracker App Guide](https://habitbox.app/blog/daily-habit-tracker-app) — 2026 buyer guide emphasizing one-tap, heatmap, export (MEDIUM confidence)
-- [Media Hacker: 7 Best Habit Tracking Apps 2026](https://www.mediahacker.org/15565/best-habit-tracking-apps-routine-2026/) — streak vs skip semantics, analytics depth (MEDIUM confidence)
-- [Plan With AI: 5 Apps Side-by-Side Comparison](https://planwith.ai/blog/5-habit-tracking-apps-side-by-side) — feature matrix for Streaks, Habitica, Productive, Way of Life, HabitNow (MEDIUM confidence)
-- [init.Habits: GitHub-Style Habit Tracker](https://inithabits.com/blog/github-style-habit-tracker) — heatmap psychology, partial completion, trend vs counter (MEDIUM confidence)
-- [Goals and Progress: Best Habit Tracking Apps](https://goalsandprogress.com/best-habit-tracking-apps-comparison/) — motivation mechanism mapping (MEDIUM confidence)
-- [Loop Habit Tracker (GitHub)](https://github.com/iSoron/uhabits) — open-source reference for local-first Android patterns (MEDIUM confidence)
-- [Kadō](https://getkado.app/) — privacy-first, export/import, anti-lock-in positioning (MEDIUM confidence)
-- PROJECT.md — user v1 vision, explicit out-of-scope decisions (HIGH confidence for project intent)
+- [PROJECT.md](../PROJECT.md) — v2.0 milestone scope, REM-01/02, PWA targets, explicit out-of-scope (HIGH confidence)
+- [v1.1-REQUIREMENTS.md](../milestones/v1.1-REQUIREMENTS.md) — REM deferred rationale; freeze/quota reminder hooks (HIGH confidence)
+- [Steal What Works: 114 Habit Tracking Apps](https://stealwhatworks.com/blogs/news/habit-tracking-app-features) — ~89% reminder penetration (MEDIUM confidence, 2025 survey)
+- [Loop Habit Tracker (GitHub / Play Store)](https://github.com/iSoron/uhabits) — per-habit reminder, notification actions, schedule flexibility (HIGH confidence — primary OSS reference)
+- [web.dev: Persistent storage](https://web.dev/articles/persistent-storage) — `navigator.storage.persist()` behavior, eviction (HIGH confidence)
+- [web.dev: PWA offline data](https://web.dev/learn/pwa/offline-data) — IndexedDB + SW split, persist request timing (HIGH confidence)
+- [MDN: StorageManager.persist()](https://developer.mozilla.org/en-US/docs/Web/API/StorageManager/persist) — API contract, browser support (HIGH confidence)
+- [vite-plugin-pwa: prompt-for-update](https://vite-pwa-org.netlify.app/guide/prompt-for-update.html) — `registerType: 'prompt'`, `onNeedRefresh` / `onOfflineReady` (HIGH confidence)
+- [Chrome Developers: Workbox SW updates](https://developer.chrome.com/docs/workbox/handling-service-worker-updates) — skipWaiting prompt pattern (HIGH confidence)
+- [Aulvem: Web Push without login](https://aulvem.com/blog/2026-07-07-anonymous-web-push-no-login/) — anonymous device token, iOS standalone constraint, VAPID on edge (MEDIUM confidence)
+- [APIScout: Web Push 2026 guide](https://apiscout.dev/guides/how-to-add-push-notifications-web-app-2026) — permission timing, iOS PWA requirements (MEDIUM confidence)
+- [LongGame notification system (Mxo Masuku)](https://www.mxomasuku.com/blog/how-i-built-the-long-game-notification-system-a-journey-into-notifications-and-behavioral-engineering) — local vs push tradeoffs for habit nudges (MEDIUM confidence)
+- [Rehabi-techo (GitHub)](https://github.com/p1xion/rehabi-techo) — Dexie + vite-plugin-pwa + DND window reference implementation (MEDIUM confidence)
+- [jcortesdev/habit-tracker](https://github.com/jcortesdev/habit-tracker) — offline-first PWA without push; push cost/benefit note (MEDIUM confidence)
 
 ---
-*Feature research for: Habit Tracker web application*
-*Researched: 2026-07-19*
+*Feature research for: Habit Tracker v2.0 Reminders & PWA*
+*Researched: 2026-07-25*
+*Prior v1.0 feature research (2026-07-19) superseded for landscape sections; v1 shipped features are prerequisites only.*

@@ -1,214 +1,205 @@
 # Project Research Summary
 
-**Project:** Habit Tracker
-**Domain:** Local-first habit tracker web application (React SPA)
-**Researched:** 2026-07-19
-**Confidence:** HIGH
+**Project:** Habit Tracker — v2.0 Reminders & PWA
+**Domain:** Local-first habit tracker adding Web Push reminders, installable PWA, and offline durability to an existing Dexie/React SPA
+**Researched:** 2026-07-25
+**Confidence:** MEDIUM-HIGH
 
 ## Executive Summary
 
-This project is a local-first habit tracker web app built as a React SPA with no backend in v1. Experts in this space — Loop, Kadō, smart-habit-tracker — converge on a two-entity data model (habits + completions), IndexedDB persistence, and **compute-on-read** streak derivation rather than stored counters. The signature differentiator is a GitHub-style contribution grid per habit, paired with one-tap check-in and a minimal dark aesthetic that targets developer/designer audiences who want a serious tool, not a gamified wellness app.
+Habit Tracker v2.0 extends a shipped local-first SPA (v1.0–v1.1: habits, schedule-aware streaks, freeze, export/import) with **reminders that work when the app is closed** and **installable offline durability** — without accounts, cloud sync, or a full backend. Experts building comparable PWAs treat the service worker as a **delivery adapter** (precached shell + push display + deep links), keep IndexedDB as the single source of truth in the main thread, and add a **minimal push relay** because browsers cannot fire exact-time notifications when the PWA is killed. The v1.1 stack (Vite 8, React 19, Dexie 4, Tailwind 4, shadcn/ui) stays unchanged; v2.0 adds `vite-plugin-pwa` + Workbox 7 (`injectManifest` for custom `push` handlers), native Push/Notification APIs, and a separate `push-relay/` deployable (Cloudflare Worker + `@pushforge/builder` recommended).
 
-The recommended approach is a **Vite 8 + React 19 + Dexie 4** stack with a layered architecture: pure domain logic (streaks, stats, heatmap grid builder) isolated from Dexie repositories and React hooks using `useLiveQuery`. UI uses Tailwind v4 + shadcn/ui for the GitHub/Linear dark aesthetic, and `react-activity-calendar` for the contribution heatmap. Zustand handles ephemeral UI state only; Dexie is the single source of truth. Export/import JSON with Zod validation is a v1 requirement, not a nice-to-have — it is the real backup strategy against browser storage eviction.
+The recommended approach is **bottom-up**: PWA manifest and service worker registration first (shared prerequisite for offline shell, update prompts, and push subscription), then storage persistence UX, then per-habit reminder preferences in Dexie, then Web Push client + relay scheduler. Reminder **configuration** lives in Dexie (`Habit.reminder?: { enabled, timeLocal }`); **delivery** is delegated to platform (Web Push + optional Notification Triggers) with schedule snapshots synced to the relay. Reuse v1.1 `schedule.ts` and `dates.ts` for frequency-aware eligibility — reminders must respect `specific_days`, `times_per_week`, freeze records, and same-day completions. Permission must be **gesture-gated after user enables a reminder**, never on cold visit.
 
-The highest risks are **streak correctness** (timezone/DST bugs, weekly-frequency rest days) and **data durability** (IndexedDB is best-effort; unsafe import can wipe data). Both are preventable if designed upfront: store completions as local `YYYY-MM-DD` strings, walk scheduled days only for streaks, never persist streak counters, and implement validate → snapshot → transactional import from day one. Secondary risk is contribution grid performance — memoize grid cells, show full heatmaps on detail view only, and keep dashboard to summary stats. Scope creep (reminders, accounts, analytics) is the existential risk; PROJECT.md's Active requirements are the contract.
+Key risks are well-documented: client-side timers and Periodic Background Sync cannot replace server cron; UTC/DST mishandling will drift reminder times; iOS requires installed PWA before Web Push; relay cannot see Dexie completions without either SW-side due checks or a minimal due-bitmap sync. Mitigate with minute-resolution relay cron keyed by IANA timezone, contextual permission UX, iOS install-first guidance, `registerType: 'prompt'` for SW updates, and completion suppression evaluated at fire time (not at morning snapshot).
 
 ## Key Findings
 
 ### Recommended Stack
 
-A Vite SPA is the right foundation — no SSR, no API routes, static `dist/` deployment. Dexie over localStorage is non-negotiable for relational habit/completion data with years of history. shadcn/ui + Tailwind v4 delivers the minimal dark aesthetic without fighting Material UI defaults. `react-activity-calendar` ships dark mode, tooltips, and responsive SVG for the signature heatmap with minimal custom work.
+v2.0 adds PWA and push infrastructure on top of the existing v1.1 stack without new runtime deps in the main SPA bundle beyond `workbox-window` for SW registration. See [STACK.md](./STACK.md) for full rationale.
 
-**Core technologies:**
-- **Vite 8.1.5** — build tool — sub-200ms cold start, zero Node runtime in production; no Next.js overhead for a static local-first app
-- **React 19.2.7** — UI framework — mature ecosystem, required for contribution-graph components; stable in 2026
-- **TypeScript 7.0.2** — type safety — catches schema drift between habits, completions, and export/import formats
-- **Dexie 4.4.4** — persistence — IndexedDB wrapper with schema versioning, transactions, and `useLiveQuery` reactivity; no 5 MB localStorage cap
-- **Tailwind CSS 4.3.3 + shadcn/ui** — styling — CSS-first config, dark-first theming, GitHub/Linear minimal aesthetic
-- **react-activity-calendar 3.2.1** — heatmap — native dark mode, customizable theme, tooltips via `renderBlock`
-- **date-fns 4.4.0** — date math — streak calculation, ISO date keys, locale-aware display
-- **zod 4.4.3** — validation — runtime schema validation for import before IndexedDB writes
-- **vitest 4.1.10** — testing — streak logic, export/import round-trips, repository layer
+**Core v2.0 additions:**
+- **vite-plugin-pwa 1.3.0** — manifest, precache, `virtual:pwa-register/react` for update prompts — peers Vite 8 and Workbox 7.4.1
+- **Workbox 7.4.1** (`workbox-precaching`, `workbox-core`, `workbox-routing`) — precache app shell via `injectManifest` strategy (required for custom `push` / `notificationclick` handlers; `generateSW` is not viable for REM-02)
+- **@pushforge/builder 2.0.5** — Web Push encryption + VAPID signing on Cloudflare Workers (replaces `web-push`, which fails on Workers runtime)
+- **Cloudflare Workers + Cron Triggers** — minimal relay: store subscriptions + schedule snapshots, fire due reminders each minute
+- **Native APIs** — `PushManager`, `Notification.permission`, `navigator.storage.persist()`, `navigator.serviceWorker.ready` — no client library needed for subscribe flow
 
-**Avoid in v1:** Next.js, localStorage as primary store, Redux/TanStack Query, Dexie Cloud, PWA/service workers, Firebase/Supabase, Material UI/Chakra.
+**Critical version/integration notes:**
+- Use `strategies: 'injectManifest'` with `src/sw/sw.ts` — not `generateSW`
+- Use `registerType: 'prompt'` — not `autoUpdate` (mid-check-in reload risk)
+- Dexie stays in main thread only; relay embeds habit name in push payload OR SW reads Dexie at `push` time for completion gate
+- Relay is a separate `push-relay/` workspace — not bundled in the SPA
 
 ### Expected Features
 
-Feature research across 114 habit tracking apps confirms one-tap check-in, custom schedules, streak counters, and visual progress history are universal table stakes. This project's competitive position is **effortless logging + impossible-to-ignore progress** via the contribution grid, not feature breadth.
+See [FEATURES.md](./FEATURES.md) for competitor analysis and dependency graph.
 
-**Must have (table stakes):**
-- One-tap habit check-in — present in 100% of surveyed apps; friction is #1 churn driver
-- Custom habit creation (name + daily or specific weekdays) — 98% of apps support flexible schedules
-- Streak counter (current + longest) — ~89% of apps; core motivation loop
-- Visual progress history — 97% of apps; this project chooses GitHub-style heatmap
-- Basic completion statistics — dashboard with streaks, completion %, weekly overview
-- Undo / toggle completion — same tap toggles complete ↔ incomplete
-- Data persistence — IndexedDB; survives browser refresh
-- Responsive mobile + desktop web — touch targets ≥44px
-- Dark mode — design constraint for target audience
-- Export/import JSON — safety net for local-first; builds user trust
+**Must have (table stakes) — v2.0 launch:**
+- **Per-habit optional reminder time (REM-01)** — off by default; toggle + time picker on habit edit; persisted in Dexie
+- **Push when app closed (REM-02)** — Web Push + SW handler + minimal relay; client-only timers are insufficient
+- **Permission on user intent** — pre-prompt → user enables reminder → gesture-gated `requestPermission()`
+- **Schedule-aware reminders** — reuse v1.1 frequency model; no nag on unscheduled weekdays
+- **Done/freeze suppression** — no reminder after check-in or on frozen today
+- **Notification tap → open app** — `notificationclick` deep-link to today or habit
+- **Installable PWA (PWA-01)** — manifest, maskable 192/512 icons, `display: standalone`, dark theme tokens
+- **Offline app shell (PWA-02)** — Workbox precache; first visit needs network, repeat visits load shell offline
+- **Full offline core loop (PWA-03)** — check-in, streaks, export/import via Dexie + cached shell (already true at data layer)
+- **Update prompt (PWA-05)** — user-controlled reload via `useRegisterSW`
+- **`navigator.storage.persist()` + eviction UX (PWA-04)** — after meaningful engagement; export CTA if denied
 
-**Should have (competitive):**
-- GitHub-style contribution grid per habit — signature differentiator; only ~15–20% of mainstream apps use this pattern
-- Streak visual rewards (flame, color fill, micro-animation) — satisfying feedback without full gamification
-- Local-first + no account — zero onboarding friction; privacy segment underserved
-- Intentional simplicity — no bloat; caps scope creep
-- Dashboard weekly overview — "one glance" core value
+**Should have (differentiators):**
+- **Reminders without accounts** — anonymous `deviceId` in Dexie; relay stores delivery metadata only
+- **Freeze + quota-aware suppression** — unique to this codebase vs Loop/Streaks daily-only checks
+- **Minimal dark installable PWA** — restraint vs cluttered wellness apps
+- **Honest storage durability UX** — plain-language persist status; export remains real backup
+- **Deferred install prompt** — tie install value to enabling first reminder
 
-**Defer (v2+):**
-- Reminders / push notifications — table stakes in market but high implementation cost; explicitly out of v1 scope
-- Cloud sync + user accounts — contradicts local-first v1; export/import is the bridge
-- PWA / offline / widgets — deferred per PROJECT.md
-- Social features, full gamification, complex analytics — anti-features for this product vision
-- Skip/rest days, "X times per week" frequency — v1.x based on user feedback
+**Defer (v2.x+):**
+- Check-in/dismiss from notification actions — P2; platform-gated (iOS limited)
+- Global quiet hours / DND window — P2
+- Multiple reminder times per habit — duplicate habit workaround for v2.0
+- Home screen widgets — v3+ (PROJECT.md)
+- Cloud sync for reminders — contradicts local-first
+- Firebase/OneSignal — vendor lock-in
 
 ### Architecture Approach
 
-Follow a **layered SPA architecture** with four horizontal layers and strict downward dependencies: Presentation (React components) → Application (hooks/use cases) → Domain (pure logic) → Infrastructure (Dexie/IndexedDB). Domain logic never imports from UI or infrastructure. Streaks, completion rates, and heatmap cell states are computed on read from raw completion records — never stored as authoritative state.
+v2.0 extends the existing four-layer SPA with a **Platform Layer** (SW lifecycle, push, storage persist) and an **external minimal relay** for closed-app delivery. Dexie remains authoritative for habits, completions, freezes, reminder prefs, and push subscription; the relay holds only `deviceId → { subscription, schedule[] }`. Domain logic stays pure in `domain/reminders.ts`; `platform/` adapters wrap browser APIs for testability. See [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 **Major components:**
-1. **Domain layer** (`domain/`) — pure streak calculator, stats aggregator, heatmap grid builder, date utils; fully unit-testable
-2. **Infrastructure layer** (`infrastructure/`) — Dexie schema, habit/completion repositories behind interfaces; sole layer that knows about IndexedDB
-3. **Hooks layer** (`hooks/`) — thin glue via `useLiveQuery`; components never call Dexie directly
-4. **Backup service** (`services/backupService.ts`) — versioned JSON export/import with Zod validation and transactional writes
-5. **Presentation** — Dashboard, Habit List, Heatmap (detail view), Settings grouped by feature
+1. **Platform Layer (`src/sw/`, `src/platform/`)** — Workbox precache, `push`/`notificationclick` handlers, `persist()`, subscribe adapters — no React in SW bundle
+2. **Reminder domain (`domain/reminders.ts`)** — pure next-fire time, eligibility per frequency, skip-if-done/frozen — shares `schedule.ts` / `dates.ts`
+3. **Infrastructure extensions** — `settingsRepository`, `pushSubscriptionRepository`, `reminderSyncService` (Dexie → relay POST, debounced)
+4. **Push relay (`push-relay/`)** — VAPID-signed cron scheduler; separate deploy; no habit/completion data
+5. **PWA UI (`ReloadPrompt`, `InstallPrompt`, `NotificationSettings`)** — update prompt, A2HS, permission recovery diagnostics
 
-**Data model:** Two tables only — `Habit { id, name, frequency, color?, createdAt, archived? }` and `Completion { habitId, date }` with compound unique index `[habitId+date]`. Dates stored as `YYYY-MM-DD` local calendar strings, never UTC timestamps.
+**Critical invariant:** Reminder preferences in Dexie; delivery via platform. Never store "notification sent" as completion state.
 
 ### Critical Pitfalls
 
-1. **UTC or 24-hour streak logic** — Store `YYYY-MM-DD` in local timezone via `Intl`; walk calendar dates backward, never `toISOString().split('T')[0]` or millisecond diffs; test Sydney 11:55 PM and US DST transitions
-2. **Weekly habits treated as daily streaks** — Walk backward skipping non-scheduled days; only break on missed *scheduled* days; streak = consecutive scheduled periods completed, not consecutive calendar days
-3. **Browser storage without backup** — IndexedDB is best-effort (Safari evicts after ~7 days idle); export/import in v1 is mandatory; import must validate → snapshot → transactional write with rollback
-4. **Mutable streak counters** — Never persist `currentStreak` on habit records; derive from completions on read; toggle = upsert/delete completion only
-5. **Contribution grid DOM explosion** — Memoize grid cells outside render; `React.memo` on cells; full heatmap on detail view, summary stats on dashboard; isolate hover/tooltip state inside grid
-6. **"Today" frozen at page load** — Resolve today at interaction time, not mount; refresh on `visibilitychange` when tab becomes visible
-7. **Over-scoping v1** — Ship one-tap check-in + grid + export before any v2 item; PROJECT.md Active list is the contract
+See [PITFALLS.md](./PITFALLS.md) for full checklist and recovery strategies.
+
+1. **Client-side scheduling for closed-app reminders** — `setTimeout`, Periodic Background Sync, and Notification Triggers cannot reliably fire when PWA is killed. Use relay cron + Web Push; optional Notification Triggers only as Chrome/Android boost.
+2. **Reminder time in UTC instead of user local time** — store `timeLocal: "HH:mm"` + IANA timezone per subscription; relay matches local wall clock including DST. Reuse `getLocalDateString()` discipline from streaks.
+3. **Push permission at wrong time** — drive-by prompts yield ~12% grant vs ~30%+ after contextual gesture. Default reminders off; ask only after user enables reminder + sets time.
+4. **Weekly/X×week logic copied from daily streaks** — naive daily blast on Mon/Wed/Fri habits or after quota met. Evaluate `isHabitDueOnDate()`, freeze, and completion at fire time.
+5. **Relay schedules without completion state** — relay cannot see Dexie. Either SW reads Dexie at `push` event and gates `showNotification()`, or client syncs minimal due-bitmap on toggle/freeze/visibilitychange. Never copy full completions to server.
+6. **iOS push treated like Android** — iOS 16.4+ requires installed PWA; `showNotification()` must run synchronously in `event.waitUntil`. Guide A2HS before push opt-in.
+7. **SW cache fighting Dexie** — never cache IndexedDB data in Cache API; `skipWaiting()` only after user accepts update prompt.
 
 ## Implications for Roadmap
 
-Based on research, suggested phase structure:
+Based on research, suggested phase structure continues from v1.1 Phase 8. Critical path: **SW registration → push client → relay**. Phase 12 (REM-01 UI) can parallelize with Phases 9–10 once Dexie v3 schema is defined.
 
-### Phase 1: Scaffold & Design System
-**Rationale:** Establishes the stack foundation and visual identity before any domain logic; shadcn/ui and Tailwind v4 dark theme are harder to retrofit than to set up first.
-**Delivers:** Vite + React 19 + TypeScript project, Tailwind v4 + shadcn/ui dark theme, React Router shell with placeholder pages, `cn()` helper, responsive layout skeleton.
-**Addresses:** Responsive dark UI (P1), minimal dark aesthetic differentiator.
-**Uses:** Vite 8, React 19, Tailwind 4, shadcn/ui, react-router 8, lucide-react.
-**Avoids:** Over-scoping v1 — scaffold only, no feature logic yet.
+### Phase 9: PWA Install & Manifest (PWA-01)
+**Rationale:** Installability is prerequisite for iOS Web Push (16.4+ standalone mode) and user trust for "app on home screen." Low complexity; unblocks install prompt UX.
+**Delivers:** Web app manifest, maskable icons (192/512), theme/background colors matching dark aesthetic, `InstallPrompt` component, `beforeinstallprompt` capture.
+**Addresses:** PWA-01, iOS A2HS-before-push guide (foundation)
+**Avoids:** iOS push silently failing in Safari tab (Pitfall 7)
 
-### Phase 2: Data Layer & Domain Foundation
-**Rationale:** All features depend on persistence and date handling; schema versioning must exist before export/import; completion events are the single source of truth.
-**Delivers:** `domain/types.ts`, `domain/dates.ts`, Dexie schema with `habits` + `completions` + `app_metadata` tables, habit/completion repositories, unit tests for date utils.
-**Addresses:** Local persistence (P1), data schema for export/import.
-**Avoids:** Mutable streak counters (Pitfall 6), localStorage trap (Pitfall 3), import without schema version.
-**Implements:** Repository pattern, two-table data model, `YYYY-MM-DD` date storage.
+### Phase 10: Service Worker & Offline Shell (PWA-02, PWA-05)
+**Rationale:** Shared SW foundation required before push subscription (`navigator.serviceWorker.ready`). Establishes cache strategy before adding push handlers.
+**Delivers:** `vite-plugin-pwa` + `injectManifest`, `src/sw/cache.ts` (precache + SPA fallback), `SKIP_WAITING` handler, `ReloadPrompt` via `useRegisterSW`, offline check-in verified on `dist/`.
+**Uses:** vite-plugin-pwa 1.3.0, Workbox 7.4.1, `registerType: 'prompt'`
+**Avoids:** SW cache vs Dexie desync (Pitfall 6); mid-session auto-reload (Pitfall 6, UX)
 
-### Phase 3: Habit CRUD & Daily Logging
-**Rationale:** Core loop must work before streaks or visualization have meaning; today resolution must be correct from the start.
-**Delivers:** Create/edit/archive habits (name + daily or specific weekdays), one-tap toggle for today, toggle past days, habit list/today view, optimistic UI, `visibilitychange` today refresh.
-**Addresses:** Habit CRUD (P1), one-tap daily logging (P1), toggle past days (P1), edit/archive/delete habits (P2).
-**Avoids:** Frozen "today" (Pitfall 7).
-**Uses:** `useLiveQuery`, completion repository, Zustand for modal/form state only.
+### Phase 11: Storage Durability & Eviction UX (PWA-04)
+**Rationale:** Complements export/import; can parallelize with Phases 9–10. Chrome grants `persist()` more readily for installed PWAs — benefits from Phase 9.
+**Delivers:** `platform/storage.ts`, `useStoragePersistence`, Settings diagnostics (`persisted()`, quota estimate), eviction-risk banner with export CTA on denial.
+**Addresses:** PWA-04, honest storage durability differentiator
+**Avoids:** Safari 7-day proactive eviction surprise (Pitfall 9); false "data saved permanently" claims
 
-### Phase 4: Streak Engine
-**Rationale:** Streak logic is the highest-risk code; must be designed with frequency awareness and timezone correctness before dashboard or grid display it.
-**Delivers:** `domain/streak.ts` with `calculateCurrentStreak` and `calculateLongestStreak`, frequency-aware walk (daily + specific weekdays), `useStreak` hook, comprehensive unit tests with timezone/DST/weekly fixtures.
-**Addresses:** Streak counter (P1), frequency rules engine dependency.
-**Avoids:** UTC/24h streak logic (Pitfall 1), weekly frequency bugs (Pitfall 2), mutable counters (Pitfall 6).
-**Implements:** Compute-on-read pattern, scheduled-day walk algorithm.
+### Phase 12: Reminder Preferences & Domain Logic (REM-01)
+**Rationale:** Reminder data model and UI can ship before delivery path exists; defines schedule shape for relay. Contextual permission UX belongs here, before push subscribe.
+**Delivers:** `domain/reminders.ts` + tests, `Habit.reminder` field, Dexie v3 migration, `app_settings` table (`deviceId`), HabitForm reminder toggle + time picker, backup v2 schema, frequency-aware eligibility rules.
+**Addresses:** REM-01, schedule-aware reminders, global/per-habit disable, permission-on-intent
+**Avoids:** Permission permanent deny (Pitfall 3); weekly/X×week wrong-day nag (Pitfall 4)
 
-### Phase 5: Dashboard & Visual Feedback
-**Rationale:** Delivers the "one glance" core value once streak engine is verified; depends on streak + stats but not heatmap.
-**Delivers:** Dashboard with current streaks per habit, completion rate, weekly overview, streak visual rewards (flame/color fill on check-in), summary cards (not full grids).
-**Addresses:** Dashboard stats (P1), streak visual rewards (P1), dashboard weekly overview differentiator.
-**Uses:** `domain/stats.ts`, `useStreak` hook, shadcn Card/Badge components.
-**Avoids:** Grid DOM explosion on dashboard (Pitfall 5) — summary stats only, not N full heatmaps.
+### Phase 13: Web Push Client (REM-02a)
+**Rationale:** Depends on Phase 10 SW registration. Implements client half of REM-02 before relay exists.
+**Delivers:** `platform/push.ts`, `platform/notifications.ts`, `pushSubscriptionRepository`, `usePushSubscription`, `NotificationSettings`, `sw/pushHandlers.ts` (`push` + `notificationclick`), `pushsubscriptionchange` handler, completion/freeze gate at display time (Dexie read in SW or due-bitmap — **decide in planning**).
+**Uses:** Native PushManager, VAPID public key in client
+**Avoids:** Subscription rot without refresh (Pitfall 8); iOS deferred `showNotification` (Pitfall 7)
 
-### Phase 6: Contribution Grid
-**Rationale:** Signature differentiator; requires logging history and streak engine to be stable; highest UI complexity and performance risk.
-**Delivers:** Per-habit GitHub-style 52-week heatmap on detail view, click-to-toggle past dates, memoized grid builder, tooltips, horizontal scroll on mobile.
-**Addresses:** Contribution grid per habit (P1) — the product's visual identity.
-**Avoids:** Grid DOM explosion (Pitfall 5), boolean arrays for heatmap data.
-**Uses:** `react-activity-calendar`, `domain/heatmap.ts`, `React.memo` on cells.
-**Implements:** Date-set membership grid builder, isolated hover state.
+### Phase 14: Push Relay & Scheduler (REM-02b)
+**Rationale:** Closes REM-02 delivery loop. Depends on Phase 12 schedule shape and Phase 13 subscription flow.
+**Delivers:** `push-relay/` deployable (CF Worker + D1/KV + Cron), `reminderSyncService` (debounced POST on habit/reminder changes), VAPID keys in env, minute-resolution timezone-aware cron, dedup (`habitId + localDate`), 410/404 subscription cleanup, E2E closed-app push test.
+**Uses:** `@pushforge/builder`, Cloudflare Cron Triggers
+**Avoids:** Client-side scheduling (Pitfall 1); UTC/DST drift (Pitfall 2); scope creep to accounts (Pitfall 10)
 
-### Phase 7: Export/Import & Data Safety
-**Rationale:** Local-first without backup is a trust failure; import safety pattern must ship with v1 per PROJECT.md.
-**Delivers:** JSON export with `version` + `exportedAt`, Zod-validated import, snapshot-before-replace, confirmation dialog, backup prompt UX, `navigator.storage.persist()` call after engagement.
-**Addresses:** Export/import JSON (P1).
-**Avoids:** Browser storage data loss (Pitfall 3), unsafe import (clear-before-validate), missing schema version.
-**Uses:** Zod schemas, Dexie transactions, browser Blob download / file input.
+### Phase 15: Integration Hardening & Optional Boosts
+**Rationale:** Cross-cutting quality after core path works; optional Notification Triggers tier for Chrome/Android.
+**Delivers:** Full suppression matrix tests (done, frozen, unscheduled day, quota met), permission-denied fallback UX, settings diagnostic panel ("why no notifications?"), optional `scheduleLocalTriggers()` behind `showTrigger` feature detect, Vitest relay payload contract tests.
+**Addresses:** P1 quality bar from FEATURES.md "Looks Done But Isn't" checklist
+**Avoids:** Notification fatigue; silent delivery failure
 
 ### Phase Ordering Rationale
 
-- **Bottom-up dependencies:** types → db → repositories → toggle → streaks → dashboard → heatmap → backup. Architecture research critical path confirms this chain.
-- **Streak engine before visualization:** Both dashboard and heatmap display streak data; incorrect streak logic poisons the entire product. Pitfalls research flags Phase 3/4 as non-negotiable ordering.
-- **Heatmap after core loop:** Grid is read-only visualization over completion records; logging + storage must exist first (FEATURES.md dependency graph).
-- **Export/import near end but specced early:** Import safety pattern and schema versioning belong in Phase 2 design; UX ships in Phase 7 once data model is stable.
-- **Dashboard before heatmap:** Delivers core value faster with lower performance risk; heatmap is the polish differentiator, not the minimum loop.
-- **6–7 phases keeps scope honest:** Pitfalls research warns against >6 phases before first usable release; Phase 1 scaffold is tooling, Phases 2–7 are feature delivery.
+- **PWA before push:** Web Push subscription binds to SW registration; iOS requires installed PWA before subscribe — Phases 9–10 precede 13–14.
+- **REM-01 before REM-02:** Schedule snapshot shape and permission UX must exist before relay stores schedules; Phase 12 can parallelize with 9–10 for velocity.
+- **Storage parallel to PWA:** Phase 11 has no hard dependency on push; benefits from install (Phase 9) for persist grant rate.
+- **Relay last on critical path:** Phase 14 is the only phase introducing server infrastructure; keep scope capped (VAPID + cron + send, no accounts).
+- **Domain purity preserved:** `reminders.ts` shared between client sync payload and relay scheduler (copy or workspace import) — avoids duplicating schedule logic.
 
 ### Research Flags
 
 Phases likely needing deeper research during planning:
-- **Phase 4 (Streak Engine):** Timezone/DST edge cases and weekly-frequency walk algorithm need implementation-specific test fixtures; run `/gsd-plan-phase --research-phase 4` for date-fns-tz patterns and test matrix design.
-- **Phase 6 (Contribution Grid):** `react-activity-calendar` customization for click-to-toggle and mobile scroll may need spike; run research if library API doesn't support past-date toggle natively.
-- **Phase 7 (Export/Import):** Safari/iOS storage eviction behavior and `navigator.storage.persist()` denial handling need platform-specific UX decisions.
+- **Phase 14:** Push relay timezone cron implementation, `@pushforge/builder` on CF Workers, 410 cleanup patterns, relay scaling index strategy — MEDIUM confidence stack area
+- **Phase 13:** Completion suppression architecture decision — SW Dexie read vs due-bitmap sync (ARCHITECTURE and PITFALLS propose slightly different patterns; needs explicit ADR)
+- **Phase 12:** `times_per_week` reminder product rule — remind daily until quota met vs mid-week threshold only (FEATURES flags as product decision)
 
-Phases with standard patterns (skip research-phase):
-- **Phase 1 (Scaffold):** Vite + shadcn/ui setup is well-documented with official guides; follow STACK.md installation verbatim.
-- **Phase 2 (Data Layer):** Dexie repository pattern validated by multiple reference codebases (smart-habit-tracker, jcortesdev/habit-tracker).
-- **Phase 3 (Habit Logging):** Standard CRUD + toggle; no novel patterns.
-- **Phase 5 (Dashboard):** Composition of existing streak/stats hooks; standard React component patterns.
+Phases with standard patterns (skip `--research-phase`):
+- **Phase 9–10:** vite-plugin-pwa + Workbox — extensive docs, HIGH confidence
+- **Phase 11:** `navigator.storage.persist()` — web.dev/MDN well-documented
+- **Phase 12 UI:** HabitForm extension, Dexie migration — follows existing v1.1 patterns
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | All versions verified via npm registry 2026-07-19; official docs for Vite, Dexie, shadcn, react-activity-calendar |
-| Features | MEDIUM | Strong quantitative data from 114-app survey; project-specific prioritization validated against PROJECT.md (HIGH for intent) |
-| Architecture | MEDIUM | Patterns confirmed by 2+ reference codebases; no production codebase for this project yet |
-| Pitfalls | MEDIUM | Cross-checked industry guidance (Trophy, web.dev, MDN); streak/timezone pitfalls well-documented but need implementation validation |
+| Stack | HIGH (PWA), MEDIUM (relay) | vite-plugin-pwa/Workbox verified on npm; `@pushforge/builder` + CF Cron less battle-tested in this codebase |
+| Features | MEDIUM-HIGH | PROJECT.md authority + competitor survey; iOS/Android delivery variance remains |
+| Architecture | HIGH (PWA/offline), MEDIUM (reminder reliability) | Layered extension fits v1.x; cross-browser push timing is best-effort not alarm-clock |
+| Pitfalls | HIGH | MDN/web.dev + PWA post-mortems; completion-suppression data path needs planning decision |
 
-**Overall confidence:** HIGH
-
-The stack and architecture recommendations are well-supported by official documentation and proven reference implementations. Feature priorities align with both market data and explicit PROJECT.md constraints. Pitfall awareness is strong but streak/timezone correctness must be validated with fixture tests during Phase 4 — this is the one area where research cannot substitute for implementation testing.
+**Overall confidence:** MEDIUM-HIGH
 
 ### Gaps to Address
 
-- **`react-activity-calendar` click-to-toggle:** Library may need wrapper for toggling past dates on cell click — validate during Phase 6 planning with a quick spike.
-- **Safari storage eviction UX:** Exact prompt timing and messaging for backup reminders needs user-testing; research confirms risk but not optimal UX copy.
-- **Weekly habit streak semantics for "today not yet done":** Architecture sketch shows streak alive from yesterday if today incomplete — confirm this matches user expectation for Mon/Wed/Fri habits on a scheduled but incomplete day.
-- **Heatmap on dashboard vs detail-only:** Research recommends summary on dashboard, full grid on detail — confirm with user during `/gsd-discuss-phase` for Phase 5/6.
-- **"X times per week" deferral:** 98% of apps support this schedule type; v1.x priority should be validated after launch usage data.
+- **Completion suppression data path:** ARCHITECTURE recommends self-contained push payloads (habit name in relay body); PITFALLS recommends SW Dexie read at `push` time for done/freeze gate. Decide in Phase 13 planning — hybrid (payload for display + SW gate for suppress) is viable.
+- **Notification Triggers tier 2:** Chrome/Android optional boost — include in Phase 15 only if Phase 14 core path is stable; API has limited Safari support.
+- **`times_per_week` reminder timing:** Whether to nag every scheduled day until quota met vs only after mid-week threshold — document in REM-01 spec during Phase 12.
+- **Relay hosting:** CF Worker recommended but requires CF account; validate deploy path and env secret management before Phase 14 execution.
+- **Human UAT on real devices:** Closed-app push cannot be fully validated in jsdom — plan Android Chrome + installed iOS PWA manual verification for Phase 14 closeout.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- [Vite Getting Started](https://vite.dev/guide/) — Node version requirements, scaffold process
-- [npm registry](https://www.npmjs.com/) — all package versions verified 2026-07-19
-- [Dexie React Tutorial](https://dexie.org/docs/Tutorial/React) — useLiveQuery, local-first patterns
-- [shadcn/ui Vite Installation](https://ui.shadcn.com/docs/installation/vite) — Tailwind v4 + React 19 setup
-- [react-activity-calendar](https://github.com/grubersjoe/react-activity-calendar) — v3 dark mode, theme props
-- [Steal What Works: 114 Habit Tracking Apps](https://stealwhatworks.com/blogs/news/habit-tracking-app-features) — feature penetration data
-- [smart-habit-tracker](https://github.com/nhatduong-agilityio/smart-habit-tracker) — Dexie + pure domain architecture reference
-- [jcortesdev/habit-tracker](https://github.com/jcortesdev/habit-tracker) — IndexedDB repository pattern reference
-- PROJECT.md — v1 scope, Active requirements, explicit out-of-scope decisions
+- [vite-plugin-pwa injectManifest guide](https://vite-pwa-org.netlify.app/guide/inject-manifest.html) — custom SW + push handlers
+- [vite-plugin-pwa React integration](https://vite-pwa-org.netlify.app/frameworks/react) — `useRegisterSW`, prompt update
+- [Workbox precaching](https://developer.chrome.com/docs/workbox/modules/workbox-precaching) — `precacheAndRoute`, cache cleanup
+- [MDN Push API](https://developer.mozilla.org/en-US/docs/Web/API/Push_API) — subscription flow
+- [MDN StorageManager.persist()](https://developer.mozilla.org/en-US/docs/Web/API/StorageManager/persist) — durable IndexedDB
+- [web.dev: Persistent storage](https://web.dev/articles/persistent-storage) — persist timing and eviction UX
+- [web.dev: Push notifications codelab](https://web.dev/articles/push-notifications-client-codelab) — VAPID, SW handlers
+- [web.dev: Permissions best practices](https://web.dev/articles/permissions-best-practices) — gesture-gated prompts
+- [Apple: Web Push in web apps](https://developer.apple.com/documentation/usernotifications/sending-web-push-notifications-in-web-apps-and-browsers) — iOS install requirement
+- PROJECT.md — v2.0 scope, REM-01/02, PWA-01..05, out-of-scope boundaries
 
 ### Secondary (MEDIUM confidence)
-- [Trophy: Streak Timezone & DST Handling](https://trophy.so/blog/streak-timezone-dst-handling) — calendar-day comparison pattern
-- [web.dev: Storage for the web](https://web.dev/articles/storage-for-the-web) — IndexedDB durability, eviction
-- [MDN: Storage quotas and eviction](https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria) — browser eviction behavior
-- [init.Habits: GitHub-Style Habit Tracker](https://inithabits.com/blog/github-style-habit-tracker) — heatmap psychology
-- [Loop Habit Tracker (GitHub)](https://github.com/iSoron/uhabits) — local-first Android reference
-- [Kadō](https://getkado.app/) — privacy-first export/import positioning
-- [Zapier: Best Habit Tracker Apps](https://zapier.com/blog/best-habit-tracker-app/) — qualitative competitor review
-- [Medium: GitHub-like contributions graph](https://medium.com/@the_ozmic/building-a-github-like-contribution-graph-for-a-habit-tracker-app-7655d82ece6d) — date-array over boolean-array
+- [@pushforge/builder npm](https://www.npmjs.com/package/@pushforge/builder) — edge-compatible Web Push signing
+- [Aulvem: Anonymous Web Push](https://aulvem.com/blog/2026-07-07-anonymous-web-push-no-login/) — device token pattern, iOS constraints
+- [Steal What Works habit app survey](https://stealwhatworks.com/blogs/news/habit-tracking-app-features) — ~89% reminder penetration
+- [Loop Habit Tracker](https://github.com/iSoron/uhabits) — OSS reference for per-habit reminders and notification actions
+- [Rehabi-techo](https://github.com/p1xion/rehabi-techo) — Dexie + vite-plugin-pwa reference
 
-### Tertiary (LOW confidence)
-- [EngageFabric: Duolingo-Style Streak System](https://engagefabric.com/blog/building-duolingo-style-streak-system) — grace period patterns (deferred per PROJECT.md)
-- [SoloDevStack: Build Habit Tracker as Solo](https://solodevstack.com/blog/how-to-build-habit-tracker-solo-developer) — MVP scope anecdote
+### Tertiary (LOW confidence — validate during execution)
+- Notification Triggers as tier-2 boost — development ended; Chrome-only viability uncertain
+- CF Worker cron at scale (10K+ subscriptions) — indexing strategy untested for this project
 
 ---
-*Research completed: 2026-07-19*
+*Research completed: 2026-07-25*
 *Ready for roadmap: yes*
+*Baseline: v1.1 stack unchanged; this summary covers v2.0 Reminders & PWA additions only*

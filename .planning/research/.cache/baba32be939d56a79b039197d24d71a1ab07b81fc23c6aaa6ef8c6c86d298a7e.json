@@ -1,0 +1,1 @@
+{"content":"Mobile swipe: apply touch-action:pan-y on row container; use Pointer Events (pointerdown/move/up) with horizontal delta threshold (~50px) for swipe-right-to-complete; desktop uses click on full row per D-10; avoid touch-action:none.","source":"web","provider":"websearch","confidence":"LOW","fetched_at":"2026-07-19T17:37:33.469Z","ttl":86400000,"kind":"web"}

@@ -1,174 +1,338 @@
 # Stack Research
 
-**Domain:** Local-first habit tracker web application (React SPA)
-**Researched:** 2026-07-19
-**Confidence:** HIGH
+**Domain:** Local-first habit tracker — v2.0 Reminders & PWA additions
+**Researched:** 2026-07-25
+**Confidence:** HIGH (PWA/Workbox), MEDIUM (push relay scheduling)
 
-## Recommended Stack
+## Scope
 
-### Core Technologies
+This document covers **stack additions and changes only** for v2.0 (REM-01/02, PWA-01..05). The v1.1 baseline is unchanged:
+
+> Vite 8 · React 19 · TypeScript · Dexie 4 · Tailwind 4 · shadcn/ui · react-activity-calendar · Zod 4 · date-fns · Zustand · Vitest
+
+See prior research (2026-07-19) for v1 rationale. Everything below is new or updated for reminders, Web Push, and PWA offline.
+
+---
+
+## Recommended Stack — v2.0 Additions
+
+### Core Technologies (New)
 
 | Technology | Version | Purpose | Why Recommended | Confidence |
 |------------|---------|---------|-----------------|------------|
-| Vite | 8.1.5 | Build tool & dev server | Default 2026 choice for React SPAs. Sub-200ms cold start, native ESM HMR, static `dist/` output with zero Node runtime in production. No SSR/API overhead this project does not need. | HIGH |
-| React | 19.2.7 | UI framework | Mature ecosystem, required by project constraints for contribution-graph UI. React 19 is stable; `use()` and improved hydration are available but not required for v1. | HIGH |
-| TypeScript | 7.0.2 | Type safety | Catches schema drift between habits, completions, and export/import formats at compile time. Standard for greenfield React in 2026. | HIGH |
-| Dexie | 4.4.4 | Local-first persistence (IndexedDB) | Best-in-class IndexedDB wrapper for React: promise API, schema versioning, transactions, query indexes, and `useLiveQuery` reactivity. Handles years of daily check-ins without localStorage's 5 MB cap or synchronous blocking. | HIGH |
-| Tailwind CSS | 4.3.3 | Utility-first styling | v4 uses CSS-first config (`@import "tailwindcss"`), Vite plugin integration, and `@theme` tokens — ideal for GitHub/Linear minimal dark aesthetic without fighting a component library's design system. | HIGH |
-| shadcn/ui | latest CLI (`shadcn@latest`) | Accessible UI primitives | Copy-paste Radix-based components styled with Tailwind. Dark-first theming out of the box. No npm dependency lock-in; you own the source. Matches the GitHub/Linear visual language better than Material UI or Chakra. | HIGH |
+| `vite-plugin-pwa` | 1.3.0 | PWA manifest, service worker build, offline precache, update prompt hooks | De-facto Vite PWA plugin; peers `vite@^8.0.0` and Workbox 7.4.1; ships `virtual:pwa-register/react` for `useRegisterSW` update UX; supports `injectManifest` for custom push handlers | HIGH |
+| Workbox 7 (`workbox-precaching`, `workbox-core`, `workbox-routing`) | 7.4.1 | Service worker precaching, cleanup, push event handler | Bundled via `vite-plugin-pwa`; `injectManifest` strategy lets you add `push` listener alongside `precacheAndRoute` — required for REM-02 | HIGH |
+| `workbox-window` | 7.4.1 | Runtime SW registration and update lifecycle | Peer dep of `vite-plugin-pwa`; used by `virtual:pwa-register` under the hood | HIGH |
+| `@pushforge/builder` | 2.0.5 | Web Push payload encryption + VAPID signing on edge relay | Zero-dep, Web Crypto API — works on Cloudflare Workers/Vercel Edge; `web-push` fails on Workers (`crypto.createECDH` unavailable) | MEDIUM |
+| Cloudflare Workers + Cron Triggers | — | Minimal push relay host (subscriptions + scheduled sends) | Free tier, HTTPS by default, no server to maintain; pairs with `@pushforge/builder`; stores subscriptions in KV/D1 | MEDIUM |
 
-### Supporting Libraries
+### Supporting Libraries (New)
 
 | Library | Version | Purpose | When to Use | Confidence |
 |---------|---------|---------|-------------|------------|
-| `@vitejs/plugin-react` | 6.0.3 | React Fast Refresh in Vite | Always — required Vite plugin for React | HIGH |
-| `@tailwindcss/vite` | 4.3.3 | Tailwind v4 Vite integration | Always — replaces PostCSS config boilerplate | HIGH |
-| `dexie-react-hooks` | 4.4.0 | Reactive IndexedDB queries | Any component reading habits/completions from Dexie (`useLiveQuery`) | HIGH |
-| `react-activity-calendar` | 3.2.1 | GitHub-style contribution heatmap | Habit detail view and dashboard streak grids. Native dark/light `colorScheme`, customizable `theme`, tooltips via `renderBlock`. | HIGH |
-| `react-router` | 8.2.0 | Client-side routing | Multi-view navigation: dashboard, habit detail, settings/backup. Lightweight for SPA; no server router needed. | HIGH |
-| `date-fns` | 4.4.0 | Date math & formatting | Streak calculation, week boundaries, ISO date keys (`yyyy-MM-dd`), locale-aware display | HIGH |
-| `zustand` | 5.0.14 | Ephemeral UI state | Modal open/close, active filters, transient form state. Keep Dexie as source of truth for persisted data. | HIGH |
-| `zod` | 4.4.3 | Runtime schema validation | Validate export/import JSON before writing to IndexedDB; version-stamp backup files | HIGH |
-| `lucide-react` | 1.25.0 | Icons | Streak flame, check/uncheck, settings, export/import icons. Pairs with shadcn/ui. | HIGH |
-| `clsx` + `tailwind-merge` | 2.1.1 / 3.6.0 | Conditional class merging | shadcn/ui dependency; use `cn()` helper for component variants | HIGH |
-| `vitest` | 4.1.10 | Unit & integration tests | Streak logic, export/import round-trips, Dexie repository layer | HIGH |
-| `@testing-library/react` | 16.3.2 | Component testing | User-centric tests for check-in tap, habit creation flows | HIGH |
-| `jsdom` | latest | DOM environment for Vitest | Required Vitest environment for React component tests | HIGH |
+| `@vite-pwa/assets-generator` | 1.0.2 | Generate PWA icons (192/512 maskable) from source | One-time asset pipeline for manifest icons; optional but saves manual resize work | HIGH |
+| `web-push` | 3.6.7 | Web Push on Node.js relay | **Only** if relay runs on Node (not Workers); includes VAPID key CLI (`npx web-push generate-vapid-keys`) | HIGH |
+| `idb` | 8.0.3 | Thin IndexedDB wrapper | **Only if** service worker must read reminder state directly; prefer keeping Dexie in main thread and passing data via `postMessage` | MEDIUM |
 
-### Development Tools
+### Native Browser APIs (No Package)
+
+| API | Purpose | Integration |
+|-----|---------|-------------|
+| `PushManager` / `PushSubscription` | Subscribe browser to push endpoint | Call from main thread after SW registered; store subscription JSON in Dexie + sync to relay |
+| `Notification` / `Notification.permission` | Permission gate before subscribe | Request only when user enables reminders; never on first visit |
+| `navigator.storage.persist()` | Request durable IndexedDB (PWA-04) | Call after install or first data write; pair with `navigator.storage.estimate()` for eviction-risk UX |
+| `navigator.serviceWorker.ready` | Gate push subscribe on SW activation | Required before `pushManager.subscribe()` |
+
+### Development Tools (New)
 
 | Tool | Purpose | Notes |
 |------|---------|-------|
-| Node.js 22 LTS | Runtime | Vite 8 requires Node 20.19+ or 22.12+; use 22 LTS for longest support window |
-| ESLint 9 + `typescript-eslint` | Linting | Vite React-TS template scaffolds this; extend with React Hooks rules |
-| `@types/react` / `@types/react-dom` | 19.2.17 | Match React 19 types |
-| `@types/node` | latest | Required for `path` alias in `vite.config.ts` |
+| `vite-plugin-pwa` `devOptions` | SW debugging in dev | Set `devOptions: { enabled: true, type: 'module' }` only when debugging push/SW; disable by default (v1 DX) |
+| Chrome DevTools → Application → Service Workers | Push/SW testing | Simulate push events; verify precache manifest |
+| `fake-indexeddb` (existing) | Vitest Dexie tests | Already in devDeps; no change needed for offline data tests |
+
+---
 
 ## Installation
 
 ```bash
-# Scaffold
-npm create vite@latest habit-tracker -- --template react-ts
-cd habit-tracker
+# PWA + service worker (app)
+pnpm add -D vite-plugin-pwa@1.3.0 workbox-precaching@7.4.1 workbox-core@7.4.1 workbox-routing@7.4.1
 
-# Core runtime
-npm install react@19.2.7 react-dom@19.2.7 react-router@8.2.0
+# workbox-window is installed transitively by vite-plugin-pwa; add explicitly if importing directly
+pnpm add workbox-window@7.4.1
 
-# Local-first data
-npm install dexie@4.4.4 dexie-react-hooks@4.4.0 zod@4.4.3
+# Optional: PWA icon generation
+pnpm add -D @vite-pwa/assets-generator@1.0.2
 
-# UI & styling
-npm install tailwindcss@4.3.3 @tailwindcss/vite@4.3.3
-npm install clsx@2.1.1 tailwind-merge@3.6.0 lucide-react@1.25.0
-npx shadcn@latest init -t vite
+# Push relay (separate deploy — NOT in main app bundle)
+# Edge (recommended):
+pnpm add @pushforge/builder@2.0.5   # in relay/ workspace or workers project
 
-# Domain-specific
-npm install react-activity-calendar@3.2.1 date-fns@4.4.0 zustand@5.0.14
-
-# Dev dependencies
-npm install -D vite@8.1.5 @vitejs/plugin-react@6.0.3 typescript@7.0.2
-npm install -D vitest@4.1.10 @testing-library/react@16.3.2 jsdom
-npm install -D @types/node @types/react@19.2.17 @types/react-dom@19.2.17
+# Node relay (alternative):
+pnpm add web-push@3.6.7               # in relay/ only
 ```
+
+**No new runtime dependencies in the main SPA** beyond `workbox-window` (small, only loaded for SW registration). Push subscribe and storage persist use native APIs.
+
+---
+
+## Integration with Vite 8 + Dexie
+
+### Vite config pattern
+
+```typescript
+import { VitePWA } from 'vite-plugin-pwa'
+
+VitePWA({
+  registerType: 'prompt',           // PWA-05: user confirms before SW update
+  strategies: 'injectManifest',     // Required: custom push handler in src/sw.ts
+  srcDir: 'src',
+  filename: 'sw.ts',
+  injectManifest: {
+    globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+  },
+  manifest: {
+    name: 'Habit Tracker',
+    short_name: 'Habits',
+    theme_color: '#0d1117',
+    background_color: '#0d1117',
+    display: 'standalone',
+    icons: [/* 192 + 512 maskable */],
+  },
+  devOptions: { enabled: false },   // enable only when debugging SW
+})
+```
+
+### Service worker (`src/sw.ts`)
+
+```typescript
+import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching'
+import { clientsClaim } from 'workbox-core'
+
+declare let self: ServiceWorkerGlobalScope
+
+precacheAndRoute(self.__WB_MANIFEST)
+cleanupOutdatedCaches()
+
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting()
+})
+
+self.addEventListener('push', (event) => {
+  const data = event.data?.json() ?? {}
+  event.waitUntil(
+    self.registration.showNotification(data.title ?? 'Habit reminder', {
+      body: data.body,
+      icon: '/icon-192.png',
+      data: { url: data.url ?? '/' },
+    })
+  )
+})
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+  event.waitUntil(clients.openWindow(event.notification.data?.url ?? '/'))
+})
+```
+
+### React update prompt (`virtual:pwa-register/react`)
+
+```typescript
+import { useRegisterSW } from 'virtual:pwa-register/react'
+
+const { needRefresh, updateServiceWorker } = useRegisterSW({ immediate: true })
+// needRefresh[0] → show shadcn toast/dialog; updateServiceWorker() applies new SW
+```
+
+### Dexie boundary — keep data in main thread
+
+| Concern | Recommendation |
+|---------|----------------|
+| Habit/completion data | **Dexie in main thread only** — IndexedDB works offline without SW; no Dexie import in SW |
+| Reminder config | New Dexie fields/table: `{ habitId, enabled, timeLocal, timezone? }` |
+| Push subscription | Store `PushSubscriptionJSON` in Dexie `settings` table; sync to relay on change |
+| SW data access | If SW needs habit name for notification body, relay includes it in push payload — don't query Dexie from SW |
+| Schema migration | Dexie v3 bump for reminder fields; export/import Zod schema version bump |
+
+### Reminder scheduling architecture
+
+Browsers **cannot** fire timed notifications when the tab is closed without a server. Client-side `setTimeout` / `setInterval` only work while the app is open.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Main app (React + Dexie)                                   │
+│  • User sets per-habit reminder time → Dexie                │
+│  • On save: POST subscription + schedule to relay           │
+│  • date-fns: compute next fire time in user's local TZ      │
+└──────────────────────────┬──────────────────────────────────┘
+                           │ HTTPS (no auth; capability token)
+┌──────────────────────────▼──────────────────────────────────┐
+│  Minimal push relay (Cloudflare Worker + D1/KV)             │
+│  • Store PushSubscription + [{habitId, time, days}]         │
+│  • Cron Trigger (every minute): find due reminders → push   │
+│  • @pushforge/builder: encrypt + VAPID sign → FCM/Mozilla   │
+└──────────────────────────┬──────────────────────────────────┘
+                           │ Web Push Protocol
+┌──────────────────────────▼──────────────────────────────────┐
+│  Service Worker (src/sw.ts)                                 │
+│  • push event → showNotification(habit name, check-in link) │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**date-fns** (already installed): `format`, `parse`, `setHours`, `setMinutes` for local time → next UTC fire time sent to relay. No new scheduling library on client.
+
+### Storage persistence (PWA-04)
+
+```typescript
+// No library — call from settings or post-install flow
+const persisted = await navigator.storage.persist()
+const estimate = await navigator.storage.estimate()
+// Show shadcn alert if !persisted && estimate.quota < threshold
+```
+
+Dexie data survives offline once the app shell is cached; `persist()` reduces eviction risk on mobile.
+
+---
 
 ## Alternatives Considered
 
 | Recommended | Alternative | When to Use Alternative |
 |-------------|-------------|-------------------------|
-| Vite SPA | Next.js 15 | If you later need SSR, SEO landing pages, or API routes for cloud sync in v2 |
-| Dexie | `idb` (8.0.3) | If you want zero dependencies and hand-roll schema/migrations — acceptable but more boilerplate for `useLiveQuery`-style reactivity |
-| Dexie | RxDB | If v2 requires multi-tab sync, replication, or conflict resolution out of the box — overkill for v1 local-only |
-| react-activity-calendar | react-calendar-heatmap (1.10.0) | Only if you need the exact Kevin Qi API and are willing to hand-roll dark mode CSS |
-| react-activity-calendar | Custom SVG grid | If bundle size is critical and you need pixel-perfect GitHub clone — adds 2–3 days of dev for marginal v1 value |
-| shadcn/ui | Radix Themes | If you want a pre-styled design system and don't need GitHub/Linear minimal control |
-| Zustand | Jotai / React Context | Jotai if state graph becomes deeply nested; Context alone is fine for tiny apps but scales poorly for modal + filter + form state |
-| date-fns | Temporal API / Day.js | Temporal when browser support is sufficient and you need timezone-heavy logic; Day.js if bundle size is the top priority |
-| Vitest | Playwright | Playwright for E2E in a later phase; Vitest covers streak math and data layer faster |
+| `vite-plugin-pwa` + `injectManifest` | Hand-rolled Workbox + manual manifest | Never for this project — plugin handles precache manifest injection and dev/build parity |
+| `vite-plugin-pwa` `generateSW` | Simpler zero-config SW | Only if you drop Web Push (no custom `push` handler) — **not viable for REM-02** |
+| `@pushforge/builder` on Cloudflare Workers | `web-push` on Node/VPS | Use `web-push` if team already runs Node and won't use Workers; `@pushforge/builder` for edge/free-tier |
+| `@pushforge/builder` | `go-notify-server` (Go binary) | Self-hosted VPS with SQLite; more ops, but zero vendor dependency |
+| Cloudflare Worker relay | `push-relay` (Django + PostgreSQL) | Heavier stack; only if you need multi-tenant admin UI out of the box |
+| Native Push API (no client lib) | `one-signal` / `firebase` SDK | Adds vendor lock-in and accounts — contradicts PROJECT.md constraints |
+| Relay cron scheduling | Periodic Background Sync API | Chrome-only, ≥12h interval — **unsuitable for daily reminders** |
+| Relay cron scheduling | Client `setTimeout` when app open | Supplement only; cannot replace relay for closed-tab delivery |
+| Dexie main thread only | Dexie in service worker | Possible (separate instance, same DB) but adds complexity; relay payload avoids it |
+| `registerType: 'prompt'` | `registerType: 'autoUpdate'` | Auto-update silently reloads mid-session — bad for check-in flow; prompt matches PWA-05 |
+
+---
 
 ## What NOT to Use
 
 | Avoid | Why | Use Instead |
 |-------|-----|-------------|
-| Create React App | Officially deprecated; slow builds, no active maintenance | Vite |
-| Next.js (v1) | Adds SSR/RSC/API surface area for a static local-first app; deployment complexity without benefit | Vite SPA |
-| localStorage as primary store | 5 MB cap, synchronous main-thread blocking, no indexed queries, poor fit for habit + completion relational data | Dexie (IndexedDB) |
-| Redux Toolkit | Ceremony disproportionate to a single-user local app with one data source | Dexie `useLiveQuery` + Zustand for UI |
-| TanStack Query | Designed for server-state fetching/caching; no server in v1 | Dexie live queries |
-| Dexie Cloud / `dexie-cloud-addon` | Introduces auth, sync, and hosted infra — explicitly out of scope for v1 | Plain Dexie + JSON export/import |
-| `dexie-observable` / `dexie-syncable` | Legacy, unmaintained sync addons | Export/import JSON for v1; Dexie Cloud only if v2 needs sync |
-| PWA + Service Workers (v1) | PROJECT.md defers offline/install scope; adds cache invalidation complexity | Responsive web; revisit in v2 if needed |
-| Material UI / Chakra UI | Heavy opinionated themes; fighting defaults to achieve minimal GitHub/Linear dark aesthetic | shadcn/ui + Tailwind |
-| Firebase / Supabase (v1) | Backend, auth, and network dependency contradict local-first v1 constraint | Dexie + file export |
-| Moment.js | Deprecated, large bundle | date-fns |
-| CSS-in-JS (styled-components, Emotion) | Runtime cost, Tailwind v4 + shadcn already covers styling needs | Tailwind utility classes |
+| OneSignal / Firebase Cloud Messaging SDK | Vendor lock-in, accounts, analytics creep; contradicts local-first/no-auth | Native Push API + minimal self-hosted relay |
+| `generateSW` only (no `injectManifest`) | Cannot register custom `push` / `notificationclick` handlers | `strategies: 'injectManifest'` with `src/sw.ts` |
+| Periodic Background Sync as primary scheduler | Chrome-only; minimum 12h interval; not reliable for daily habit times | Relay cron + Web Push |
+| `node-cron` / `setInterval` in browser for reminders | Browser throttles background tabs; no delivery when app closed | Relay-side cron |
+| Dexie Cloud / sync addons | Introduces auth, cloud, conflict resolution — out of scope | Dexie local + relay stores only push metadata |
+| Full backend (Express/Fastify/Django) for relay | Over-engineered for store-subscription + cron-send | Single Cloudflare Worker (~100 LOC) |
+| `web-push` on Cloudflare Workers | `crypto.createECDH` unavailable in Workers runtime | `@pushforge/builder` |
+| `localStorage` for push subscription | 5 MB cap; synchronous; unavailable in SW | Dexie settings table |
+| PWA in v1 (deferred) | Was correct for v1 scope | **Now in scope** — use `vite-plugin-pwa` |
+| Service worker for Dexie offline | IndexedDB is already offline-capable; SW caches JS/CSS shell | Precache app shell; Dexie handles data offline |
+| `workbox-strategies` NetworkFirst for API | No API in local-first app | Precache-only (`precacheAndRoute`) sufficient |
+| Home screen widgets (v2.0) | Requires native or advanced PWA APIs | Deferred per PROJECT.md |
+
+---
 
 ## Stack Patterns by Variant
 
-**If you need the fastest path to GitHub-style heatmaps:**
-- Use `react-activity-calendar` with `colorScheme="dark"` and a two-color `theme` (GitHub green scale)
-- Because it ships dark mode, tooltips, and responsive SVG out of the box
+**If you need Web Push (REM-02):**
+- Use `injectManifest` + custom `src/sw.ts` with `push` and `notificationclick` listeners
+- Because `generateSW` cannot add push handlers without `importScripts` hacks
 
-**If export/import is a first-class feature (it is for v1):**
-- Version every backup file (`{ version: 1, exportedAt, habits, completions }`)
-- Validate with Zod before `db.transaction('rw', ...)` bulk write
-- Because corrupt imports can wipe IndexedDB; transactional writes enable rollback
+**If you need update prompt (PWA-05):**
+- Set `registerType: 'prompt'` and wire `useRegisterSW` from `virtual:pwa-register/react`
+- Add `SKIP_WAITING` message listener in SW (see above)
+- Because `autoUpdate` reloads without user consent during active check-in
 
-**If mobile tap targets are critical:**
-- Use shadcn `Button` with `size="lg"` and min 44×44px touch targets
-- Because PROJECT.md requires single-tap check-in on mobile browsers
+**If you need offline check-in (PWA-03):**
+- Precache all app assets via Workbox; Dexie reads/writes IndexedDB offline in main thread
+- Because data layer does not need SW — only the JS bundle must load offline
 
-**If bundle size becomes a concern later:**
-- Tree-shake `date-fns` with per-function imports (`import { format } from 'date-fns/format'`)
-- Lazy-load habit detail route with `React.lazy`
-- Because the heatmap and Dexie are the largest non-core deps
+**If you need per-habit reminders (REM-01):**
+- Store `{ habitId, enabled, hour, minute }` in Dexie; sync schedule array to relay on every change
+- Relay cron matches current UTC minute against stored schedules per subscription
+- Because no browser API schedules arbitrary future notifications without a server
 
-**If v2 adds cloud sync:**
-- Keep Dexie as local store; add sync layer (Dexie Cloud or custom API) behind a repository interface
-- Because decoupling storage from UI now avoids a v2 rewrite
+**If you need no-account relay:**
+- Generate opaque `deviceId` (crypto.randomUUID) stored in Dexie; relay keys subscriptions by `deviceId`
+- Because PROJECT.md forbids auth; capability token = knowing `deviceId` + subscription endpoint
+
+**If iOS Safari matters:**
+- Web Push requires PWA installed to Home Screen (iOS 16.4+)
+- Show explicit "Add to Home Screen" guidance before requesting `Notification.permission`
+- Because Safari tabs do not support Web Push
+
+**If testing push in Vitest:**
+- Mock `PushManager`, `Notification`, `serviceWorker` in jsdom tests
+- Do not bundle `web-push` or `@pushforge/builder` in app tests — test relay separately
+
+---
 
 ## Version Compatibility
 
 | Package A | Compatible With | Notes |
 |-----------|-----------------|-------|
-| `vite@8.1.5` | `@vitejs/plugin-react@6.0.3` | Official pairing; plugin handles Fast Refresh and JSX |
-| `vite@8.1.5` | `@tailwindcss/vite@4.3.3` | Tailwind v4 Vite plugin replaces `postcss.config.js` |
-| `react@19.2.7` | `react-activity-calendar@3.2.1` | Library tests against React 19 and `@vitejs/plugin-react@6` |
-| `react@19.2.7` | `shadcn/ui` (latest) | shadcn new projects default to React 19 + Tailwind v4 |
-| `dexie@4.4.4` | `dexie-react-hooks@4.4.0` | Match major versions; hooks API stable in v4 |
-| `vitest@4.1.10` | `vite@8.1.5` | Vitest shares Vite config; use `test.environment: 'jsdom'` |
-| `react-router@8.2.0` | `react@19.2.7` | RR v8 supports React 19; use `createBrowserRouter` pattern |
-| `date-fns@4.4.0` | ESM + Vite | v4 is ESM-first; no CommonJS interop issues with Vite |
+| `vite-plugin-pwa@1.3.0` | `vite@8.1.5` | Peer `^8.0.0` confirmed in npm registry |
+| `vite-plugin-pwa@1.3.0` | `workbox-build@7.4.1` | Bundled; precache manifest injection |
+| `workbox-precaching@7.4.1` | `workbox-core@7.4.1` | Match Workbox major.minor |
+| `vite-plugin-pwa@1.3.0` | `react@19.2.7` | `virtual:pwa-register/react` uses React hooks |
+| `@pushforge/builder@2.0.5` | Cloudflare Workers | Web Crypto API; no Node `crypto` |
+| `web-push@3.6.7` | Node.js 18+ | **Not** compatible with Workers |
+| `dexie@4.4.4` | Service worker context | Supported but separate instance; avoid unless necessary |
+| `fake-indexeddb@6.2.5` | `vitest@4.1.10` | Existing; covers Dexie offline tests |
 
-## Architecture Sketch
+---
+
+## Architecture Sketch (v2.0)
 
 ```
-┌─────────────────────────────────────────────────────┐
-│  React 19 + React Router 8 (views)                  │
-│  shadcn/ui + Tailwind v4 (presentation)             │
-│  react-activity-calendar (heatmap)                  │
-├─────────────────────────────────────────────────────┤
-│  Zustand (UI state)  │  date-fns (streak logic)    │
-├─────────────────────────────────────────────────────┤
-│  Repository layer (habits, completions, backup)     │
-│  Zod schemas (import validation)                    │
-├─────────────────────────────────────────────────────┤
-│  Dexie 4 + dexie-react-hooks (IndexedDB)            │
-│  localStorage (theme pref only, optional)           │
-└─────────────────────────────────────────────────────┘
-         ↕ export/import JSON files (user-owned)
+┌──────────────────────────────────────────────────────────────┐
+│  React 19 + React Router 8                                   │
+│  shadcn/ui + Tailwind v4                                     │
+│  virtual:pwa-register/react (update prompt)                  │
+│  date-fns (reminder time math)                               │
+├──────────────────────────────────────────────────────────────┤
+│  Zustand (UI)  │  Reminder settings UI  │  Persist UX       │
+├──────────────────────────────────────────────────────────────┤
+│  Dexie 4 (habits, completions, freezes, reminders, pushSub) │
+│  Zod 4 (export/import + relay payload validation)            │
+├──────────────────────────────────────────────────────────────┤
+│  Service Worker (src/sw.ts via vite-plugin-pwa)             │
+│  workbox-precaching │ push │ notificationclick              │
+└──────────────────────────────────────────────────────────────┘
+         ↕ IndexedDB (offline)          ↕ HTTPS (no auth)
+┌─────────────────────┐    ┌───────────────────────────────────┐
+│  export/import JSON │    │  Push relay (CF Worker + D1/KV)   │
+│  (user-owned)       │    │  @pushforge/builder + Cron Trigger │
+└─────────────────────┘    └───────────────────────────────────┘
 ```
+
+---
+
+## Relay Deploy Options (Minimal)
+
+| Option | Stack | Pros | Cons |
+|--------|-------|------|------|
+| **Recommended** | CF Worker + `@pushforge/builder` + D1/KV + Cron | Free tier, no server, edge latency | CF account required |
+| Node VPS | `web-push` + SQLite + `node-cron` | Familiar Node DX | Hosting cost, TLS setup |
+| Self-hosted Go | `go-notify-server` | Single binary, topic-based notify | Ops burden |
+
+Relay is **not** part of the main `package.json` — deploy as separate `relay/` workspace to keep the SPA bundle zero-backend.
+
+---
 
 ## Sources
 
-- [Vite Getting Started](https://vite.dev/guide/) — Node version requirements, `npm create vite` scaffold (HIGH)
-- [npm registry](https://www.npmjs.com/) — all version numbers verified via `npm view` on 2026-07-19 (HIGH)
-- [Dexie React Tutorial](https://dexie.org/docs/Tutorial/React) — `useLiveQuery`, local-first patterns (HIGH)
-- [shadcn/ui Vite Installation](https://ui.shadcn.com/docs/installation/vite) — Tailwind v4 + React 19 setup (HIGH)
-- [shadcn/ui Tailwind v4](https://ui.shadcn.com/docs/tailwind-v4) — dark mode tokens, `@theme` directive (HIGH)
-- [react-activity-calendar](https://github.com/grubersjoe/react-activity-calendar) — v3 dark mode, `colorScheme`, `theme` props (HIGH)
-- [react-activity-calendar npm](https://www.npmjs.com/package/react-activity-calendar) — 51K weekly downloads, v3.2.1 (HIGH)
-- IndexedDB vs localStorage guidance — async storage, capacity, query support (MEDIUM, cross-checked with Dexie docs)
+- [vite-plugin-pwa npm](https://www.npmjs.com/package/vite-plugin-pwa) — v1.3.0, Vite 8 peer dep (HIGH)
+- [vite-plugin-pwa injectManifest guide](https://vite-pwa-org.netlify.app/guide/inject-manifest.html) — custom SW + push (HIGH)
+- [vite-plugin-pwa React integration](https://github.com/vite-pwa/vite-plugin-pwa/blob/main/docs/frameworks/react.md) — `useRegisterSW` (HIGH)
+- [Workbox precaching](https://developer.chrome.com/docs/workbox/modules/workbox-precaching) — `precacheAndRoute`, `cleanupOutdatedCaches` (HIGH)
+- [@pushforge/builder npm](https://www.npmjs.com/package/@pushforge/builder) — v2.0.5, edge-compatible Web Push (MEDIUM)
+- [web-push npm](https://www.npmjs.com/package/web-push) — v3.6.7, Node relay (HIGH)
+- [MDN Push API](https://developer.mozilla.org/en-US/docs/Web/API/Push_API) — subscription flow (HIGH)
+- [MDN Storage API persist](https://developer.mozilla.org/en-US/docs/Web/API/StorageManager/persist) — durable IndexedDB (HIGH)
+- [Dexie.js service worker support](https://github.com/dfahlander/Dexie.js/issues/789) — separate instances, same DB (MEDIUM)
+- npm registry `npm view` — all versions verified 2026-07-25 (HIGH)
 
 ---
-*Stack research for: local-first habit tracker web application*
-*Researched: 2026-07-19*
+*Stack research for: Habit Tracker v2.0 Reminders & PWA*
+*Researched: 2026-07-25*
+*Baseline stack unchanged from 2026-07-19 research*

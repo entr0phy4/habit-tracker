@@ -1,0 +1,1 @@
+{"content":"Export download: JSON.stringify payload, new Blob with application/json, URL.createObjectURL, temporary anchor with download attr, click(), remove anchor. Revoke URL after short setTimeout(100) for Firefox compatibility.","source":"web","provider":"websearch","confidence":"MEDIUM","fetched_at":"2026-07-19T23:09:23.560Z","ttl":86400000,"kind":"web"}

@@ -1,0 +1,1 @@
+{"content":"Dexie works in service workers as separate instance sharing same IndexedDB. Declare db in SW module or import shared schema. Avoid sync XHR in SW. Prefer push payload or postMessage over heavy SW DB reads for notifications.","source":"web","provider":"websearch","confidence":"HIGH","fetched_at":"2026-07-25T16:56:52.478Z","ttl":86400000,"kind":"web"}
