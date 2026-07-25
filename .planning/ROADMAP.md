@@ -105,12 +105,12 @@ Plans:
   3. Heatmap/history distinguishes freeze from complete and incomplete
   4. Export/import preserves freeze records; streaks recompute correctly after restore
 
-**Plans**: 1/3 plans executed
+**Plans**: 2/3 plans executed
 
 Plans:
 
 - [x] 08-01-PLAN.md — Freeze entity, Dexie v2, repos + backup (wave 1)
-- [ ] 08-02-PLAN.md — Bridge streaks + rate exclusion + frozen heatmap state (wave 2)
+- [x] 08-02-PLAN.md — Bridge streaks + rate exclusion + frozen heatmap state (wave 2)
 - [ ] 08-03-PLAN.md — Today Omitir + History cycle + hook wiring (wave 3)
 
 **UI hint**: yes
@@ -125,6 +125,6 @@ Phases execute in numeric order: 5 → 6 → 7 → 8
 | 5. Visual Identity & Check-in Delight | 3/3 | Complete | 2026-07-23 |
 | 6. Dashboard Aggregate & UAT Residual | 3/3 | Complete | 2026-07-23 |
 | 7. Flexible Weekly Frequency | 3/3 | Complete | 2026-07-24 |
-| 8. Streak Freeze | 1/3 | In Progress|  |
+| 8. Streak Freeze | 2/3 | In Progress|  |
 
 v1.0 phases 1–4 remain archived in `.planning/phases/01-*`…`04-*` and `.planning/milestones/v1.0-MILESTONE.md`.
