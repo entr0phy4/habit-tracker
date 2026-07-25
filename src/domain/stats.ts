@@ -2,13 +2,19 @@ import type { Frequency } from './types';
 import { isDueOnDate } from './schedule';
 import {
   countCompletionsInCalendarWeek,
+  countFreezesInCalendarWeek,
   getLocalDateString,
   isFutureDate,
   iterateCalendarWeeksInRange,
   iterateDaysInRange,
 } from './dates';
 
-export type WeekDayState = 'completed' | 'missed' | 'not-scheduled' | 'future';
+export type WeekDayState =
+  | 'completed'
+  | 'missed'
+  | 'not-scheduled'
+  | 'future'
+  | 'frozen';
 
 export type ScheduledCompletionCounts = {
   completed: number;
@@ -19,6 +25,7 @@ export type OverallRateHabitInput = {
   frequency: Frequency;
   completedDates: Set<string>;
   startDate: string;
+  frozenDates?: Set<string>;
 };
 
 export function countScheduledCompletions(
@@ -27,6 +34,7 @@ export function countScheduledCompletions(
   startDate: string,
   endDate: string,
   today: Date = new Date(),
+  frozenDates: Set<string> = new Set(),
 ): ScheduledCompletionCounts {
   if (frequency.type === 'times_per_week') {
     let scheduled = 0;
@@ -38,10 +46,12 @@ export function countScheduledCompletions(
       endDate,
     )) {
       if (weekStart > todayLocal) continue;
-      scheduled += frequency.times;
+      const freezeCount = countFreezesInCalendarWeek(frozenDates, weekStart);
+      const effectiveTimes = Math.max(0, frequency.times - freezeCount);
+      scheduled += effectiveTimes;
       completed += Math.min(
         countCompletionsInCalendarWeek(completedDates, weekStart),
-        frequency.times,
+        effectiveTimes,
       );
     }
 
@@ -54,6 +64,7 @@ export function countScheduledCompletions(
   for (const date of iterateDaysInRange(startDate, endDate)) {
     if (!isDueOnDate(frequency, date)) continue;
     if (isFutureDate(date, today)) continue;
+    if (frozenDates.has(date)) continue;
     scheduled++;
     if (completedDates.has(date)) completed++;
   }
@@ -67,6 +78,7 @@ export function calculateCompletionRate(
   startDate: string,
   endDate: string,
   today: Date = new Date(),
+  frozenDates: Set<string> = new Set(),
 ): number {
   const { completed, scheduled } = countScheduledCompletions(
     completedDates,
@@ -74,6 +86,7 @@ export function calculateCompletionRate(
     startDate,
     endDate,
     today,
+    frozenDates,
   );
   return scheduled === 0 ? 0 : Math.round((completed / scheduled) * 100);
 }
@@ -93,6 +106,7 @@ export function calculateOverallCompletionRate(
       habit.startDate,
       endDate,
       today,
+      habit.frozenDates ?? new Set(),
     );
     completedSum += completed;
     scheduledSum += scheduled;
@@ -108,7 +122,10 @@ export function getWeekDayState(
   frequency: Frequency,
   completedDates: Set<string>,
   today: string,
+  frozenDates: Set<string> = new Set(),
 ): WeekDayState {
+  if (frozenDates.has(date)) return 'frozen';
+
   if (frequency.type === 'times_per_week') {
     if (completedDates.has(date)) return 'completed';
     if (isFutureDate(date, new Date(`${today}T12:00:00`))) return 'future';

@@ -13,6 +13,7 @@ const STATUS_LABELS: Record<WeekDayState, string> = {
   missed: 'Perdido',
   'not-scheduled': 'No programado',
   future: 'Futuro',
+  frozen: 'Omitido',
 };
 
 export function getHeatmapDateRange(today: string): { start: string; end: string } {
@@ -26,12 +27,19 @@ export function buildHeatmapActivities(
   start: string,
   end: string,
   today: string,
+  frozenDates: Set<string> = new Set(),
 ): { activities: Activity[]; cellStates: Map<string, WeekDayState> } {
   const cellStates = new Map<string, WeekDayState>();
   const activities: Activity[] = [];
 
   for (const date of iterateDaysInRange(start, end)) {
-    const state = getWeekDayState(date, frequency, completedDates, today);
+    const state = getWeekDayState(
+      date,
+      frequency,
+      completedDates,
+      today,
+      frozenDates,
+    );
     cellStates.set(date, state);
     activities.push({
       date,

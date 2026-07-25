@@ -39,6 +39,19 @@ export function countCompletionsInCalendarWeek(
   return count;
 }
 
+/** Count frozen YYYY-MM-DD keys in the Mon–Sun week containing dateInWeek. */
+export function countFreezesInCalendarWeek(
+  frozenDates: Set<string>,
+  dateInWeek: string,
+): number {
+  const weekDates = getCalendarWeekDates(new Date(`${dateInWeek}T12:00:00`));
+  let count = 0;
+  for (const date of weekDates) {
+    if (frozenDates.has(date)) count++;
+  }
+  return count;
+}
+
 /** Yield each Mon–Sun week overlapping [startDate, endDate] (inclusive). */
 export function* iterateCalendarWeeksInRange(
   startDate: string,

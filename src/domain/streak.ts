@@ -1,5 +1,6 @@
 import {
   countCompletionsInCalendarWeek,
+  countFreezesInCalendarWeek,
   getLocalDateString,
   getPreviousDay,
   iterateCalendarWeeksInRange,
@@ -15,8 +16,13 @@ export function isWeekHit(
   completedDates: Set<string>,
   times: number,
   dateInWeek: string,
+  frozenDates: Set<string> = new Set(),
 ): boolean {
-  return countCompletionsInCalendarWeek(completedDates, dateInWeek) >= times;
+  const freezeCount = countFreezesInCalendarWeek(frozenDates, dateInWeek);
+  const effectiveTimes = Math.max(0, times - freezeCount);
+  return (
+    countCompletionsInCalendarWeek(completedDates, dateInWeek) >= effectiveTimes
+  );
 }
 
 function calculateCurrentWeekStreak(
@@ -24,6 +30,7 @@ function calculateCurrentWeekStreak(
   times: number,
   today: string,
   habitStartDate: string,
+  frozenDates: Set<string>,
 ): number {
   const habitWeekStart = getLocalDateString(
     startOfWeek(new Date(`${habitStartDate}T12:00:00`), WEEK_OPTS),
@@ -36,7 +43,7 @@ function calculateCurrentWeekStreak(
   let cursor = currentWeekStart;
 
   while (cursor >= habitWeekStart) {
-    const hit = isWeekHit(completedDates, times, cursor);
+    const hit = isWeekHit(completedDates, times, cursor, frozenDates);
     const isCurrentWeek = cursor === currentWeekStart;
 
     if (isCurrentWeek) {
@@ -71,12 +78,13 @@ function calculateLongestWeekStreak(
   times: number,
   startDate: string,
   endDate: string,
+  frozenDates: Set<string>,
 ): number {
   let longest = 0;
   let current = 0;
 
   for (const { weekStart } of iterateCalendarWeeksInRange(startDate, endDate)) {
-    if (isWeekHit(completedDates, times, weekStart)) {
+    if (isWeekHit(completedDates, times, weekStart, frozenDates)) {
       current++;
       longest = Math.max(longest, current);
     } else {
@@ -92,6 +100,7 @@ export function calculateCurrentStreak(
   frequency: Frequency,
   today: string,
   habitStartDate: string,
+  frozenDates: Set<string> = new Set(),
 ): number {
   if (frequency.type === 'times_per_week') {
     return calculateCurrentWeekStreak(
@@ -99,18 +108,28 @@ export function calculateCurrentStreak(
       frequency.times,
       today,
       habitStartDate,
+      frozenDates,
     );
   }
 
   let streak = 0;
   let cursor = today;
 
-  if (isDueOnDate(frequency, today) && !completedDates.has(today)) {
+  if (
+    isDueOnDate(frequency, today) &&
+    !completedDates.has(today) &&
+    !frozenDates.has(today)
+  ) {
     cursor = getPreviousDay(today);
   }
 
   while (cursor >= habitStartDate) {
     if (!isDueOnDate(frequency, cursor)) {
+      cursor = getPreviousDay(cursor);
+      continue;
+    }
+
+    if (frozenDates.has(cursor)) {
       cursor = getPreviousDay(cursor);
       continue;
     }
@@ -131,6 +150,7 @@ export function calculateLongestStreak(
   frequency: Frequency,
   startDate: string,
   endDate: string,
+  frozenDates: Set<string> = new Set(),
 ): number {
   if (frequency.type === 'times_per_week') {
     return calculateLongestWeekStreak(
@@ -138,6 +158,7 @@ export function calculateLongestStreak(
       frequency.times,
       startDate,
       endDate,
+      frozenDates,
     );
   }
 
@@ -146,6 +167,10 @@ export function calculateLongestStreak(
 
   for (const date of iterateDaysInRange(startDate, endDate)) {
     if (!isDueOnDate(frequency, date)) {
+      continue;
+    }
+
+    if (frozenDates.has(date)) {
       continue;
     }
 
