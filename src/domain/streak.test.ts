@@ -9,6 +9,10 @@ function completed(...dates: string[]): Set<string> {
   return new Set(dates);
 }
 
+function frozen(...dates: string[]): Set<string> {
+  return new Set(dates);
+}
+
 describe('calculateCurrentStreak', () => {
   it('returns 0 for a new habit with no completions (D-13)', () => {
     expect(
@@ -106,6 +110,88 @@ describe('calculateCurrentStreak', () => {
   it('returns 0 for times_per_week until the first hit week', () => {
     expect(
       calculateCurrentStreak(completed(), times3, '2026-07-16', '2026-07-13'),
+    ).toBe(0);
+  });
+
+  it('bridges frozen due day without incrementing (Mon complete + freeze Tue + Wed complete → 2)', () => {
+    const dates = completed('2026-07-20', '2026-07-22');
+    const freezes = frozen('2026-07-21');
+    expect(
+      calculateCurrentStreak(
+        dates,
+        daily,
+        '2026-07-22',
+        '2026-07-20',
+        freezes,
+      ),
+    ).toBe(2);
+  });
+
+  it('returns 0 when only freezes exist on a new habit (freeze never starts streak)', () => {
+    expect(
+      calculateCurrentStreak(
+        completed(),
+        daily,
+        '2026-07-19',
+        '2026-07-19',
+        frozen('2026-07-19'),
+      ),
+    ).toBe(0);
+  });
+
+  it('includes yesterday when today is frozen after yesterday complete (D-13 bridge)', () => {
+    const dates = completed('2026-07-18');
+    const freezes = frozen('2026-07-19');
+    expect(
+      calculateCurrentStreak(
+        dates,
+        daily,
+        '2026-07-19',
+        '2026-07-18',
+        freezes,
+      ),
+    ).toBe(1);
+  });
+
+  it('breaks streak on due miss (neither complete nor frozen)', () => {
+    const dates = completed('2026-07-14', '2026-07-15', '2026-07-17');
+    expect(
+      calculateCurrentStreak(
+        dates,
+        daily,
+        '2026-07-17',
+        '2026-07-14',
+        frozen(),
+      ),
+    ).toBe(1);
+  });
+
+  it('counts times_per_week week as hit with 1 freeze + 2 completions (effectiveTimes 2)', () => {
+    const dates = completed('2026-07-14', '2026-07-15');
+    const freezes = frozen('2026-07-16');
+    expect(
+      calculateCurrentStreak(
+        dates,
+        times3,
+        '2026-07-16',
+        '2026-07-13',
+        freezes,
+      ),
+    ).toBe(1);
+  });
+
+  it('breaks times_per_week streak when past week misses effectiveTimes quota', () => {
+    // Week Jul 6–12: 1 freeze, 1 completion → effectiveTimes 2, only 1 hit → miss
+    const dates = completed('2026-07-06');
+    const freezes = frozen('2026-07-07');
+    expect(
+      calculateCurrentStreak(
+        dates,
+        times3,
+        '2026-07-16',
+        '2026-07-06',
+        freezes,
+      ),
     ).toBe(0);
   });
 });

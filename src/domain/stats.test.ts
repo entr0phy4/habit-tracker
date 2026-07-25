@@ -14,6 +14,10 @@ function completed(...dates: string[]): Set<string> {
   return new Set(dates);
 }
 
+function frozen(...dates: string[]): Set<string> {
+  return new Set(dates);
+}
+
 describe('calculateCompletionRate', () => {
   const fixedToday = new Date(2026, 6, 16);
 
@@ -110,6 +114,32 @@ describe('countScheduledCompletions', () => {
         fixedToday,
       ),
     ).toEqual({ completed: 3, scheduled: 3 });
+  });
+
+  it('excludes frozen due days from scheduled and completed (2 due, 1 complete, 1 frozen → 1/1)', () => {
+    expect(
+      countScheduledCompletions(
+        completed('2026-07-14'),
+        daily,
+        '2026-07-14',
+        '2026-07-15',
+        fixedToday,
+        frozen('2026-07-15'),
+      ),
+    ).toEqual({ completed: 1, scheduled: 1 });
+  });
+
+  it('uses effectiveTimes for times_per_week with freezes (times:3, 1 freeze, 2 completions → 2/2)', () => {
+    expect(
+      countScheduledCompletions(
+        completed('2026-07-14', '2026-07-15'),
+        times3,
+        '2026-07-13',
+        '2026-07-16',
+        fixedToday,
+        frozen('2026-07-16'),
+      ),
+    ).toEqual({ completed: 2, scheduled: 2 });
   });
 });
 
@@ -239,5 +269,29 @@ describe('getWeekDayState', () => {
     expect(
       getWeekDayState('2026-07-20', times3, completed('2026-07-20'), today),
     ).toBe('completed');
+  });
+
+  it("returns frozen for a frozen date", () => {
+    expect(
+      getWeekDayState(
+        '2026-07-20',
+        daily,
+        completed(),
+        today,
+        frozen('2026-07-20'),
+      ),
+    ).toBe('frozen');
+  });
+
+  it('never returns missed for times_per_week empty past days even with freezes elsewhere', () => {
+    expect(
+      getWeekDayState(
+        '2026-07-20',
+        times3,
+        completed(),
+        today,
+        frozen('2026-07-21'),
+      ),
+    ).toBe('not-scheduled');
   });
 });

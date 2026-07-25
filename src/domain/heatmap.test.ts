@@ -15,6 +15,10 @@ function completed(...dates: string[]): Set<string> {
   return new Set(dates);
 }
 
+function frozen(...dates: string[]): Set<string> {
+  return new Set(dates);
+}
+
 function countDaysInRange(start: string, end: string): number {
   let count = 0;
   for (const _date of iterateDaysInRange(start, end)) {
@@ -93,6 +97,22 @@ describe('buildHeatmapActivities', () => {
 
     expect(cellStates.get(tuesday)).toBe('not-scheduled');
   });
+
+  it('marks frozen due days with frozen cell state', () => {
+    const frozenDate = '2026-07-18';
+    const { activities, cellStates } = buildHeatmapActivities(
+      daily,
+      completed(),
+      start,
+      end,
+      fixedToday,
+      frozen(frozenDate),
+    );
+
+    const cell = activities.find((activity) => activity.date === frozenDate);
+    expect(cell).toEqual({ date: frozenDate, count: 0, level: 0 });
+    expect(cellStates.get(frozenDate)).toBe('frozen');
+  });
 });
 
 describe('formatHeatmapTooltip', () => {
@@ -102,5 +122,9 @@ describe('formatHeatmapTooltip', () => {
 
   it('includes Perdido for missed state', () => {
     expect(formatHeatmapTooltip('2026-07-14', 'missed')).toContain('Perdido');
+  });
+
+  it('includes Omitido for frozen state', () => {
+    expect(formatHeatmapTooltip('2026-07-14', 'frozen')).toContain('Omitido');
   });
 });
