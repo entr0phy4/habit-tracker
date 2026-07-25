@@ -40,6 +40,24 @@ vi.mock('@/domain/backupSchema', () => ({
   parseBackupJson: (...args: unknown[]) => parseBackupJsonMock(...args),
 }));
 
+let standaloneMode = false;
+let iosInstallFlow = false;
+let hasDeferredPrompt = false;
+
+const triggerInstallPromptMock = vi.fn();
+
+vi.mock('@/platform/install', () => ({
+  isStandaloneDisplayMode: () => standaloneMode,
+  shouldShowIosInstallFlow: () => iosInstallFlow,
+  shouldShowChromiumInstallFlow: () => !iosInstallFlow,
+  getDeferredPrompt: () => (hasDeferredPrompt ? ({} as Event) : null),
+  subscribeInstallPrompt: (cb: () => void) => {
+    cb();
+    return () => {};
+  },
+  triggerInstallPrompt: (...args: unknown[]) => triggerInstallPromptMock(...args),
+}));
+
 const emptyPayload: BackupPayload = {
   version: 1,
   exportedAt: '2026-07-22T12:00:00.000Z',
@@ -105,6 +123,11 @@ describe('SettingsPage', () => {
     buildBackupFilenameMock.mockReset();
     importBackupMock.mockReset();
     parseBackupJsonMock.mockReset();
+    triggerInstallPromptMock.mockReset();
+
+    standaloneMode = false;
+    iosInstallFlow = false;
+    hasDeferredPrompt = false;
 
     exportBackupMock.mockResolvedValue(emptyPayload);
     buildBackupFilenameMock.mockReturnValue(
@@ -243,5 +266,60 @@ describe('SettingsPage', () => {
 
     expect(importBackupMock).not.toHaveBeenCalled();
     expect(screen.queryByRole('alertdialog')).toBeNull();
+  });
+
+  describe('install section', () => {
+    it('hides install section when standalone', () => {
+      standaloneMode = true;
+      renderPage();
+
+      expect(screen.queryByText('Instalar app')).toBeNull();
+    });
+
+    it('shows install section above backup when not standalone', () => {
+      renderPage();
+
+      const installHeading = screen.getByText('Instalar app');
+      const backupHeading = screen.getByText('Copia de seguridad');
+      expect(
+        installHeading.compareDocumentPosition(backupHeading) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+      expect(
+        screen.getByText(
+          'Instala la app para acceder sin conexión y más rápido.',
+        ),
+      ).toBeTruthy();
+    });
+
+    it('shows Cómo instalar on iOS and opens modal with reminders intro', () => {
+      iosInstallFlow = true;
+      renderPage();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Cómo instalar' }));
+
+      expect(
+        screen.getByText(
+          'Para recibir recordatorios de hábitos, necesitas instalar la app en tu pantalla de inicio.',
+        ),
+      ).toBeTruthy();
+    });
+
+    it('shows Instalar button on Android with deferred prompt', () => {
+      hasDeferredPrompt = true;
+      renderPage();
+
+      expect(screen.getByRole('button', { name: 'Instalar' })).toBeTruthy();
+    });
+
+    it('shows fallback instructions on Android without deferred prompt', () => {
+      hasDeferredPrompt = false;
+      renderPage();
+
+      expect(
+        screen.getByText(/Abre el menú del navegador/),
+      ).toBeTruthy();
+      expect(screen.queryByRole('button', { name: 'Instalar' })).toBeNull();
+    });
   });
 });
