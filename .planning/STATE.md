@@ -1,19 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Motivation Polish & Flexibility
-status: Awaiting next milestone
-stopped_at: Milestone v1.1 archived (override_closeout)
-last_updated: "2026-07-25T16:25:00.000Z"
+milestone: v2.0
+milestone_name: Reminders & PWA
+status: planning
+last_updated: "2026-07-25T16:51:16.720Z"
 last_activity: 2026-07-25
-last_activity_desc: Milestone v1.1 completed and archived
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 12
-  completed_plans: 12
-current_phase: —
-current_phase_name: —
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -29,12 +26,10 @@ See: .planning/milestones/v1.1-ROADMAP.md
 
 ## Current Position
 
-Phase: Milestone v1.1 complete  
-Plan: —  
-Status: Awaiting next milestone  
-Last activity: 2026-07-25 — Milestone v1.1 completed and archived
-
-Progress: [██████████] 100% (v1.1)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-07-25 — Milestone v2.0 started
 
 ## Performance Metrics
 

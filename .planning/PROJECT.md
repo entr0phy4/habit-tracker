@@ -15,16 +15,19 @@ Make it effortless to log habits daily and impossible to ignore your progress �
 
 Shipped through **v1.1** (tag `v1.1.0`). ~6.8k LOC TypeScript/TSX in `src/`; Vitest suite **210** tests green at close. Stack: Vite 8 · React 19 · TypeScript · Dexie 4 · Tailwind 4 · shadcn/ui · react-activity-calendar · Zod 4 · date-fns · Zustand.
 
-Ready for the next milestone via `/gsd-new-milestone` (phase numbering continues from 9).
+**v2.0 in planning** — reminders, Web Push, and PWA/offline durability (phase numbering continues from 9).
 
-## Next Milestone Goals
+## Current Milestone: v2.0 Reminders & PWA
 
-Define with `/gsd-new-milestone`. Likely candidates from deferred scope:
+**Goal:** Help users remember to check in even when the app is closed, and make the app installable, offline-capable, and storage-durable — without accounts or cloud sync.
 
-- Reminders / browser push (REM-01/02) — v2.0 track
-- PWA / `navigator.storage.persist()`
-- Light mode, habit reordering, CSV export
-- Clear remaining human UAT / verification residuals (Phases 1–2, 5–6)
+**Target features:**
+- Per-habit optional daily reminder at a set time (REM-01)
+- Browser push notifications via Web Push + service worker (minimal push relay, no accounts) (REM-02)
+- Installable PWA (manifest, icons, add-to-home-screen)
+- Offline app shell + full offline use (check-in, streaks, backup without network)
+- `navigator.storage.persist()` + eviction-risk UX
+- Update prompt when a new app version is available
 
 ## Requirements
 
@@ -46,17 +49,19 @@ Define with `/gsd-new-milestone`. Likely candidates from deferred scope:
 
 ### Active
 
-(None — define next milestone requirements with `/gsd-new-milestone`)
+(Define v2.0 requirements in `.planning/REQUIREMENTS.md` during milestone planning — REM-01/02, PWA-01..05)
 
 ### Out of Scope
 
 - Social features (sharing, friends, leaderboards) — intentional simplicity; not core to the streak loop
 - Complex analytics (trends, correlations, reports) — focus remains streaks and completion rate
 - Gamification beyond streaks (points, badges, levels) — streak psychology is sufficient
-- Push notifications and reminders — deferred to v2.0 (REM-01/02)
 - User accounts and cloud sync — local-first with export/import remains the data model
 - Native mobile apps — responsive web covers mobile browsers
-- PWA / offline / installable app — deferred; revisit after reminders or durability work
+- Light mode theme — deferred past v2.0
+- CSV export — deferred past v2.0
+- Closing deferred human UAT / verification residuals (Phases 1–2, 5–6) — out of v2.0 scope
+- Home screen widgets — requires native or advanced PWA APIs; deferred past v2.0
 - Soft freeze monthly caps / auto-freeze rules — out of v1.1 success criteria
 - Interval schedules (every N days) — out of v1.1
 
@@ -87,7 +92,7 @@ Archives: `.planning/milestones/v1.1-ROADMAP.md`, `v1.1-REQUIREMENTS.md`, `v1.1-
 
 - **Platform**: Responsive web app (desktop + mobile browser) — no native apps
 - **Data**: Local-first storage with export/import backup — no backend or auth
-- **Scope**: Resist reminders/sync creep until an explicit v2 milestone
+- **Scope**: v2.0 = reminders + PWA only; resist sync/account creep and unrelated polish
 - **Design**: Minimal dark mode aesthetic — visual clarity over decoration; colors must remain accessible on dark surfaces
 - **Streak integrity**: Freeze/skip must be explicit and countable so motivation is not silently diluted
 
@@ -119,4 +124,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-25 after v1.1 milestone*
+*Last updated: 2026-07-25 after v2.0 milestone started*
