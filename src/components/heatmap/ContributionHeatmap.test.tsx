@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Activity } from 'react-activity-calendar';
 import { ContributionHeatmap } from './ContributionHeatmap';
 
-const mockToggle = vi.fn();
+const mockCycle = vi.fn();
 const todayKey = '2026-07-19';
 const monWedFri = { type: 'weekly' as const, days: [1, 3, 5] };
 
@@ -64,13 +64,13 @@ vi.mock('@/domain/dates', async (importOriginal) => {
 
 describe('ContributionHeatmap', () => {
   beforeEach(() => {
-    mockToggle.mockReset();
-    mockToggle.mockResolvedValue(undefined);
+    mockCycle.mockReset();
+    mockCycle.mockResolvedValue(undefined);
     useHeatmapDataMock.mockReturnValue({
       activities,
       cellStates,
       isLoading: false,
-      toggle: mockToggle,
+      cycle: mockCycle,
     });
   });
 
@@ -83,7 +83,7 @@ describe('ContributionHeatmap', () => {
       activities: [],
       cellStates: new Map(),
       isLoading: true,
-      toggle: mockToggle,
+      cycle: mockCycle,
     });
 
     const { container } = render(
@@ -100,7 +100,7 @@ describe('ContributionHeatmap', () => {
     expect(wrapper.className).toContain('overflow-x-auto');
   });
 
-  it('calls toggle when a missed scheduled date cell is clicked', () => {
+  it('calls cycle when a missed scheduled date cell is clicked', () => {
     const { container } = render(
       <ContributionHeatmap habitId="habit-1" frequency={monWedFri} />,
     );
@@ -109,10 +109,49 @@ describe('ContributionHeatmap', () => {
     expect(cell).toBeTruthy();
     fireEvent.click(cell!);
 
-    expect(mockToggle).toHaveBeenCalledWith('2026-07-13');
+    expect(mockCycle).toHaveBeenCalledWith('2026-07-13');
   });
 
-  it('does not call toggle when a future scheduled date cell is clicked', () => {
+  it('calls cycle when a frozen cell is clicked', () => {
+    const frozenStates = new Map(cellStates);
+    frozenStates.set('2026-07-13', 'frozen');
+    useHeatmapDataMock.mockReturnValue({
+      activities,
+      cellStates: frozenStates,
+      isLoading: false,
+      cycle: mockCycle,
+    });
+
+    const { container } = render(
+      <ContributionHeatmap habitId="habit-1" frequency={monWedFri} />,
+    );
+
+    const cell = container.querySelector('[data-date="2026-07-13"]');
+    fireEvent.click(cell!);
+
+    expect(mockCycle).toHaveBeenCalledWith('2026-07-13');
+  });
+
+  it('applies frozen cell styling with ice dashed stroke', () => {
+    const frozenStates = new Map(cellStates);
+    frozenStates.set('2026-07-13', 'frozen');
+    useHeatmapDataMock.mockReturnValue({
+      activities,
+      cellStates: frozenStates,
+      isLoading: false,
+      cycle: mockCycle,
+    });
+
+    const { container } = render(
+      <ContributionHeatmap habitId="habit-1" frequency={monWedFri} />,
+    );
+
+    const cell = container.querySelector('[data-date="2026-07-13"]') as SVGElement;
+    expect(cell?.style.stroke).toBe('#58a6ff');
+    expect(cell?.style.strokeDasharray).toBe('3 2');
+  });
+
+  it('does not call cycle when a future scheduled date cell is clicked', () => {
     const { container } = render(
       <ContributionHeatmap habitId="habit-1" frequency={monWedFri} />,
     );
@@ -121,7 +160,7 @@ describe('ContributionHeatmap', () => {
     expect(cell).toBeTruthy();
     fireEvent.click(cell!);
 
-    expect(mockToggle).not.toHaveBeenCalled();
+    expect(mockCycle).not.toHaveBeenCalled();
   });
 
   it('applies heatmap theme derived from habit color', () => {

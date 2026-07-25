@@ -12,6 +12,7 @@ describe('useTodayHabits', () => {
     await db.open();
     await db.habits.clear();
     await db.completions.clear();
+    await db.freezes.clear();
   });
 
   afterEach(() => {
@@ -115,6 +116,20 @@ describe('useTodayHabits', () => {
       expect(result.current.habits).toHaveLength(1);
       expect(result.current.habits[0]?.habit.id).toBe(habit.id);
       expect(result.current.habits[0]?.weekCompletions).toBe(2);
+    });
+  });
+
+  it('hides habits frozen today even when due', async () => {
+    const habit = await habitRepository.create({
+      name: 'Meditate',
+      frequency: { type: 'daily' },
+    });
+    await db.freezes.put({ habitId: habit.id, date: '2026-07-21' });
+
+    const { result } = renderHook(() => useTodayHabits());
+
+    await waitFor(() => {
+      expect(result.current).toEqual({ status: 'ready', habits: [] });
     });
   });
 

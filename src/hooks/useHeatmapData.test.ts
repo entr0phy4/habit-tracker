@@ -4,6 +4,7 @@ import { iterateDaysInRange } from '@/domain/dates';
 import { getHeatmapDateRange } from '@/domain/heatmap';
 import { completionRepository } from '@/infrastructure/completionRepository';
 import { db } from '@/infrastructure/db';
+import { freezeRepository } from '@/infrastructure/freezeRepository';
 import { habitRepository } from '@/infrastructure/habitRepository';
 import { useHeatmapData } from './useHeatmapData';
 
@@ -25,6 +26,7 @@ describe('useHeatmapData', () => {
     await db.open();
     await db.habits.clear();
     await db.completions.clear();
+    await db.freezes.clear();
   });
 
   afterEach(() => {
@@ -66,6 +68,58 @@ describe('useHeatmapData', () => {
     expect(result.current.activities.at(-1)?.date).toBe(todayKey);
     expect(result.current.cellStates.get('2026-07-18')).toBe('completed');
     expect(result.current.cellStates.get('2026-07-17')).toBe('missed');
+  });
+
+  it('exposes frozen cell state when habit day is frozen', async () => {
+    const habit = await habitRepository.create({
+      name: 'Frozen habit',
+      frequency: { type: 'daily' },
+    });
+    await db.habits.update(habit.id, { createdAt: '2025-01-01T12:00:00.000Z' });
+    await freezeRepository.set(habit.id, '2026-07-18');
+
+    const { result } = renderHook(() =>
+      useHeatmapData(habit.id, habit.frequency, todayKey),
+    );
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.cellStates.get('2026-07-18')).toBe('frozen');
+  });
+
+  it('cycles empty → completed → frozen → empty on a missed day', async () => {
+    const habit = await habitRepository.create({
+      name: 'Cycle habit',
+      frequency: { type: 'daily' },
+    });
+    const date = '2026-07-18';
+
+    const { result } = renderHook(() =>
+      useHeatmapData(habit.id, habit.frequency, todayKey),
+    );
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.cellStates.get(date)).toBe('missed');
+
+    await result.current.cycle(date);
+    await waitFor(() => {
+      expect(result.current.cellStates.get(date)).toBe('completed');
+    });
+
+    await result.current.cycle(date);
+    await waitFor(() => {
+      expect(result.current.cellStates.get(date)).toBe('frozen');
+    });
+
+    await result.current.cycle(date);
+    await waitFor(() => {
+      expect(result.current.cellStates.get(date)).toBe('missed');
+    });
   });
 
   it('delegates toggle to completionRepository for habit and date', async () => {

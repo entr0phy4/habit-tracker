@@ -2,6 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { completionRepository } from '@/infrastructure/completionRepository';
 import { db } from '@/infrastructure/db';
+import { freezeRepository } from '@/infrastructure/freezeRepository';
 import { habitRepository } from '@/infrastructure/habitRepository';
 import { useHabitStats } from './useHabitStats';
 
@@ -15,6 +16,7 @@ describe('useHabitStats', () => {
     await db.open();
     await db.habits.clear();
     await db.completions.clear();
+    await db.freezes.clear();
   });
 
   afterEach(() => {
@@ -44,6 +46,29 @@ describe('useHabitStats', () => {
 
     expect(result.current.current).toBe(3);
     expect(result.current.longest).toBe(3);
+    expect(result.current.rate).toBe(100);
+  });
+
+  it('excludes frozen days from completion rate', async () => {
+    const habit = await habitRepository.create({
+      name: 'Meditate',
+      frequency: { type: 'daily' },
+    });
+    await db.habits.update(habit.id, {
+      createdAt: '2026-07-19T12:00:00.000Z',
+    });
+    const seeded = { ...habit, createdAt: '2026-07-19T12:00:00.000Z' };
+
+    await completionRepository.toggle(seeded.id, '2026-07-19');
+    await completionRepository.toggle(seeded.id, '2026-07-20');
+    await freezeRepository.set(seeded.id, '2026-07-21');
+
+    const { result } = renderHook(() => useHabitStats(seeded, todayKey));
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
     expect(result.current.rate).toBe(100);
   });
 

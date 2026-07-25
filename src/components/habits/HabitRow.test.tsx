@@ -27,13 +27,18 @@ const habit: Habit = {
   createdAt: '2026-07-19T12:00:00.000Z',
 };
 
-function renderRow(onToggle = vi.fn()) {
+function renderRow(onToggle = vi.fn(), onSkip = vi.fn()) {
   render(
     <MemoryRouter>
-      <HabitRow habit={habit} isCompleted={false} onToggle={onToggle} />
+      <HabitRow
+        habit={habit}
+        isCompleted={false}
+        onToggle={onToggle}
+        onSkip={onSkip}
+      />
     </MemoryRouter>,
   );
-  return onToggle;
+  return { onToggle, onSkip };
 }
 
 describe('HabitRow', () => {
@@ -49,13 +54,22 @@ describe('HabitRow', () => {
   });
 
   it('calls onToggle when row body is clicked on desktop', () => {
-    const onToggle = renderRow();
+    const { onToggle } = renderRow();
     fireEvent.click(screen.getByTestId('habit-row-toggle'));
     expect(onToggle).toHaveBeenCalledTimes(1);
   });
 
+  it('renders Omitir skip button and invokes onSkip without toggling row', () => {
+    const { onToggle, onSkip } = renderRow();
+    const skipButton = screen.getByRole('button', { name: 'Omitir' });
+    expect(skipButton).toBeTruthy();
+    fireEvent.click(skipButton);
+    expect(onSkip).toHaveBeenCalledTimes(1);
+    expect(onToggle).not.toHaveBeenCalled();
+  });
+
   it('does not toggle when history button is clicked', () => {
-    const onToggle = renderRow();
+    const { onToggle } = renderRow();
     fireEvent.click(
       screen.getByRole('button', { name: 'Edit history for Morning run' }),
     );
